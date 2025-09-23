@@ -1,5 +1,6 @@
 import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
+import { Cube } from './Cube.tsx'
 import { GridPoint } from './GridPoint.tsx'
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
             <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
               <defs>
                 <radialGradient id='unselectedFill'>
-                  <stop offset='100%' stopColor='gray' />
+                  <stop offset='100%' stopColor='black' />
                 </radialGradient>
                 <radialGradient id='selectedFill'>
                   <stop offset='100%' stopColor='red' />
