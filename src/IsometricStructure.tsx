@@ -1,12 +1,26 @@
+import { useShallow } from 'zustand/react/shallow'
 import { Cube } from './Cube.tsx'
+import { useStore } from './Store.tsx'
 
-const cubeCoordinates = [
+const originalCubeCoordinates = [
   { x: 0, y: 0, z: 0 },
   { x: 0, y: 1, z: 0 },
   { x: 1, y: 0, z: 0 },
   { x: 1, y: 0, z: 1 },
   { x: 1, y: 0, z: 2 }
 ]
+
+function rotateXClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
+  return coordinates.map(({ x, y, z }) => ({ x: x, y: -z, z: y }))
+}
+
+function rotateYClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
+  return coordinates.map(({ x, y, z }) => ({ x: -z, y: y, z: x }))
+}
+
+function rotateZClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
+  return coordinates.map(({ x, y, z }) => ({ x: -y, y: x, z: z }))
+}
 
 function getAdjacentAxis(x: number, y: number, z: number): 'x'|'y'|'z'|'-x'|'-y'|'-z'|null {
   if (y === 0 && z === 0) {
@@ -36,6 +50,27 @@ function getObscureDirection(x: number, y: number, z: number): 0|1|2|3|4|5|null 
 }
 
 export function IsometricStructure() {
+  const [
+    XRotationCount,
+    YRotationCount,
+    ZRotationCount
+  ] = useStore(useShallow((state) => [
+    state.XRotationCount,
+    state.YRotationCount,
+    state.ZRotationCount
+  ]))
+
+  let cubeCoordinates = originalCubeCoordinates
+  for (let rotationsDone = 0; rotationsDone < XRotationCount; rotationsDone++) {
+    cubeCoordinates = rotateXClockwise(cubeCoordinates)
+  }
+  for (let rotationsDone = 0; rotationsDone < YRotationCount; rotationsDone++) {
+    cubeCoordinates = rotateYClockwise(cubeCoordinates)
+  }
+  for (let rotationsDone = 0; rotationsDone < ZRotationCount; rotationsDone++) {
+    cubeCoordinates = rotateZClockwise(cubeCoordinates)
+  }
+
   const cubes = []
 
   for (const { x: x, y: y, z: z } of cubeCoordinates) {
@@ -70,9 +105,10 @@ export function IsometricStructure() {
 
     if (skipRendering) continue
 
-    const uncullLEdges: Array<'x'|'z'> = []
-    if (cullFaces.includes('x') && cullFaces.includes('y')) uncullLEdges.push('x')
-    if (cullFaces.includes('z') && cullFaces.includes('y')) uncullLEdges.push('z')
+    const uncullLEdges: Array<'x'|'y'|'z'> = []
+    if (cullFaces.includes('z') && cullFaces.includes('y')) uncullLEdges.push('x')
+    if (cullFaces.includes('x') && cullFaces.includes('z')) uncullLEdges.push('y')
+    if (cullFaces.includes('x') && cullFaces.includes('y')) uncullLEdges.push('z')
 
     cubes.push(<Cube x={x} y={y} z={z} cullFaces={cullFaces} uncullLEdges={uncullLEdges} cullObscured={cullObscured} />)
   }

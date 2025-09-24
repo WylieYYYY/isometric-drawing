@@ -5,7 +5,7 @@ type CubeProps = {
   y: number
   z: number
   cullFaces: Array<'x'|'y'|'z'|'-x'|'-y'|'-z'>
-  uncullLEdges: Array<'x'|'z'>
+  uncullLEdges: Array<'x'|'y'|'z'>
   cullObscured: Array<0|1|2|3|4|5>
 }
 
@@ -49,8 +49,8 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
       }
     }
 
-    function shouldUncullLEdge(axis: 'x'|'z'): boolean {
-      return (axis === 'x' && direction === 1) || (axis === 'z' && direction === 3)
+    function shouldUncullLEdge(axis: 'x'|'y'|'z'): boolean {
+      return (axis === 'z' && direction === 1) || (axis === 'x' && direction === 3) || (axis === 'y' && direction === 5)
     }
 
     if (shouldCull(cullFaces.some(shouldCullFace), cullObscured.some(shouldCullObscured), uncullLEdges.some(shouldUncullLEdge))) continue
