@@ -1,0 +1,34 @@
+image: node:24-alpine
+
+stages:
+    - lint
+    - build
+    - deploy
+
+lint:
+    stage: lint
+    script:
+        - npm install
+        - npm run lint
+
+build:
+    stage: build
+    script:
+        - npm install
+        - npm run build
+    artifacts:
+        paths:
+            - dist
+
+pages:
+    stage: deploy
+    script:
+        - 'true'
+    dependencies:
+        - build
+    artifacts:
+        paths:
+            - dist
+    publish: dist
+    only:
+        - master
