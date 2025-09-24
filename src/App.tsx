@@ -1,7 +1,7 @@
 import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
-import { Cube } from './Cube.tsx'
 import { GridPoint } from './GridPoint.tsx'
+import { IsometricStructure } from './IsometricStructure.tsx'
 
 function App() {
   const generator = GridGenerator.hexagon(20)
@@ -30,6 +30,7 @@ function App() {
                   />
                 ))
               }
+              <IsometricStructure />
             </Layout>
           </HexGrid>
         </TransformComponent>

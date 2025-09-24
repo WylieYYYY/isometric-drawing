@@ -38,7 +38,7 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
   const prongs = []
   for (let direction = 1; direction < 6; direction += 2) {
     function shouldCullFace(axis: 'x'|'y'|'z'|'-x'|'-y'|'-z'): boolean {
-      return !axis.startsWith('-') && cullFacePredicateMap[axis](direction)
+      return !axis.startsWith('-') && cullFacePredicateMap[axis as 'x'|'y'|'z'](direction)
     }
 
     function shouldCullObscured(obscuredDirection: 0|1|2|3|4|5): boolean {
@@ -68,7 +68,7 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
     const endDirection = (startDirection + 1) % 6
 
     function shouldCullFace(axis: 'x'|'y'|'z'|'-x'|'-y'|'-z'): boolean {
-      const cullingPredicate = cullFacePredicateMap[axis.slice(-1)]
+      const cullingPredicate = cullFacePredicateMap[axis.slice(-1) as 'x'|'y'|'z']
       if (axis.startsWith('-')) {
         return !cullingPredicate(startDirection) && !cullingPredicate(endDirection)
       } else {
