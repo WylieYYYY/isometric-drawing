@@ -8,11 +8,6 @@ export type PositiveAxis = 'x' | 'y' | 'z'
 export type Axis = PositiveAxis | '-x' | '-y' | '-z'
 export type Coordinates = { [Property in PositiveAxis]: number }
 
-export function axisIntoParts(axis: Axis): { isPositive: boolean, absAxis: PositiveAxis } {
-  if (axis.length === 1) return { isPositive: true, absAxis: axis as PositiveAxis }
-  return { isPositive: false, absAxis: axis.charAt(1) as PositiveAxis }
-}
-
 function rotateXClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
   return coordinates.map(({ x, y, z }) => ({ x: x, y: -z, z: y }))
 }

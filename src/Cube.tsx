@@ -1,6 +1,5 @@
 import type { Axis, Direction, PositiveAxis } from './IsometricStructure.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
-import { axisIntoParts } from './IsometricStructure.tsx'
 
 type CubeProps = {
   x: number
@@ -20,6 +19,11 @@ const cullFacePredicateMap = {
 const commonPathProps = {
   stroke: 'black',
   strokeWidth: 0.05
+}
+
+function axisIntoParts(axis: Axis): { isPositive: boolean, absAxis: PositiveAxis } {
+  if (axis.length === 1) return { isPositive: true, absAxis: axis as PositiveAxis }
+  return { isPositive: false, absAxis: axis.charAt(1) as PositiveAxis }
 }
 
 function shouldCull(

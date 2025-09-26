@@ -1,38 +1,18 @@
-import type { CSSProperties, MouseEvent } from 'react'
-import { useState } from 'react'
-import { Hex, Hexagon } from 'react-hexgrid'
-
-type HandlerProps = {
-  data?: { setSelectedFill: () => void }
-  state: { hex: Hex }
-  props: unknown
-}
+import { Hex } from 'react-hexgrid'
 
 type GridPointProps = {
   hex: Hex
-  unselectedFill: string
-  selectedFill: string
+  spacing: number
+  radius: number
 }
 
-function handleClick(
-  _event: MouseEvent<SVGGElement, globalThis.MouseEvent>,
-  props: HandlerProps
-) {
-  props.data!.setSelectedFill()
+function hexToPixel(hex: Hex, spacing: number): { x: number, y: number } {
+    const x = hex.q * (3 / 2) * 0.1
+    const y = (hex.r - hex.s) * (Math.sqrt(3) / 2) * 0.1
+    return { x: x * spacing, y: y * spacing }
 }
 
-export function GridPoint({ hex, unselectedFill, selectedFill }: GridPointProps) {
-  const [fill, setFill] = useState(unselectedFill)
-
-  return (
-    <Hexagon
-      q={hex.q}
-      r={hex.r}
-      s={hex.s}
-      data={{ setSelectedFill: () => setFill(selectedFill) }}
-      fill={fill}
-      onClick={handleClick}
-      style={{ pointerEvents: 'bounding-box' as CSSProperties['pointerEvents'] }}
-    />
-  )
+export function GridPoint({ hex, spacing, radius }: GridPointProps) {
+  const centerPixel = hexToPixel(hex, spacing)
+  return <circle cx={centerPixel.x} cy={centerPixel.y} r={radius} />
 }

@@ -31,21 +31,13 @@ function App() {
         <TransformComponent wrapperStyle={{ width: '100%' }}>
           <HexGrid style={{ width: 1000, height: 1000 }}>
             <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
-              <defs>
-                <radialGradient id='unselectedFill'>
-                  <stop offset='100%' stopColor='black' />
-                </radialGradient>
-                <radialGradient id='selectedFill'>
-                  <stop offset='100%' stopColor='red' />
-                </radialGradient>
-              </defs>
               {
                 generator.map((hex, key) => (
                   <GridPoint
                     key={key}
                     hex={hex}
-                    unselectedFill='unselectedFill'
-                    selectedFill='selectedFill'
+                    spacing={4}
+                    radius={0.05}
                   />
                 ))
               }
