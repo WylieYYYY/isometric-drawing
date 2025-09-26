@@ -1,12 +1,14 @@
+import type { Axis, Direction, PositiveAxis } from './IsometricStructure.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
+import { axisIntoParts } from './IsometricStructure.tsx'
 
 type CubeProps = {
   x: number
   y: number
   z: number
-  cullFaces: Array<'x'|'y'|'z'|'-x'|'-y'|'-z'>
-  uncullLEdges: Array<'x'|'y'|'z'>
-  cullObscured: Array<0|1|2|3|4|5>
+  cullFaces: Array<Axis>
+  uncullLEdges: Array<PositiveAxis>
+  cullObscured: Array<Direction>
 }
 
 const cullFacePredicateMap = {
@@ -37,11 +39,12 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
 
   const prongs = []
   for (let direction = 1; direction < 6; direction += 2) {
-    function shouldCullFace(axis: 'x'|'y'|'z'|'-x'|'-y'|'-z'): boolean {
-      return !axis.startsWith('-') && cullFacePredicateMap[axis as 'x'|'y'|'z'](direction)
+    function shouldCullFace(axis: Axis): boolean {
+      const { isPositive, absAxis } = axisIntoParts(axis)
+      return isPositive && cullFacePredicateMap[absAxis](direction)
     }
 
-    function shouldCullObscured(obscuredDirection: 0|1|2|3|4|5): boolean {
+    function shouldCullObscured(obscuredDirection: Direction): boolean {
       if (direction % 2 === 0) {
         return (obscuredDirection + 1) % 6 === direction || (obscuredDirection + 5) % 6 === direction
       } else {
@@ -49,7 +52,7 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
       }
     }
 
-    function shouldUncullLEdge(axis: 'x'|'y'|'z'): boolean {
+    function shouldUncullLEdge(axis: PositiveAxis): boolean {
       return (axis === 'z' && direction === 1) || (axis === 'x' && direction === 3) || (axis === 'y' && direction === 5)
     }
 
@@ -67,16 +70,18 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
   for (let startDirection = 0; startDirection < 6; startDirection++) {
     const endDirection = (startDirection + 1) % 6
 
-    function shouldCullFace(axis: 'x'|'y'|'z'|'-x'|'-y'|'-z'): boolean {
-      const cullingPredicate = cullFacePredicateMap[axis.slice(-1) as 'x'|'y'|'z']
-      if (axis.startsWith('-')) {
-        return !cullingPredicate(startDirection) && !cullingPredicate(endDirection)
-      } else {
+    function shouldCullFace(axis: Axis): boolean {
+      const { isPositive, absAxis } = axisIntoParts(axis)
+      const cullingPredicate = cullFacePredicateMap[absAxis]
+
+      if (isPositive) {
         return cullingPredicate(startDirection) && cullingPredicate(endDirection)
+      } else {
+        return !cullingPredicate(startDirection) && !cullingPredicate(endDirection)
       }
     }
 
-    function shouldCullObscured(obscuredDirection: 0|1|2|3|4|5): boolean {
+    function shouldCullObscured(obscuredDirection: Direction): boolean {
       return startDirection === obscuredDirection || endDirection === obscuredDirection
     }
 

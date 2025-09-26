@@ -1,21 +1,16 @@
+import type { CuboidValue } from './CuboidStructureInputs.tsx'
+import type { Coordinates } from './IsometricStructure.tsx'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
-type CuboidValue = {
-  x: string
-  y: string
-  z: string
-  dx: string
-  dy: string
-  dz: string
-}
+type CuboidNumberValue = { [Property in keyof CuboidValue]: number }
 
 type Store = {
   cuboidValues: Array<CuboidValue>
   newCuboidValue: () => void
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => void
   deleteCuboidValue: (index: number) => void
-  coordinatesFromCuboidValues: () => Array<{ x: number, y: number, z: number }>
+  coordinatesFromCuboidValues: () => Array<Coordinates>
 
   XRotationCount: number
   rotateXClockwise: () => void
@@ -62,7 +57,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
       for (const [key, value] of Object.entries(cuboidValue)) parsedCuboidValue[key] = parseInt(value)
       if (Object.values(parsedCuboidValue).some(isNaN)) continue
 
-      const { x, y, z, dx, dy, dz } = parsedCuboidValue as { x: number, y: number, z: number, dx: number, dy: number, dz: number }
+      const { x, y, z, dx, dy, dz } = parsedCuboidValue as CuboidNumberValue
 
       for (let currentDx = 0; currentDx !== dx; currentDx += Math.sign(dx)) {
         for (let currentDy = 0; currentDy !== dy; currentDy += Math.sign(dy)) {

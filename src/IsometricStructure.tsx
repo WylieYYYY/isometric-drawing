@@ -3,19 +3,29 @@ import { useShallow } from 'zustand/react/shallow'
 import { Cube } from './Cube.tsx'
 import { useStore } from './Store.tsx'
 
-function rotateXClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
+export type Direction = 0 | 1 | 2 | 3 | 4 | 5
+export type PositiveAxis = 'x' | 'y' | 'z'
+export type Axis = PositiveAxis | '-x' | '-y' | '-z'
+export type Coordinates = { [Property in PositiveAxis]: number }
+
+export function axisIntoParts(axis: Axis): { isPositive: boolean, absAxis: PositiveAxis } {
+  if (axis.length === 1) return { isPositive: true, absAxis: axis as PositiveAxis }
+  return { isPositive: false, absAxis: axis.charAt(1) as PositiveAxis }
+}
+
+function rotateXClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
   return coordinates.map(({ x, y, z }) => ({ x: x, y: -z, z: y }))
 }
 
-function rotateYClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
+function rotateYClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
   return coordinates.map(({ x, y, z }) => ({ x: -z, y: y, z: x }))
 }
 
-function rotateZClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
+function rotateZClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
   return coordinates.map(({ x, y, z }) => ({ x: -y, y: x, z: z }))
 }
 
-function getAdjacentAxis(x: number, y: number, z: number): 'x'|'y'|'z'|'-x'|'-y'|'-z'|null {
+function getAdjacentAxis(x: number, y: number, z: number): Axis|null {
   if (y === 0 && z === 0) {
     if (x === 1) return 'x'
     if (x === -1) return '-x'
@@ -31,7 +41,7 @@ function getAdjacentAxis(x: number, y: number, z: number): 'x'|'y'|'z'|'-x'|'-y'
   return null
 }
 
-function getObscureDirection(x: number, y: number, z: number): 0|1|2|3|4|5|null {
+function getObscureDirection(x: number, y: number, z: number): Direction|null {
   if ([x, y, z].some((value) => value !== 0 && value !== 1)) return null
 
   const scratchDirection = x * 4 + y * 2 + z
@@ -70,10 +80,10 @@ export function IsometricStructure() {
 
   const cubes = []
 
-  for (const { x: x, y: y, z: z } of cubeCoordinates) {
+  for (const { x, y, z } of cubeCoordinates) {
     let skipRendering = false
-    const cullFaces: Array<'x'|'y'|'z'|'-x'|'-y'|'-z'> = []
-    const cullObscured: Array<0|1|2|3|4|5> = []
+    const cullFaces: Array<Axis> = []
+    const cullObscured: Array<Direction> = []
 
     for (const { x: otherX, y: otherY, z: otherZ } of cubeCoordinates) {
       if (x === otherX && y === otherY && z === otherZ) continue
@@ -102,7 +112,7 @@ export function IsometricStructure() {
 
     if (skipRendering) continue
 
-    const uncullLEdges: Array<'x'|'y'|'z'> = []
+    const uncullLEdges: Array<PositiveAxis> = []
     if (cullFaces.includes('z') && cullFaces.includes('y')) uncullLEdges.push('x')
     if (cullFaces.includes('x') && cullFaces.includes('z')) uncullLEdges.push('y')
     if (cullFaces.includes('x') && cullFaces.includes('y')) uncullLEdges.push('z')

@@ -1,5 +1,9 @@
+import type { PositiveAxis } from './IsometricStructure.tsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore } from './Store.tsx'
+
+type CuboidValueComponent = PositiveAxis | 'dx' | 'dy' | 'dz'
+export type CuboidValue = { [Property in CuboidValueComponent]: string }
 
 export function CuboidStructureInputs() {
   const [
@@ -16,7 +20,7 @@ export function CuboidStructureInputs() {
 
   const inputs = []
   for (const [index, cuboidValue] of cuboidValues.entries()) {
-    const cuboidValueComponents: Array<'x'|'y'|'z'|'dx'|'dy'|'dz'> = ['x', 'y', 'z', 'dx', 'dy', 'dz']
+    const cuboidValueComponents: Array<CuboidValueComponent> = ['x', 'y', 'z', 'dx', 'dy', 'dz']
     const subinputs = cuboidValueComponents.map((value) =>
       <>
         <label htmlFor={value}>{value}:</label>
