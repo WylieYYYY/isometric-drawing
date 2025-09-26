@@ -1,14 +1,7 @@
+import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { Cube } from './Cube.tsx'
 import { useStore } from './Store.tsx'
-
-const originalCubeCoordinates = [
-  { x: 0, y: 0, z: 0 },
-  { x: 0, y: 1, z: 0 },
-  { x: 1, y: 0, z: 0 },
-  { x: 1, y: 0, z: 1 },
-  { x: 1, y: 0, z: 2 }
-]
 
 function rotateXClockwise(coordinates: Array<{ x: number, y: number, z: number }>): Array<{ x: number, y: number, z: number }> {
   return coordinates.map(({ x, y, z }) => ({ x: x, y: -z, z: y }))
@@ -51,16 +44,20 @@ function getObscureDirection(x: number, y: number, z: number): 0|1|2|3|4|5|null 
 
 export function IsometricStructure() {
   const [
+    cuboidValues,
+    coordinatesFromCuboidValues,
     XRotationCount,
     YRotationCount,
     ZRotationCount
   ] = useStore(useShallow((state) => [
+    state.cuboidValues,
+    state.coordinatesFromCuboidValues,
     state.XRotationCount,
     state.YRotationCount,
     state.ZRotationCount
   ]))
 
-  let cubeCoordinates = originalCubeCoordinates
+  let cubeCoordinates = useMemo(coordinatesFromCuboidValues, [cuboidValues, coordinatesFromCuboidValues])
   for (let rotationsDone = 0; rotationsDone < XRotationCount; rotationsDone++) {
     cubeCoordinates = rotateXClockwise(cubeCoordinates)
   }

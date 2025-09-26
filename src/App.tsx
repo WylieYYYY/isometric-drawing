@@ -2,6 +2,7 @@ import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
 import { GridPoint } from './GridPoint.tsx'
+import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { IsometricStructure } from './IsometricStructure.tsx'
 import { useStore } from './Store.tsx'
 
@@ -53,6 +54,9 @@ function App() {
           </HexGrid>
         </TransformComponent>
       </TransformWrapper>
+      <div style={{ position: 'fixed', left: '.5em', top: '2em' }}>
+        <CuboidStructureInputs />
+      </div>
       <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
         <button onClick={rotateXClockwise}>Rotate about positive x (→x)</button>
         <button onClick={rotateXAnticlockwise}>Rotate about negative x (←x)</button>
