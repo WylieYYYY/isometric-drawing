@@ -1,5 +1,6 @@
 import type { CuboidValue } from './CuboidStructureInputs.tsx'
 import type { Coordinates } from './IsometricStructure.tsx'
+import { Quaternion } from 'quaternion'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
@@ -12,17 +13,28 @@ type Store = {
   deleteCuboidValue: (index: number) => void
   coordinatesFromCuboidValues: () => Array<Coordinates>
 
-  XRotationCount: number
+  rotation: Quaternion
+
   rotateXClockwise: () => void
   rotateXAnticlockwise: () => void
 
-  YRotationCount: number
   rotateYClockwise: () => void
   rotateYAnticlockwise: () => void
 
-  ZRotationCount: number
   rotateZClockwise: () => void
   rotateZAnticlockwise: () => void
+}
+
+function calibrateRotation(rotation: Quaternion): Quaternion {
+  const [phiRotationAngle, thetaRotationAngle, psiRotationAngle] = rotation.toEuler()
+  const ZRotationCount = Math.round(phiRotationAngle / (Math.PI / 2))
+  const XRotationCount = Math.round(thetaRotationAngle / (Math.PI / 2))
+  const YRotationCount = Math.round(psiRotationAngle / (Math.PI / 2))
+  return Quaternion.fromEuler(
+    ZRotationCount * (Math.PI / 2),
+    XRotationCount * (Math.PI / 2),
+    YRotationCount * (Math.PI / 2)
+  )
 }
 
 export const useStore = create<Store>()(immer((set, get) => ({
@@ -71,45 +83,47 @@ export const useStore = create<Store>()(immer((set, get) => ({
     return coordinates
   },
 
-  XRotationCount: 0,
+  rotation: new Quaternion(),
 
   rotateXClockwise: () => {
     set((state) => {
-      state.XRotationCount = (state.XRotationCount + 1) % 4
+      state.rotation = Quaternion.fromAxisAngle([1, 0, 0], Math.PI / 2).mul(state.rotation)
+      state.rotation = calibrateRotation(state.rotation)
     })
   },
 
   rotateXAnticlockwise: () => {
     set((state) => {
-      state.XRotationCount = (state.XRotationCount + 3) % 4
+      state.rotation = Quaternion.fromAxisAngle([1, 0, 0], -Math.PI / 2).mul(state.rotation)
+      state.rotation = calibrateRotation(state.rotation)
     })
   },
 
-  YRotationCount: 0,
-
   rotateYClockwise: () => {
     set((state) => {
-      state.YRotationCount = (state.YRotationCount + 1) % 4
+      state.rotation = Quaternion.fromAxisAngle([0, 1, 0], Math.PI / 2).mul(state.rotation)
+      state.rotation = calibrateRotation(state.rotation)
     })
   },
 
   rotateYAnticlockwise: () => {
     set((state) => {
-      state.YRotationCount = (state.YRotationCount + 3) % 4
+      state.rotation = Quaternion.fromAxisAngle([0, 1, 0], -Math.PI / 2).mul(state.rotation)
+      state.rotation = calibrateRotation(state.rotation)
     })
   },
 
-  ZRotationCount: 0,
-
   rotateZClockwise: () => {
     set((state) => {
-      state.ZRotationCount = (state.ZRotationCount + 1) % 4
+      state.rotation = Quaternion.fromAxisAngle([0, 0, 1], Math.PI / 2).mul(state.rotation)
+      state.rotation = calibrateRotation(state.rotation)
     })
   },
 
   rotateZAnticlockwise: () => {
     set((state) => {
-      state.ZRotationCount = (state.ZRotationCount + 3) % 4
+      state.rotation = Quaternion.fromAxisAngle([0, 0, 1], -Math.PI / 2).mul(state.rotation)
+      state.rotation = calibrateRotation(state.rotation)
     })
   }
 })))

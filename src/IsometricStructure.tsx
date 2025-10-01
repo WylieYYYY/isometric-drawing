@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { Cube } from './Cube.tsx'
 import { useStore } from './Store.tsx'
+import { rotate } from './util.ts'
 
 export type Direction = 0 | 1 | 2 | 3 | 4 | 5
 export type PositiveAxis = 'x' | 'y' | 'z'
@@ -10,18 +11,6 @@ export type Coordinates = { [Property in PositiveAxis]: number }
 
 type IsometricStructureProps = {
   spacing: number
-}
-
-function rotateXClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
-  return coordinates.map(({ x, y, z }) => ({ x: x, y: -z, z: y }))
-}
-
-function rotateYClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
-  return coordinates.map(({ x, y, z }) => ({ x: -z, y: y, z: x }))
-}
-
-function rotateZClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
-  return coordinates.map(({ x, y, z }) => ({ x: -y, y: x, z: z }))
 }
 
 function getAdjacentAxis(x: number, y: number, z: number): Axis|null {
@@ -55,27 +44,15 @@ export function IsometricStructure({ spacing }: IsometricStructureProps) {
   const [
     cuboidValues,
     coordinatesFromCuboidValues,
-    XRotationCount,
-    YRotationCount,
-    ZRotationCount
+    rotation
   ] = useStore(useShallow((state) => [
     state.cuboidValues,
     state.coordinatesFromCuboidValues,
-    state.XRotationCount,
-    state.YRotationCount,
-    state.ZRotationCount
+    state.rotation
   ]))
 
   let cubeCoordinates = useMemo(coordinatesFromCuboidValues, [cuboidValues, coordinatesFromCuboidValues])
-  for (let rotationsDone = 0; rotationsDone < XRotationCount; rotationsDone++) {
-    cubeCoordinates = rotateXClockwise(cubeCoordinates)
-  }
-  for (let rotationsDone = 0; rotationsDone < YRotationCount; rotationsDone++) {
-    cubeCoordinates = rotateYClockwise(cubeCoordinates)
-  }
-  for (let rotationsDone = 0; rotationsDone < ZRotationCount; rotationsDone++) {
-    cubeCoordinates = rotateZClockwise(cubeCoordinates)
-  }
+  cubeCoordinates = rotate(cubeCoordinates, rotation)
 
   const cubes = []
 

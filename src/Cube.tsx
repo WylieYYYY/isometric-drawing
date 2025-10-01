@@ -2,7 +2,7 @@ import type { Axis, Coordinates, Direction, PositiveAxis } from './IsometricStru
 import { Hex, HexUtils, Path } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore } from './Store.tsx'
-import { hexToPixel } from './util.ts'
+import { hexToPixel, rotate } from './util.ts'
 
 type CubeProps = {
   spacing: number
@@ -35,29 +35,13 @@ function shouldCull(
   return (isCullableFace && !isUncullableLEdge) || isCullableObscured
 }
 
-function rotateXAnticlockwise({ x, y, z }: Coordinates): Coordinates {
-  return { x: x, y: z, z: -y }
-}
-
-function rotateYAnticlockwise({ x, y, z }: Coordinates): Coordinates {
-  return { x: z, y: y, z: -x }
-}
-
-function rotateZAnticlockwise({ x, y, z }: Coordinates): Coordinates {
-  return { x: y, y: -x, z: z }
-}
-
 export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
   const [
     newCuboidValue,
-    XRotationCount,
-    YRotationCount,
-    ZRotationCount
+    rotation
   ]= useStore(useShallow((state) => [
     state.newCuboidValue,
-    state.XRotationCount,
-    state.YRotationCount,
-    state.ZRotationCount
+    state.rotation
   ]))
 
   const hexOrigin = new Hex(x - z, z - y, y - x)
@@ -85,15 +69,7 @@ export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }
     const faceAxis = 'xyz'.charAt(Math.floor((startDirection + 1) % 6 / 2)) as PositiveAxis
     newCubeCoordinates[faceAxis]++
 
-    for (let rotationsDone = 0; rotationsDone < ZRotationCount; rotationsDone++) {
-      newCubeCoordinates = rotateZAnticlockwise(newCubeCoordinates)
-    }
-    for (let rotationsDone = 0; rotationsDone < YRotationCount; rotationsDone++) {
-      newCubeCoordinates = rotateYAnticlockwise(newCubeCoordinates)
-    }
-    for (let rotationsDone = 0; rotationsDone < XRotationCount; rotationsDone++) {
-      newCubeCoordinates = rotateXAnticlockwise(newCubeCoordinates)
-    }
+    [newCubeCoordinates] = rotate([newCubeCoordinates], rotation.inverse())
 
     const cuboidValue = {
       x: newCubeCoordinates.x.toString(),
