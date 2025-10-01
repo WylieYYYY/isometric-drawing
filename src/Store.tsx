@@ -7,7 +7,7 @@ type CuboidNumberValue = { [Property in keyof CuboidValue]: number }
 
 type Store = {
   cuboidValues: Array<CuboidValue>
-  newCuboidValue: () => void
+  newCuboidValue: (cuboidValue?: CuboidValue) => void
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => void
   deleteCuboidValue: (index: number) => void
   coordinatesFromCuboidValues: () => Array<Coordinates>
@@ -31,9 +31,9 @@ export const useStore = create<Store>()(immer((set, get) => ({
     { x: '1', y: '0', z: '0', dx: '1', dy: '1', dz: '3' }
   ],
 
-  newCuboidValue: () => {
+  newCuboidValue: (cuboidValue: CuboidValue = { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }) => {
     set((state) => {
-      state.cuboidValues.push({ x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' })
+      state.cuboidValues.push(cuboidValue)
     })
   },
 

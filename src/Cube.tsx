@@ -1,14 +1,15 @@
-import type { Axis, Direction, PositiveAxis } from './IsometricStructure.tsx'
+import type { Axis, Coordinates, Direction, PositiveAxis } from './IsometricStructure.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
+import { useShallow } from 'zustand/react/shallow'
+import { useStore } from './Store.tsx'
+import { hexToPixel } from './util.ts'
 
 type CubeProps = {
-  x: number
-  y: number
-  z: number
+  spacing: number
   cullFaces: Array<Axis>
   uncullLEdges: Array<PositiveAxis>
   cullObscured: Array<Direction>
-}
+} & Coordinates
 
 const cullFacePredicateMap = {
   x: (direction: number) => [0, 1, 5].includes(direction),
@@ -34,11 +35,80 @@ function shouldCull(
   return (isCullableFace && !isUncullableLEdge) || isCullableObscured
 }
 
-export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
+function rotateXAnticlockwise({ x, y, z }: Coordinates): Coordinates {
+  return { x: x, y: z, z: -y }
+}
+
+function rotateYAnticlockwise({ x, y, z }: Coordinates): Coordinates {
+  return { x: z, y: y, z: -x }
+}
+
+function rotateZAnticlockwise({ x, y, z }: Coordinates): Coordinates {
+  return { x: y, y: -x, z: z }
+}
+
+export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
+  const [
+    newCuboidValue,
+    XRotationCount,
+    YRotationCount,
+    ZRotationCount
+  ]= useStore(useShallow((state) => [
+    state.newCuboidValue,
+    state.XRotationCount,
+    state.YRotationCount,
+    state.ZRotationCount
+  ]))
+
   const hexOrigin = new Hex(x - z, z - y, y - x)
 
   function originPlusDirection(direction: number): Hex {
     return HexUtils.add(hexOrigin, HexUtils.direction(direction))
+  }
+
+  const faces = []
+  for (let startDirection = 0; startDirection < 6; startDirection++) {
+    const endDirection = (startDirection + 1) % 6
+
+    function shouldCullObscured(obscuredDirection: Direction): boolean {
+      return startDirection === obscuredDirection || endDirection === obscuredDirection
+    }
+
+    if (cullObscured.some(shouldCullObscured)) continue
+
+    const centerPixel = hexToPixel(hexOrigin, spacing)
+    const startPixel = hexToPixel(originPlusDirection(startDirection), spacing)
+    const endPixel = hexToPixel(originPlusDirection(endDirection), spacing)
+    const points = `${centerPixel.x}, ${centerPixel.y} ${startPixel.x}, ${startPixel.y} ${endPixel.x}, ${endPixel.y}`
+
+    let newCubeCoordinates = { x, y, z }
+    const faceAxis = 'xyz'.charAt(Math.floor((startDirection + 1) % 6 / 2)) as PositiveAxis
+    newCubeCoordinates[faceAxis]++
+
+    for (let rotationsDone = 0; rotationsDone < ZRotationCount; rotationsDone++) {
+      newCubeCoordinates = rotateZAnticlockwise(newCubeCoordinates)
+    }
+    for (let rotationsDone = 0; rotationsDone < YRotationCount; rotationsDone++) {
+      newCubeCoordinates = rotateYAnticlockwise(newCubeCoordinates)
+    }
+    for (let rotationsDone = 0; rotationsDone < XRotationCount; rotationsDone++) {
+      newCubeCoordinates = rotateXAnticlockwise(newCubeCoordinates)
+    }
+
+    const cuboidValue = {
+      x: newCubeCoordinates.x.toString(),
+      y: newCubeCoordinates.y.toString(),
+      z: newCubeCoordinates.z.toString(),
+      dx: '1', dy: '1', dz: '1'
+    }
+
+    faces.push(
+      <polygon
+        points={points}
+        fillOpacity={0}
+        onClick={() => newCuboidValue(cuboidValue)}
+      />
+    )
   }
 
   const prongs = []
@@ -103,6 +173,7 @@ export function Cube({ x, y, z, cullFaces, uncullLEdges, cullObscured }: CubePro
     <>
       {...prongs}
       {...outlines}
+      {...faces}
     </>
   )
 }

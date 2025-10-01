@@ -49,7 +49,7 @@ export function CuboidStructureInputs() {
   return (
     <>
       {...inputs}
-      <button onClick={newCuboidValue}>Add cuboid</button>
+      <button onClick={() => newCuboidValue()}>Add cuboid</button>
     </>
   )
 }

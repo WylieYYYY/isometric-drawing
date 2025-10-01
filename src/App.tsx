@@ -58,13 +58,13 @@ function App() {
                     />
                   ))
                 }
-                <IsometricStructure />
+                <IsometricStructure spacing={4} />
               </Layout>
             </HexGrid>
           </div>
         </TransformComponent>
       </TransformWrapper>
-      <div style={{ position: 'fixed', left: '.5em', top: '2em' }}>
+      <div style={{ position: 'fixed', left: '.5em', top: '2em', maxHeight: '30%', overflowY: 'scroll' }}>
         <CuboidStructureInputs />
       </div>
       <div style={{ position: 'fixed', left: '.5em', bottom: '2em' }}>

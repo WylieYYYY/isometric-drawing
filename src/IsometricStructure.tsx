@@ -8,6 +8,10 @@ export type PositiveAxis = 'x' | 'y' | 'z'
 export type Axis = PositiveAxis | '-x' | '-y' | '-z'
 export type Coordinates = { [Property in PositiveAxis]: number }
 
+type IsometricStructureProps = {
+  spacing: number
+}
+
 function rotateXClockwise(coordinates: Array<Coordinates>): Array<Coordinates> {
   return coordinates.map(({ x, y, z }) => ({ x: x, y: -z, z: y }))
 }
@@ -47,7 +51,7 @@ function getObscureDirection(x: number, y: number, z: number): Direction|null {
   return directionRotation[rotatedIndex] as 0|1|4
 }
 
-export function IsometricStructure() {
+export function IsometricStructure({ spacing }: IsometricStructureProps) {
   const [
     cuboidValues,
     coordinatesFromCuboidValues,
@@ -112,7 +116,7 @@ export function IsometricStructure() {
     if (cullFaces.includes('x') && cullFaces.includes('z')) uncullLEdges.push('y')
     if (cullFaces.includes('x') && cullFaces.includes('y')) uncullLEdges.push('z')
 
-    cubes.push(<Cube x={x} y={y} z={z} cullFaces={cullFaces} uncullLEdges={uncullLEdges} cullObscured={cullObscured} />)
+    cubes.push(<Cube x={x} y={y} z={z} spacing={spacing} cullFaces={cullFaces} uncullLEdges={uncullLEdges} cullObscured={cullObscured} />)
   }
 
   return <>{...cubes}</>
