@@ -1,3 +1,5 @@
+import type { IOptions } from 'canvg'
+import { Canvg, presets } from 'canvg'
 import { useState } from 'react'
 import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
@@ -7,15 +9,32 @@ import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { IsometricStructure } from './IsometricStructure.tsx'
 import { useStore } from './Store.tsx'
 
-function downloadSVG(setDownloadUrl: (downloadUrl: string) => void) {
-  const BLOB_URL_TIMEOUT = 500
+const BLOB_URL_TIMEOUT = 500
 
+function downloadSVG(setDownloadUrl: (downloadUrl: string) => void) {
   const svg = document.querySelector('svg')!
   const anchor = document.getElementById('download') as HTMLAnchorElement
 
-  anchor.download = 'export.svg'
   const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' })
   setDownloadUrl(URL.createObjectURL(blob))
+  anchor.download = 'export.svg'
+  setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
+}
+
+async function downloadPNG(setDownloadUrl: (downloadUrl: string) => void, width: number, height: number) {
+  const svg = document.querySelector('svg')!
+  const anchor = document.getElementById('download') as HTMLAnchorElement
+
+  const canvas = new OffscreenCanvas(0, 0)
+  const ctx = canvas.getContext('2d')!
+  const canvg = await Canvg.from(ctx, svg.outerHTML, presets.offscreen() as IOptions)
+  canvg.resize(width, height)
+
+  await canvg.render()
+
+  const blob = await canvas.convertToBlob()
+  setDownloadUrl(URL.createObjectURL(blob))
+  anchor.download = 'export.png'
   setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
 }
 
@@ -37,8 +56,9 @@ function App() {
   ]))
 
   const [downloadUrl, setDownloadUrl] = useState('#')
+  const [shouldShowGrid, setShouldShowGrid] = useState(true)
 
-  const generator = GridGenerator.hexagon(20)
+  const generator = shouldShowGrid ? GridGenerator.hexagon(20) : []
 
   return (
     <>
@@ -46,7 +66,7 @@ function App() {
       <TransformWrapper centerOnInit={true} initialScale={8}>
         <TransformComponent wrapperStyle={{ width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-            <HexGrid viewBox='-20 -20 40 40'>
+            <HexGrid viewBox='-20 -20 40 40' style={{ width: 600, height: 600 }}>
               <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
                 {
                   generator.map((hex, key) => (
@@ -67,10 +87,10 @@ function App() {
       <div style={{ position: 'fixed', left: '.5em', top: '2em', maxHeight: '30%', overflowY: 'scroll' }}>
         <CuboidStructureInputs />
       </div>
-      <div style={{ position: 'fixed', left: '.5em', bottom: '2em' }}>
-        <button onClick={() => downloadSVG(setDownloadUrl)}>
-          Export SVG
-        </button>
+      <div style={{ position: 'fixed', left: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
+        <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
+        <button onClick={() => downloadPNG(setDownloadUrl, 2400, 2400)}>Export PNG</button>
+        <button onClick={() => downloadSVG(setDownloadUrl)}>Export SVG</button>
       </div>
       <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
         <button onClick={rotateXClockwise}>Rotate about positive x (→x)</button>
