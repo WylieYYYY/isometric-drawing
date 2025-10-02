@@ -69,7 +69,7 @@ export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }
     const faceAxis = 'xyz'.charAt(Math.floor((startDirection + 1) % 6 / 2)) as PositiveAxis
     newCubeCoordinates[faceAxis]++
 
-    [newCubeCoordinates] = rotate([newCubeCoordinates], rotation.inverse())
+    newCubeCoordinates = rotate([newCubeCoordinates], rotation.inverse())[0]
 
     const cuboidValue = {
       x: newCubeCoordinates.x.toString(),
