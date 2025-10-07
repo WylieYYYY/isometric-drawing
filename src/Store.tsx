@@ -4,19 +4,22 @@ import { Quaternion } from 'quaternion'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
+export type HighlightKind = 'cuboid' | 'face'
+export type CubeLocation = { cuboidIndex: number } & Coordinates
+
 type CuboidNumberValue = { [Property in keyof CuboidValue]: number }
 type VisibleCubeFaceLocation = { coordinates: Coordinates, axis: PositiveAxis }
 
 type Store = {
-  highlightedCubeFace: VisibleCubeFaceLocation|null
-  highlightCubeFace: (coordinates: Coordinates, axis: PositiveAxis) => void
-  unhighlightCubeFace: (coordinates: Coordinates) => void
+  highlightKind: HighlightKind
+  highlightedTarget: VisibleCubeFaceLocation|number|null
+  highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
+  unhighlightCubeFace: (cubeLocation: CubeLocation) => void
 
   cuboidValues: Array<CuboidValue>
   newCuboidValue: (cuboidValue?: CuboidValue) => void
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => void
   deleteCuboidValue: (index: number) => void
-  coordinatesFromCuboidValues: () => Array<Coordinates>
 
   rotation: Quaternion
 
@@ -28,6 +31,49 @@ type Store = {
 
   rotateZClockwise: () => void
   rotateZAnticlockwise: () => void
+}
+
+export function isCubeFaceHighlighted(
+  highlightedTarget: VisibleCubeFaceLocation|number|null,
+  cubeLocation: CubeLocation,
+  axis: PositiveAxis|null
+): HighlightKind|null {
+  if (highlightedTarget === null) return null
+
+  if (typeof highlightedTarget === 'number') {
+    if (cubeLocation.cuboidIndex === highlightedTarget) return 'cuboid'
+    return null
+  }
+
+  const faceHighlighted = cubeLocation.x === highlightedTarget.coordinates.x &&
+      cubeLocation.y === highlightedTarget.coordinates.y &&
+      cubeLocation.z === highlightedTarget.coordinates.z &&
+      (axis === null || axis === highlightedTarget.axis)
+
+  if (faceHighlighted) return 'face'
+  return null
+}
+
+export function cubeLocationFromCuboidValues(cuboidValues: Array<CuboidValue>): Array<CubeLocation> {
+  const cubeLocations = []
+
+  for (const [cuboidIndex, cuboidValue] of cuboidValues.entries()) {
+    const parsedCuboidValue: Record<string, number> = {}
+    for (const [key, value] of Object.entries(cuboidValue)) parsedCuboidValue[key] = parseInt(value)
+    if (Object.values(parsedCuboidValue).some(isNaN)) continue
+
+    const { x, y, z, dx, dy, dz } = parsedCuboidValue as CuboidNumberValue
+
+    for (let currentDx = 0; currentDx !== dx; currentDx += Math.sign(dx)) {
+      for (let currentDy = 0; currentDy !== dy; currentDy += Math.sign(dy)) {
+        for (let currentDz = 0; currentDz !== dz; currentDz += Math.sign(dz)) {
+          cubeLocations.push({ cuboidIndex, x: x + currentDx, y: y + currentDy, z: z + currentDz })
+        }
+      }
+    }
+  }
+
+  return cubeLocations
 }
 
 function calibrateRotation(rotation: Quaternion): Quaternion {
@@ -42,30 +88,27 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
   )
 }
 
-export function isCubeFaceHighlighted(
-  highlightedCubeFace: VisibleCubeFaceLocation|null,
-  coordinates: Coordinates,
-  axis: PositiveAxis|null
-): boolean {
-  return highlightedCubeFace !== null &&
-      coordinates.x === highlightedCubeFace.coordinates.x &&
-      coordinates.y === highlightedCubeFace.coordinates.y &&
-      coordinates.z === highlightedCubeFace.coordinates.z &&
-      (axis === null || axis === highlightedCubeFace.axis)
-}
-
 export const useStore = create<Store>()(immer((set, get) => ({
-  highlightedCubeFace: null,
+  highlightKind: 'face',
+  highlightedTarget: null,
 
-  highlightCubeFace: (coordinates: Coordinates, axis: PositiveAxis) => {
+  highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => {
+    const { cuboidIndex, ...coordinates } = cubeLocation
     set((state) => {
-      state.highlightedCubeFace = { coordinates, axis }
+      switch (get().highlightKind) {
+        case 'cuboid':
+          state.highlightedTarget = cuboidIndex
+          break
+        case 'face':
+          state.highlightedTarget = { coordinates, axis }
+          break
+      }
     })
   },
 
-  unhighlightCubeFace: (coordinates: Coordinates) => {
-    if (isCubeFaceHighlighted(get().highlightedCubeFace, coordinates, null)) {
-      set((state) => { state.highlightedCubeFace = null })
+  unhighlightCubeFace: (cubeLocation: CubeLocation) => {
+    if (isCubeFaceHighlighted(get().highlightedTarget, cubeLocation, null) !== null) {
+      set((state) => { state.highlightedTarget = null })
     }
   },
 
@@ -90,28 +133,6 @@ export const useStore = create<Store>()(immer((set, get) => ({
     set((state) => {
       state.cuboidValues.splice(index, 1)
     })
-  },
-
-  coordinatesFromCuboidValues: () => {
-    const coordinates = []
-
-    for (const cuboidValue of get().cuboidValues) {
-      const parsedCuboidValue: { [key: string]: number } = {}
-      for (const [key, value] of Object.entries(cuboidValue)) parsedCuboidValue[key] = parseInt(value)
-      if (Object.values(parsedCuboidValue).some(isNaN)) continue
-
-      const { x, y, z, dx, dy, dz } = parsedCuboidValue as CuboidNumberValue
-
-      for (let currentDx = 0; currentDx !== dx; currentDx += Math.sign(dx)) {
-        for (let currentDy = 0; currentDy !== dy; currentDy += Math.sign(dy)) {
-          for (let currentDz = 0; currentDz !== dz; currentDz += Math.sign(dz)) {
-            coordinates.push({ x: x + currentDx, y: y + currentDy, z: z + currentDz })
-          }
-        }
-      }
-    }
-
-    return coordinates
   },
 
   rotation: new Quaternion(),

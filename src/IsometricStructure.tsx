@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
+import type { CubeLocation } from './Store.tsx'
 import { useShallow } from 'zustand/react/shallow'
 import { Cube } from './Cube.tsx'
-import { useStore } from './Store.tsx'
+import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
 import { rotate } from './util.ts'
 
 export type Direction = 0 | 1 | 2 | 3 | 4 | 5
@@ -43,25 +43,23 @@ function getObscureDirection(x: number, y: number, z: number): Direction|null {
 export function IsometricStructure({ spacing }: IsometricStructureProps) {
   const [
     cuboidValues,
-    coordinatesFromCuboidValues,
     rotation
   ] = useStore(useShallow((state) => [
     state.cuboidValues,
-    state.coordinatesFromCuboidValues,
     state.rotation
   ]))
 
-  let cubeCoordinates = useMemo(coordinatesFromCuboidValues, [cuboidValues, coordinatesFromCuboidValues])
-  cubeCoordinates = rotate(cubeCoordinates, rotation)
+  let cubeLocations = cubeLocationFromCuboidValues(cuboidValues)
+  cubeLocations = rotate(cubeLocations, rotation) as Array<CubeLocation>
 
   const cubes = []
 
-  for (const { x, y, z } of cubeCoordinates) {
+  for (const { cuboidIndex, x, y, z } of cubeLocations) {
     let skipRendering = false
     const cullFaces: Array<Axis> = []
     const cullObscured: Array<Direction> = []
 
-    for (const { x: otherX, y: otherY, z: otherZ } of cubeCoordinates) {
+    for (const { x: otherX, y: otherY, z: otherZ, ..._rest } of cubeLocations) {
       if (x === otherX && y === otherY && z === otherZ) continue
 
       const diffX = otherX - x
@@ -93,7 +91,15 @@ export function IsometricStructure({ spacing }: IsometricStructureProps) {
     if (cullFaces.includes('x') && cullFaces.includes('z')) uncullLEdges.push('y')
     if (cullFaces.includes('x') && cullFaces.includes('y')) uncullLEdges.push('z')
 
-    cubes.push(<Cube x={x} y={y} z={z} spacing={spacing} cullFaces={cullFaces} uncullLEdges={uncullLEdges} cullObscured={cullObscured} />)
+    cubes.push(
+      <Cube
+        cuboidIndex={cuboidIndex}
+        x={x} y={y} z={z}
+        spacing={spacing}
+        cullFaces={cullFaces}
+        uncullLEdges={uncullLEdges}
+        cullObscured={cullObscured}
+      />)
   }
 
   return <>{...cubes}</>
