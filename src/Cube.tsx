@@ -1,7 +1,7 @@
 import type { Axis, Coordinates, Direction, PositiveAxis } from './IsometricStructure.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
-import { useStore } from './Store.tsx'
+import { isCubeFaceHighlighted, useStore } from './Store.tsx'
 import { hexToPixel, rotate } from './util.ts'
 
 type CubeProps = {
@@ -37,12 +37,22 @@ function shouldCull(
 
 export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
   const [
+    highlightedCubeFace,
+    highlightCubeFace,
+    unhighlightCubeFace,
     newCuboidValue,
     rotation
   ]= useStore(useShallow((state) => [
+    state.highlightedCubeFace,
+    state.highlightCubeFace,
+    state.unhighlightCubeFace,
     state.newCuboidValue,
     state.rotation
   ]))
+
+  const highlightedCubeFaceMap = Object.fromEntries(['x', 'y', 'z'].map((axis) => {
+    return [axis, isCubeFaceHighlighted(highlightedCubeFace, { x, y, z }, axis as PositiveAxis)]
+  }))
 
   const hexOrigin = new Hex(x - z, z - y, y - x)
 
@@ -81,8 +91,11 @@ export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }
     faces.push(
       <polygon
         points={points}
-        fillOpacity={0}
+        fill={highlightedCubeFaceMap[faceAxis] ? 'green' : undefined}
+        fillOpacity={highlightedCubeFaceMap[faceAxis] ? 0.5 : 0}
         onClick={() => newCuboidValue(cuboidValue)}
+        onMouseOver={() => highlightCubeFace({ x, y, z }, faceAxis)}
+        onMouseOut={() => unhighlightCubeFace({ x, y, z })}
       />
     )
   }
@@ -147,9 +160,9 @@ export function Cube({ x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }
 
   return (
     <>
+      {...faces}
       {...prongs}
       {...outlines}
-      {...faces}
     </>
   )
 }
