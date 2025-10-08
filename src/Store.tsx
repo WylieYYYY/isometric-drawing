@@ -54,6 +54,11 @@ export function isCubeFaceHighlighted(
   return null
 }
 
+/**
+ * Extracts an array of individual cube location by iterating over possible coordinates of cuboid values.
+ * @param cuboidValues - Array of cuboid values to extract coordinates from.
+ * @returns The cube locations.
+ */
 export function cubeLocationFromCuboidValues(cuboidValues: Array<CuboidValue>): Array<CubeLocation> {
   const cubeLocations = []
 
@@ -76,6 +81,12 @@ export function cubeLocationFromCuboidValues(cuboidValues: Array<CuboidValue>): 
   return cubeLocations
 }
 
+/**
+ * Calibrates a quaternion rotation such that it does not drift from 90 degree angles
+ * after multiple rotations, causing iterated rotation to not work.
+ * @param rotation - Rotation to be calibrated.
+ * @returns The calibrated rotation.
+ */
 function calibrateRotation(rotation: Quaternion): Quaternion {
   const [phiRotationAngle, thetaRotationAngle, psiRotationAngle] = rotation.toEuler()
   const ZRotationCount = Math.round(phiRotationAngle / (Math.PI / 2))
@@ -88,6 +99,7 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
   )
 }
 
+/** Uses storage for global states to be shared by components. */
 export const useStore = create<Store>()(immer((set, get) => ({
   highlightKind: 'face',
   highlightedTarget: null,
@@ -112,31 +124,47 @@ export const useStore = create<Store>()(immer((set, get) => ({
     }
   },
 
+  /** Cuboid values array, holds cuboids of one isometric structure. */
   cuboidValues: [
     { x: '0', y: '0', z: '0', dx: '1', dy: '2', dz: '1' },
     { x: '1', y: '0', z: '0', dx: '1', dy: '1', dz: '3' }
   ],
 
+  /**
+   * Creates a new cuboid value at the end of the cuboid values array.
+   * @param cuboidValue - A specific value to initialize with, default is a unit cube at origin.
+   */
   newCuboidValue: (cuboidValue: CuboidValue = { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }) => {
     set((state) => {
       state.cuboidValues.push(cuboidValue)
     })
   },
 
+  /**
+   * Sets the cuboid value at the given index to the given value.
+   * @param index - Index of the value in the cuboid values array.
+   * @param cuboidValue - The replacement value.
+   */
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => {
     set((state) => {
       state.cuboidValues[index] = cuboidValue
     })
   },
 
+  /**
+   * Deletes a cuboid value at the given index.
+   * @param index - Index of the value in the cuboid values array.
+   */
   deleteCuboidValue: (index: number) => {
     set((state) => {
       state.cuboidValues.splice(index, 1)
     })
   },
 
+  /** Quaternion to preserve non-commutative rotations compactly. */
   rotation: new Quaternion(),
 
+  /** Rotates 90 degrees clockwise around x-axis (positive x), origin perspective. */
   rotateXClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], Math.PI / 2).mul(state.rotation)
@@ -144,6 +172,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
     })
   },
 
+  /** Rotates 90 degrees anticlockwise around x-axis (negative x), origin perspective. */
   rotateXAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], -Math.PI / 2).mul(state.rotation)
@@ -151,6 +180,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
     })
   },
 
+  /** Rotates 90 degrees clockwise around y-axis (positive y), origin perspective. */
   rotateYClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], Math.PI / 2).mul(state.rotation)
@@ -158,6 +188,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
     })
   },
 
+  /** Rotates 90 degrees anticlockwise around y-axis (negative y), origin perspective. */
   rotateYAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], -Math.PI / 2).mul(state.rotation)
@@ -165,6 +196,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
     })
   },
 
+  /** Rotates 90 degrees clockwise around z-axis (positive z), origin perspective. */
   rotateZClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], Math.PI / 2).mul(state.rotation)
@@ -172,6 +204,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
     })
   },
 
+  /** Rotates 90 degrees anticlockwise around z-axis (negative z), origin perspective. */
   rotateZAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], -Math.PI / 2).mul(state.rotation)
