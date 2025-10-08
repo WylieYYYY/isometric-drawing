@@ -25,6 +25,8 @@ type Store = {
 
   rotation: Quaternion
 
+  resetRotation: () => void
+
   rotateXClockwise: () => void
   rotateXAnticlockwise: () => void
 
@@ -128,8 +130,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
 
   /** Cuboid values array, holds cuboids of one isometric structure. */
   cuboidValues: [
-    { x: '0', y: '0', z: '0', dx: '1', dy: '2', dz: '1' },
-    { x: '1', y: '0', z: '0', dx: '1', dy: '1', dz: '3' }
+    { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }
   ],
 
   /**
@@ -165,6 +166,13 @@ export const useStore = create<Store>()(immer((set, get) => ({
 
   /** Quaternion to preserve non-commutative rotations compactly. */
   rotation: new Quaternion(),
+
+  /** Resets the rotation such that the rendering coordinates matches the ones denoted in the cuboid values. */
+  resetRotation: () => {
+    set((state) => {
+      state.rotation = new Quaternion()
+    })
+  },
 
   /** Rotates 90 degrees clockwise around x-axis (positive x), origin perspective. */
   rotateXClockwise: () => {

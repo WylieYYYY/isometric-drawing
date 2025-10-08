@@ -1,4 +1,5 @@
 import type { IOptions } from 'canvg'
+import type { CubeLocation } from './Store.tsx'
 import { Canvg, presets } from 'canvg'
 import { useCallback, useEffect, useState } from 'react'
 import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
@@ -7,9 +8,23 @@ import { useShallow } from 'zustand/react/shallow'
 import { GridPoint } from './GridPoint.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { IsometricStructure } from './IsometricStructure.tsx'
-import { useStore } from './Store.tsx'
+import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
 
 const BLOB_URL_TIMEOUT = 500
+
+function downloadCSV(setDownloadUrl: (downloadUrl: string) => void, cubeLocations: Array<CubeLocation>) {
+  const anchor = document.getElementById('download') as HTMLAnchorElement
+
+  const content = cubeLocations.reduce((rows, cubeLocation) => {
+    const newRow = `${cubeLocation.x},${cubeLocation.y},${cubeLocation.z}`
+    return `${rows}${newRow}\n`
+  }, 'x,y,z\n')
+
+  const blob = new Blob([content], { type: 'text/csv' })
+  setDownloadUrl(URL.createObjectURL(blob))
+  anchor.download = 'structure.csv'
+  setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
+}
 
 function downloadSVG(setDownloadUrl: (downloadUrl: string) => void) {
   const svg = document.querySelector('svg')!
@@ -41,6 +56,8 @@ async function downloadPNG(setDownloadUrl: (downloadUrl: string) => void, width:
 function App() {
   const [
     setHighlightKind,
+    cuboidValues,
+    resetRotation,
     rotateXClockwise,
     rotateXAnticlockwise,
     rotateYClockwise,
@@ -49,6 +66,8 @@ function App() {
     rotateZAnticlockwise
   ] = useStore(useShallow((state) => [
     state.setHighlightKind,
+    state.cuboidValues,
+    state.resetRotation,
     state.rotateXClockwise,
     state.rotateXAnticlockwise,
     state.rotateYClockwise,
@@ -110,10 +129,12 @@ function App() {
       </div>
       <div style={{ position: 'fixed', left: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
         <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
+        <button onClick={() => downloadCSV(setDownloadUrl, cubeLocationFromCuboidValues(cuboidValues))}>Save as CSV</button>
         <button onClick={() => downloadPNG(setDownloadUrl, 2400, 2400)}>Export PNG</button>
         <button onClick={() => downloadSVG(setDownloadUrl)}>Export SVG</button>
       </div>
       <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
+        <button onClick={resetRotation}>Reset rotation</button>
         <button onClick={rotateXClockwise}>Rotate about positive x (→x)</button>
         <button onClick={rotateXAnticlockwise}>Rotate about negative x (←x)</button>
         <button onClick={rotateYClockwise}>Rotate about positive y (→y)</button>
