@@ -1,6 +1,6 @@
 import type { IOptions } from 'canvg'
 import { Canvg, presets } from 'canvg'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
@@ -40,6 +40,7 @@ async function downloadPNG(setDownloadUrl: (downloadUrl: string) => void, width:
 
 function App() {
   const [
+    setHighlightKind,
     rotateXClockwise,
     rotateXAnticlockwise,
     rotateYClockwise,
@@ -47,6 +48,7 @@ function App() {
     rotateZClockwise,
     rotateZAnticlockwise
   ] = useStore(useShallow((state) => [
+    state.setHighlightKind,
     state.rotateXClockwise,
     state.rotateXAnticlockwise,
     state.rotateYClockwise,
@@ -54,6 +56,25 @@ function App() {
     state.rotateZClockwise,
     state.rotateZAnticlockwise
   ]))
+
+  const keyDownCallback = useCallback((event: KeyboardEvent) => {
+    if (event.repeat || event.code !== 'Space') return
+    setHighlightKind('cuboid')
+  }, [setHighlightKind])
+  const keyUpCallback = useCallback((event: KeyboardEvent) => {
+    if (event.repeat || event.code !== 'Space') return
+    setHighlightKind('face')
+  }, [setHighlightKind])
+
+  useEffect(() => {
+    document.addEventListener('keydown', keyDownCallback)
+    document.addEventListener('keyup', keyUpCallback)
+
+    return () => {
+      document.removeEventListener('keydown', keyDownCallback)
+      document.removeEventListener('keyup', keyUpCallback)
+    }
+  })
 
   const [downloadUrl, setDownloadUrl] = useState('#')
   const [shouldShowGrid, setShouldShowGrid] = useState(true)

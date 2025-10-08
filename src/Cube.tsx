@@ -1,9 +1,9 @@
 import type { Axis,  Direction, PositiveAxis } from './IsometricStructure.tsx'
-import type { CubeLocation } from './Store.tsx'
+import type { CubeLocation, HighlightKind } from './Store.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
 import { isCubeFaceHighlighted, useStore } from './Store.tsx'
-import { hexToPixel, rotate } from './util.ts'
+import { TriangularFace } from './TriangularFace.tsx'
 
 type CubeProps = {
   spacing: number
@@ -63,23 +63,17 @@ function shouldCull(
  */
 export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
   const [
-    highlightedTarget,
-    highlightCubeFace,
-    unhighlightCubeFace,
-    newCuboidValue,
-    rotation
+    highlightKind,
+    highlightedTarget
   ]= useStore(useShallow((state) => [
-    state.highlightedTarget,
-    state.highlightCubeFace,
-    state.unhighlightCubeFace,
-    state.newCuboidValue,
-    state.rotation
+    state.highlightKind,
+    state.highlightedTarget
   ]))
 
   /* Map of face axis to what kind of highlighting is applied to that face. */
   const highlightedCubeFaceMap = Object.fromEntries(['x', 'y', 'z'].map((axis) => {
-    return [axis, isCubeFaceHighlighted(highlightedTarget, { cuboidIndex, x, y, z }, axis as PositiveAxis)]
-  }))
+    return [axis, isCubeFaceHighlighted(highlightKind, highlightedTarget, { cuboidIndex, x, y, z }, axis as PositiveAxis)]
+  })) as Record<PositiveAxis, HighlightKind>
 
   // center of cube rendering
   // x and -z increments q
@@ -106,47 +100,12 @@ export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, c
 
     if (cullObscured.some(shouldCullObscured)) continue
 
-    const centerPixel = hexToPixel(hexOrigin, spacing)
-    const startPixel = hexToPixel(originPlusDirection(startDirection), spacing)
-    const endPixel = hexToPixel(originPlusDirection(endDirection), spacing)
-    const points = `${centerPixel.x}, ${centerPixel.y} ${startPixel.x}, ${startPixel.y} ${endPixel.x}, ${endPixel.y}`
-
-    // transformed rendering coordinates
-    let newCubeCoordinates = { x, y, z }
-    const faceAxis = 'xyz'.charAt(Math.floor(endDirection / 2)) as PositiveAxis
-    newCubeCoordinates[faceAxis]++
-
-    // undo transformation for storage
-    newCubeCoordinates = rotate([newCubeCoordinates], rotation.inverse())[0]
-
-    const cuboidValue = {
-      x: newCubeCoordinates.x.toString(),
-      y: newCubeCoordinates.y.toString(),
-      z: newCubeCoordinates.z.toString(),
-      dx: '1', dy: '1', dz: '1'
-    }
-
-    let fill
-    switch (highlightedCubeFaceMap[faceAxis]) {
-      case 'cuboid':
-        fill = 'red'
-        break
-      case 'face':
-        fill = 'green'
-        break
-      case null:
-        fill = undefined
-        break
-    }
-
     faces.push(
-      <polygon
-        points={points}
-        fill={fill}
-        fillOpacity={highlightedCubeFaceMap[faceAxis] !== null ? 0.5 : 0}
-        onClick={() => newCuboidValue(cuboidValue)}
-        onMouseOver={() => highlightCubeFace({ cuboidIndex, x, y, z }, faceAxis)}
-        onMouseOut={() => unhighlightCubeFace({ cuboidIndex, x, y, z })}
+      <TriangularFace
+        spacing={spacing}
+        cubeLocation={{ cuboidIndex, x, y, z }}
+        startDirection={startDirection as Direction}
+        highlightedCubeFaceMap={highlightedCubeFaceMap}
       />
     )
   }

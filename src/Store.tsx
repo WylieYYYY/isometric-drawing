@@ -8,11 +8,13 @@ export type HighlightKind = 'cuboid' | 'face'
 export type CubeLocation = { cuboidIndex: number } & Coordinates
 
 type CuboidNumberValue = { [Property in keyof CuboidValue]: number }
-type VisibleCubeFaceLocation = { coordinates: Coordinates, axis: PositiveAxis }
+type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
 
 type Store = {
   highlightKind: HighlightKind
-  highlightedTarget: VisibleCubeFaceLocation|number|null
+  setHighlightKind: (highlightKind: HighlightKind) => void
+
+  highlightedTarget: VisibleCubeFaceLocation|null
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
   unhighlightCubeFace: (cubeLocation: CubeLocation) => void
 
@@ -34,20 +36,21 @@ type Store = {
 }
 
 export function isCubeFaceHighlighted(
-  highlightedTarget: VisibleCubeFaceLocation|number|null,
+  highlightKind: HighlightKind,
+  highlightedTarget: VisibleCubeFaceLocation|null,
   cubeLocation: CubeLocation,
   axis: PositiveAxis|null
 ): HighlightKind|null {
   if (highlightedTarget === null) return null
 
-  if (typeof highlightedTarget === 'number') {
-    if (cubeLocation.cuboidIndex === highlightedTarget) return 'cuboid'
+  if (highlightKind === 'cuboid') {
+    if (cubeLocation.cuboidIndex === highlightedTarget.cubeLocation.cuboidIndex) return 'cuboid'
     return null
   }
 
-  const faceHighlighted = cubeLocation.x === highlightedTarget.coordinates.x &&
-      cubeLocation.y === highlightedTarget.coordinates.y &&
-      cubeLocation.z === highlightedTarget.coordinates.z &&
+  const faceHighlighted = cubeLocation.x === highlightedTarget.cubeLocation.x &&
+      cubeLocation.y === highlightedTarget.cubeLocation.y &&
+      cubeLocation.z === highlightedTarget.cubeLocation.z &&
       (axis === null || axis === highlightedTarget.axis)
 
   if (faceHighlighted) return 'face'
@@ -102,24 +105,23 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 /** Uses storage for global states to be shared by components. */
 export const useStore = create<Store>()(immer((set, get) => ({
   highlightKind: 'face',
+
+  setHighlightKind: (highlightKind: HighlightKind) => {
+    set((state) => {
+      state.highlightKind = highlightKind
+    })
+  },
+
   highlightedTarget: null,
 
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => {
-    const { cuboidIndex, ...coordinates } = cubeLocation
     set((state) => {
-      switch (get().highlightKind) {
-        case 'cuboid':
-          state.highlightedTarget = cuboidIndex
-          break
-        case 'face':
-          state.highlightedTarget = { coordinates, axis }
-          break
-      }
+      state.highlightedTarget = { cubeLocation, axis }
     })
   },
 
   unhighlightCubeFace: (cubeLocation: CubeLocation) => {
-    if (isCubeFaceHighlighted(get().highlightedTarget, cubeLocation, null) !== null) {
+    if (isCubeFaceHighlighted(get().highlightKind, get().highlightedTarget, cubeLocation, null) !== null) {
       set((state) => { state.highlightedTarget = null })
     }
   },
