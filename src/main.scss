@@ -1,0 +1,82 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: clip;
+}
+
+#root {
+    height: 100%;
+}
+
+@mixin collapse-menu {
+    + main > {
+        label[for=collapse-btn] {
+            #open-lbl { display: inline; }
+            #close-lbl { display: none; }
+        }
+        aside {
+            width: 0;
+            flex-grow: 0;
+        }
+    }
+}
+
+@mixin expand-menu {
+    + main > {
+        label[for=collapse-btn] {
+            #open-lbl { display: none; }
+            #close-lbl { display: inline; }
+        }
+        @media (max-width: 60rem) {
+            section, section > * {
+                width: 0;
+                flex-grow: 0;
+            }
+        }
+    }
+}
+
+@media (min-width: 60rem) {
+    #collapse-btn:checked { @include collapse-menu; }
+    #collapse-btn:not(:checked) { @include expand-menu; }
+}
+
+@media (max-width: 60rem) {
+    #collapse-btn:checked { @include expand-menu; }
+    #collapse-btn:not(:checked) { @include collapse-menu; }
+}
+
+@mixin collapse-animation {
+    overflow-x: hidden;
+    transition-duration: 0.5s;
+    transition-property: width flex-grow;
+}
+
+main > aside {
+    @media (min-width: 60rem) { width: 30rem; }
+    @media (max-width: 60rem) { flex-grow: 1; }
+    @include collapse-animation;
+
+    background-color: lightgray;
+    white-space: nowrap;
+}
+
+main > section {
+    @media (min-width: 60rem) { width: 100%; }
+    @media (max-width: 60rem) { flex-grow: 1; }
+    @include collapse-animation;
+    > * { @include collapse-animation; }
+
+    height: inherit;
+}
+
+label[for=collapse-btn] {
+    display: flex;
+    align-items: center;
+
+    background-color: lightgray;
+    border-left: solid 1px black;
+
+    user-select: none;
+    cursor: pointer;
+}

@@ -77,11 +77,11 @@ function App() {
   ]))
 
   const keyDownCallback = useCallback((event: KeyboardEvent) => {
-    if (event.repeat || event.code !== 'Space') return
+    if (event.repeat || event.code !== 'Delete') return
     setHighlightKind('cuboid')
   }, [setHighlightKind])
   const keyUpCallback = useCallback((event: KeyboardEvent) => {
-    if (event.repeat || event.code !== 'Space') return
+    if (event.repeat || event.code !== 'Delete') return
     setHighlightKind('face')
   }, [setHighlightKind])
 
@@ -103,45 +103,60 @@ function App() {
   return (
     <>
       <a id='download' href={downloadUrl} style={{ display: 'none' }}></a>
-      <TransformWrapper centerOnInit={true} initialScale={8}>
-        <TransformComponent wrapperStyle={{ width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-            <HexGrid viewBox='-20 -20 40 40' style={{ width: 600, height: 600 }}>
-              <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
-                {
-                  generator.map((hex, key) => (
-                    <GridPoint
-                      key={key}
-                      hex={hex}
-                      spacing={4}
-                      radius={0.05}
-                    />
-                  ))
-                }
-                <IsometricStructure spacing={4} />
-              </Layout>
-            </HexGrid>
+      <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
+      <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
+        <aside>
+          <div style={{ maxHeight: '30%', overflowX: 'hidden', overflowY: 'scroll' }}>
+            <CuboidStructureInputs />
           </div>
-        </TransformComponent>
-      </TransformWrapper>
-      <div style={{ position: 'fixed', left: '.5em', top: '2em', maxHeight: '30%', overflowY: 'scroll' }}>
-        <CuboidStructureInputs />
-      </div>
-      <div style={{ position: 'fixed', left: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
-        <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
-        <button onClick={() => downloadCSV(setDownloadUrl, cubeLocationFromCuboidValues(cuboidValues))}>Save as CSV</button>
-        <button onClick={() => downloadPNG(setDownloadUrl, 2400, 2400)}>Export PNG</button>
-        <button onClick={() => downloadSVG(setDownloadUrl)}>Export SVG</button>
-      </div>
-      <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
-        <button onClick={resetRotation}>Reset rotation</button>
-        <button onClick={rotateXClockwise}>Rotate about positive x (→x)</button>
-        <button onClick={rotateXAnticlockwise}>Rotate about negative x (←x)</button>
-        <button onClick={rotateYClockwise}>Rotate about positive y (→y)</button>
-        <button onClick={rotateYAnticlockwise}>Rotate about negative y (←y)</button>
-        <button onClick={rotateZClockwise}>Rotate about positive z (→z)</button>
-        <button onClick={rotateZAnticlockwise}>Rotate about negative z (←z)</button>
-      </div>
+          <hr />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
+            <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
+            <button onClick={() => downloadCSV(setDownloadUrl, cubeLocationFromCuboidValues(cuboidValues))}>Save as CSV</button>
+            <button onClick={() => downloadPNG(setDownloadUrl, 2400, 2400)}>Export PNG</button>
+            <button onClick={() => downloadSVG(setDownloadUrl)}>Export SVG</button>
+          </div>
+        </aside>
+        <label htmlFor='collapse-btn' role='button'>
+          <div style={{ writingMode: 'vertical-rl' }}>
+            <span id='open-lbl'>open</span>
+            <span id='close-lbl'>close</span>
+            <span>&nbsp;menu</span>
+          </div>
+        </label>
+        <section>
+          <TransformWrapper centerOnInit={true} initialScale={8}>
+            <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
+                <HexGrid viewBox='-20 -20 40 40' style={{ width: 600, height: 600 }}>
+                  <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
+                    {
+                      generator.map((hex, key) => (
+                        <GridPoint
+                          key={key}
+                          hex={hex}
+                          spacing={4}
+                          radius={0.05}
+                        />
+                      ))
+                    }
+                    <IsometricStructure spacing={4} />
+                  </Layout>
+                </HexGrid>
+              </div>
+            </TransformComponent>
+          </TransformWrapper>
+          <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
+            <button onClick={resetRotation}>Reset rotation</button>
+            <button onClick={rotateXClockwise}>Rotate about positive x (→x)</button>
+            <button onClick={rotateXAnticlockwise}>Rotate about negative x (←x)</button>
+            <button onClick={rotateYClockwise}>Rotate about positive y (→y)</button>
+            <button onClick={rotateYAnticlockwise}>Rotate about negative y (←y)</button>
+            <button onClick={rotateZClockwise}>Rotate about positive z (→z)</button>
+            <button onClick={rotateZAnticlockwise}>Rotate about negative z (←z)</button>
+          </div>
+        </section>
+      </main>
     </>
   )
 }
