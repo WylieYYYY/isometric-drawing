@@ -16,13 +16,9 @@ export function hexToPixel(hex: Hex, spacing: number): { x: number, y: number } 
   // the grid points are sqrt(3) units apart
   // results of the calculation is multiplied by 0.1 * spacing
 
-  // q is travelling along the heights of the equilateral triangles to the right
-  // each of the right move makes x (3 / 2) = (sqrt(3) * cos(pi / 6)) units larger
+  // see https://www.redblobgames.com/grids/hexagons/ for calculation
   const x = hex.q * (3 / 2) * 0.1
-
-  // (r - s) is travelling along the edges to the top left
-  // each of the top left move make y (sqrt(3) / 2) units larger
-  const y = (hex.r - hex.s) * (Math.sqrt(3) / 2) * 0.1
+  const y = (hex.r * Math.sqrt(3) + hex.q * (Math.sqrt(3) / 2)) * 0.1
 
   return { x: x * spacing, y: y * spacing }
 }

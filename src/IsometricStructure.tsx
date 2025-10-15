@@ -1,5 +1,6 @@
 import type { CubeLocation } from './Store.tsx'
 import { useShallow } from 'zustand/react/shallow'
+import { AxisArrows } from './AxisArrows.tsx'
 import { Cube } from './Cube.tsx'
 import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
 import { rotate } from './util.ts'
@@ -129,5 +130,10 @@ export function IsometricStructure({ spacing }: IsometricStructureProps) {
       />)
   }
 
-  return <>{...cubes}</>
+  return (
+    <>
+      <AxisArrows spacing={spacing} coordinates={cubeLocations.map(({ cuboidIndex, ...rest}) => rest)} />
+      {...cubes}
+    </>
+  )
 }
