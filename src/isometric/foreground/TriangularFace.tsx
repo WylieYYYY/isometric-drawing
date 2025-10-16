@@ -1,9 +1,9 @@
 import type { Direction, PositiveAxis } from './IsometricStructure.tsx'
-import type { CubeLocation, HighlightKind } from './Store.tsx'
+import type { CubeLocation, HighlightKind } from './../../Store.tsx'
 import { Hex, HexUtils } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
-import { useStore } from './Store.tsx'
-import { hexToPixel, rotate } from './util.ts'
+import { useStore } from './../../Store.tsx'
+import { hexToPixel, rotate } from './../../util.ts'
 
 type TriangularFaceProps = {
   spacing: number

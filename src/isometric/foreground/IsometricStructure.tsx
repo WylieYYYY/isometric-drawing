@@ -1,4 +1,4 @@
-import type { CubeLocation } from './Store.tsx'
+import type { CubeLocation } from './../../Store.tsx'
 import { Cube } from './Cube.tsx'
 
 export type Direction = 0 | 1 | 2 | 3 | 4 | 5

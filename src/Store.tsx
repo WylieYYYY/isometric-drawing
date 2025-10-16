@@ -1,5 +1,5 @@
 import type { CuboidValue } from './CuboidStructureInputs.tsx'
-import type { Coordinates, PositiveAxis } from './IsometricStructure.tsx'
+import type { Coordinates, PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
 import { Quaternion } from 'quaternion'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'

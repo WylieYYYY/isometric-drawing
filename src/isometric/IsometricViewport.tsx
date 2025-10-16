@@ -1,12 +1,12 @@
-import type { Coordinates, Direction, PositiveAxis } from './IsometricStructure.tsx'
-import type { CubeLocation } from './Store.tsx'
+import type { Coordinates, Direction, PositiveAxis } from './foreground/IsometricStructure.tsx'
+import type { CubeLocation } from './../Store.tsx'
 import { GridGenerator, Hex, HexGrid, Layout } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
-import { AxisArrows } from './AxisArrows.tsx'
-import { GridPoint } from './GridPoint.tsx'
-import { IsometricStructure } from './IsometricStructure.tsx'
-import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
-import { directionalHex, hexToPixel, rotate, updateMinMax } from './util.ts'
+import { AxisArrows } from './background/AxisArrows.tsx'
+import { GridPoint } from './background/GridPoint.tsx'
+import { IsometricStructure } from './foreground/IsometricStructure.tsx'
+import { cubeLocationFromCuboidValues, useStore } from './../Store.tsx'
+import { directionalHex, hexToPixel, rotate, updateMinMax } from './../util.ts'
 
 type ViewBox = {
   x: number

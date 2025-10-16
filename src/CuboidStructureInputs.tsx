@@ -1,4 +1,4 @@
-import type { PositiveAxis } from './IsometricStructure.tsx'
+import type { PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore } from './Store.tsx'
 

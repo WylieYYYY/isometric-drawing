@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
-import { IsometricViewport } from './IsometricViewport.tsx'
+import { IsometricViewport } from './isometric/IsometricViewport.tsx'
 import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
 
 const BLOB_URL_TIMEOUT = 500
