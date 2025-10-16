@@ -12,6 +12,10 @@ type TriangularFaceProps = {
   highlightedCubeFaceMap: Record<PositiveAxis, HighlightKind|null>
 }
 
+/**
+ * Represents half of a face of an isometric cube, the triangles are radial from the center of the cube's hex origin.
+ * This allows culling by removing and adding triangular faces without calculating the unobscured face vertices manually.
+ */
 export function TriangularFace({ spacing, cubeLocation, startDirection, highlightedCubeFaceMap }: TriangularFaceProps) {
   const [
     highlightCubeFace,

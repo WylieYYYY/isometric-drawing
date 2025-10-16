@@ -96,6 +96,7 @@ function App() {
   const [downloadUrl, setDownloadUrl] = useState('#')
   const [shouldCropOnExport, setShouldCropOnExport] = useState(true)
   const [shouldShowGrid, setShouldShowGrid] = useState(true)
+  const [shouldShowAxisArrows, setShouldShowAxisArrows] = useState(true)
 
   const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
 
@@ -106,7 +107,7 @@ function App() {
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div id='background-render' style={{ display: 'none' }}>
-            <IsometricViewport shouldShowGrid={shouldShowGrid} />
+            <IsometricViewport shouldShowGrid={shouldShowGrid} shouldShowAxisArrows={shouldShowAxisArrows} />
           </div>
           <div style={{ maxHeight: '30%', overflowX: 'hidden', overflowY: 'scroll' }}>
             <CuboidStructureInputs />
@@ -114,6 +115,7 @@ function App() {
           <hr />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
+            <button onClick={() => setShouldShowAxisArrows(!shouldShowAxisArrows)}>Toggle Axis Arrows</button>
             <button onClick={() => downloadCSV(setDownloadUrl, cubeLocationFromCuboidValues(cuboidValues))}>Save as CSV</button>
             <div style={{ display: 'flex' }}>
               <input type='checkbox' name='crop-chk' checked={shouldCropOnExport} onChange={(event) => setShouldCropOnExport(event.target.checked)} />
@@ -134,7 +136,7 @@ function App() {
           <TransformWrapper centerOnInit={true} initialScale={8}>
             <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
               <div id='foreground-viewport' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-                <IsometricViewport shouldShowGrid={shouldShowGrid} size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
+                <IsometricViewport shouldShowGrid={shouldShowGrid} shouldShowAxisArrows={shouldShowAxisArrows} size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
               </div>
             </TransformComponent>
           </TransformWrapper>

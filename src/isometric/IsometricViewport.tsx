@@ -17,6 +17,7 @@ type ViewBox = {
 
 type IsometricViewportProps = {
   shouldShowGrid: boolean
+  shouldShowAxisArrows: boolean
   size?: {
     width: number
     height: number
@@ -45,7 +46,7 @@ function calculateAxisEndCoordinates(coordinates: Array<Coordinates>): Coordinat
       y: Math.max(axisEndY, visualY),
       z: Math.max(axisEndZ, visualZ)
     }
-  })
+  }, { x: 0, y: 0, z: 0 })
 }
 
 /**
@@ -90,7 +91,7 @@ function autoViewBox(spacing: number, axisEndCoordinates: Coordinates, cubeLocat
  * Handles the sizing of the drawing area and background features.
  * Main drawing is handled by the structure component.
  */
-export function IsometricViewport({ shouldShowGrid, size }: IsometricViewportProps) {
+export function IsometricViewport({ shouldShowGrid, shouldShowAxisArrows, size }: IsometricViewportProps) {
   const [
     cuboidValues,
     rotation
@@ -134,11 +135,15 @@ export function IsometricViewport({ shouldShowGrid, size }: IsometricViewportPro
             />
           ))
         }
-        <AxisArrows
-          spacing={4}
-          coordinates={coordinates}
-          axisEndCoordinates={axisEndCoordinates}
-        />
+        {
+          shouldShowAxisArrows ? (
+            <AxisArrows
+              spacing={4}
+              coordinates={coordinates}
+              axisEndCoordinates={axisEndCoordinates}
+            />
+          ) : null
+        }
         <IsometricStructure spacing={4} cubeLocations={cubeLocations} />
       </Layout>
     </HexGrid>
