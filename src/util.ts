@@ -1,8 +1,28 @@
 import type { Quaternion } from 'quaternion'
-import type { Coordinates } from './IsometricStructure.tsx'
-import { Hex } from 'react-hexgrid'
+import type { Coordinates, Direction } from './IsometricStructure.tsx'
+import { Hex, HexUtils } from 'react-hexgrid'
 
 type CoordinatesLike = Coordinates & Record<string | number | symbol, unknown>
+
+/**
+ * Updates an accumulator of minimum and maximum values with a new value in place.
+ * For example, let the accumulator be { attr1: { min: Infinity, max: -Infinity }, attr2: { min: 1, max: 9 } } and
+ * let the values be { attr1: 5, attr2: 10 }.
+ * The accumulator will then be updated to { attr1: { min: 5, max: 5 }, attr2: { min: 1, max: 10 } }.
+ * @param accMinMax - The accumulator.
+ * @param values - The new values to be compared against.
+ */
+export function updateMinMax<Key extends string|number|symbol>(
+  accMinMax: Record<Key, { min: number, max: number }>,
+  values: Record<Key, number>
+) {
+  for (const [key, value] of Object.entries<number>(values)) {
+    accMinMax[key as Key] = {
+      min: Math.min(accMinMax[key as Key].min, value),
+      max: Math.max(accMinMax[key as Key].max, value)
+    }
+  }
+}
 
 /**
  * This converts hex to pixel coordinates, similar to the function of the same name in react-hexgrid.
@@ -21,6 +41,16 @@ export function hexToPixel(hex: Hex, spacing: number): { x: number, y: number } 
   const y = (hex.r * Math.sqrt(3) + hex.q * (Math.sqrt(3) / 2)) * 0.1
 
   return { x: x * spacing, y: y * spacing }
+}
+
+/**
+ * Constructs a hex which is in the given direction and distance from origin.
+ * @param direction - Direction from origin.
+ * @param distance - Distance from origin.
+ * @returns The hex.
+ */
+export function directionalHex(direction: Direction, distance: number): Hex {
+  return HexUtils.multiply(HexUtils.direction(direction), distance)
 }
 
 /**

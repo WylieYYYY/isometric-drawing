@@ -1,10 +1,11 @@
 import type { Coordinates, Direction, PositiveAxis } from './IsometricStructure.tsx'
-import { Hex, HexUtils, Path } from 'react-hexgrid'
-import { hexToPixel } from './util.ts'
+import { HexUtils, Path } from 'react-hexgrid'
+import { directionalHex, hexToPixel } from './util.ts'
 
 type AxisArrowsProps = {
-  spacing: number,
+  spacing: number
   coordinates: Array<Coordinates>
+  axisEndCoordinates: Coordinates
 }
 
 /** Map of positive axes to their conventional display colors. */
@@ -12,16 +13,6 @@ const axisColorMap = {
   x: 'red',
   y: 'limegreen',
   z: 'blue'
-}
-
-/**
- * Constructs a hex which is in the given direction and distance from origin.
- * @param direction - Direction from origin.
- * @param distance - Distance from origin.
- * @returns The hex.
- */
-function directionalHex(direction: Direction, distance: number): Hex {
-  return HexUtils.multiply(HexUtils.direction(direction), distance)
 }
 
 /**
@@ -59,15 +50,9 @@ function makeSegments(obscureSet: Set<number>, end: number): Array<number> {
 }
 
 /** Represents the arrows that mark the axes. */
-export function AxisArrows({ spacing, coordinates }: AxisArrowsProps) {
-  const [maxVisualCoordinates, obscureSets] = coordinates.reduce(([maxVisualCoordinates, obscureSets], { x, y, z }) => {
-    // calculate where the coordinates are visually on the axes
-    // so that the axes do not over extend when the coordinates are large but not away from center of viewport
-    const { x: maxVisualX, y: maxVisualY, z: maxVisualZ } = maxVisualCoordinates
-    const visualX = x - y
-    const visualY = Math.ceil(y - (x + z) / 2)
-    const visualZ = z - y
-
+export function AxisArrows({ spacing, coordinates, axisEndCoordinates }: AxisArrowsProps) {
+  const obscureSets = { x: new Set<number>(), y: new Set<number>(), z: new Set<number>() }
+  for (const { x, y, z } of coordinates) {
     // no planar movement can obscure any arrow if any coordinate is behind on any axis
     // project the coordinates onto the axes if it is visually on them
     // does not match axis-adjacent obscuring coordinates as that will complicate the logic greatly
@@ -77,16 +62,7 @@ export function AxisArrows({ spacing, coordinates }: AxisArrowsProps) {
       if (x === z && y - x >= 0) obscureSets.y.add(y - x)
       if (x === y && z - x >= 0) obscureSets.z.add(z - x)
     }
-
-    return [
-      {
-        x: Math.max(maxVisualX, visualX),
-        y: Math.max(maxVisualY, visualY),
-        z: Math.max(maxVisualZ, visualZ)
-      },
-      obscureSets
-    ]
-  }, [{ x: 0, y: 0, z: 0 }, { x: new Set<number>(), y: new Set<number>(), z: new Set<number>() }])
+  }
 
   // arrow is a combination of dashed line, triangular arrow head and text label
   const arrows = []
@@ -94,7 +70,7 @@ export function AxisArrows({ spacing, coordinates }: AxisArrowsProps) {
     const axisDirection = index * 2 as Direction
 
     // make sure the arrow is not obscured, it needs to extend 2 units beyond the origin
-    const hexes = makeSegments(obscureSets[axis], maxVisualCoordinates[axis] + 2)
+    const hexes = makeSegments(obscureSets[axis], axisEndCoordinates[axis] + 2)
         .map((coordinate) => directionalHex(axisDirection, coordinate))
     const color = axisColorMap[axis]
 

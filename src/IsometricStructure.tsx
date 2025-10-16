@@ -1,9 +1,5 @@
 import type { CubeLocation } from './Store.tsx'
-import { useShallow } from 'zustand/react/shallow'
-import { AxisArrows } from './AxisArrows.tsx'
 import { Cube } from './Cube.tsx'
-import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
-import { rotate } from './util.ts'
 
 export type Direction = 0 | 1 | 2 | 3 | 4 | 5
 export type PositiveAxis = 'x' | 'y' | 'z'
@@ -11,6 +7,7 @@ export type Axis = PositiveAxis | '-x' | '-y' | '-z'
 export type Coordinates = { [Property in PositiveAxis]: number }
 
 type IsometricStructureProps = {
+  cubeLocations: Array<CubeLocation>
   spacing: number
 }
 
@@ -62,18 +59,7 @@ function getObscureDirection(x: number, y: number, z: number): Direction|null {
  * Represents a structure that is made out of isometric cubes.
  * This coordinates multi-cube rendering.
  */
-export function IsometricStructure({ spacing }: IsometricStructureProps) {
-  const [
-    cuboidValues,
-    rotation
-  ] = useStore(useShallow((state) => [
-    state.cuboidValues,
-    state.rotation
-  ]))
-
-  let cubeLocations = cubeLocationFromCuboidValues(cuboidValues)
-  cubeLocations = rotate(cubeLocations, rotation) as Array<CubeLocation>
-
+export function IsometricStructure({ spacing, cubeLocations }: IsometricStructureProps) {
   const cubes = []
 
   // can be optimized by ranking the cube by proximity to viewer first and eliminating cubes as it goes
@@ -82,7 +68,7 @@ export function IsometricStructure({ spacing }: IsometricStructureProps) {
     const cullFaces: Array<Axis> = []
     const cullObscured: Array<Direction> = []
 
-    for (const { x: otherX, y: otherY, z: otherZ, ..._rest } of cubeLocations) {
+    for (const { x: otherX, y: otherY, z: otherZ } of cubeLocations) {
       if (x === otherX && y === otherY && z === otherZ) continue
 
       // relative coordinates to the current cube
@@ -130,10 +116,5 @@ export function IsometricStructure({ spacing }: IsometricStructureProps) {
       />)
   }
 
-  return (
-    <>
-      <AxisArrows spacing={spacing} coordinates={cubeLocations.map(({ cuboidIndex, ...rest}) => rest)} />
-      {...cubes}
-    </>
-  )
+  return <>{...cubes}</>
 }

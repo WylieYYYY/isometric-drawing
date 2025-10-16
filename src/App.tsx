@@ -2,12 +2,10 @@ import type { IOptions } from 'canvg'
 import type { CubeLocation } from './Store.tsx'
 import { Canvg, presets } from 'canvg'
 import { useCallback, useEffect, useState } from 'react'
-import { GridGenerator, HexGrid, Layout } from 'react-hexgrid'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
-import { GridPoint } from './GridPoint.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
-import { IsometricStructure } from './IsometricStructure.tsx'
+import { IsometricViewport } from './IsometricViewport.tsx'
 import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
 
 const BLOB_URL_TIMEOUT = 500
@@ -26,8 +24,8 @@ function downloadCSV(setDownloadUrl: (downloadUrl: string) => void, cubeLocation
   setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
 }
 
-function downloadSVG(setDownloadUrl: (downloadUrl: string) => void) {
-  const svg = document.querySelector('svg')!
+function downloadSVG(svgSelector: string, setDownloadUrl: (downloadUrl: string) => void) {
+  const svg = document.querySelector(svgSelector)!
   const anchor = document.getElementById('download') as HTMLAnchorElement
 
   const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' })
@@ -36,8 +34,8 @@ function downloadSVG(setDownloadUrl: (downloadUrl: string) => void) {
   setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
 }
 
-async function downloadPNG(setDownloadUrl: (downloadUrl: string) => void, width: number, height: number) {
-  const svg = document.querySelector('svg')!
+async function downloadPNG(svgSelector: string, setDownloadUrl: (downloadUrl: string) => void, width: number, height: number) {
+  const svg = document.querySelector(svgSelector)!
   const anchor = document.getElementById('download') as HTMLAnchorElement
 
   const canvas = new OffscreenCanvas(0, 0)
@@ -96,9 +94,10 @@ function App() {
   })
 
   const [downloadUrl, setDownloadUrl] = useState('#')
+  const [shouldCropOnExport, setShouldCropOnExport] = useState(true)
   const [shouldShowGrid, setShouldShowGrid] = useState(true)
 
-  const generator = shouldShowGrid ? GridGenerator.hexagon(20) : []
+  const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
 
   return (
     <>
@@ -106,6 +105,9 @@ function App() {
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
+          <div id='background-render' style={{ display: 'none' }}>
+            <IsometricViewport shouldShowGrid={shouldShowGrid} />
+          </div>
           <div style={{ maxHeight: '30%', overflowX: 'hidden', overflowY: 'scroll' }}>
             <CuboidStructureInputs />
           </div>
@@ -113,8 +115,12 @@ function App() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
             <button onClick={() => downloadCSV(setDownloadUrl, cubeLocationFromCuboidValues(cuboidValues))}>Save as CSV</button>
-            <button onClick={() => downloadPNG(setDownloadUrl, 2400, 2400)}>Export PNG</button>
-            <button onClick={() => downloadSVG(setDownloadUrl)}>Export SVG</button>
+            <div style={{ display: 'flex' }}>
+              <input type='checkbox' name='crop-chk' checked={shouldCropOnExport} onChange={(event) => setShouldCropOnExport(event.target.checked)} />
+              <label htmlFor='crop-chk'>Crop on export</label>
+            </div>
+            <button onClick={() => downloadPNG(svgSelector, setDownloadUrl, 2400, 2400)}>Export PNG</button>
+            <button onClick={() => downloadSVG(svgSelector, setDownloadUrl)}>Export SVG</button>
           </div>
         </aside>
         <label htmlFor='collapse-btn' role='button'>
@@ -127,22 +133,8 @@ function App() {
         <section>
           <TransformWrapper centerOnInit={true} initialScale={8}>
             <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-                <HexGrid viewBox='-20 -20 40 40' style={{ width: 600, height: 600 }}>
-                  <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
-                    {
-                      generator.map((hex, key) => (
-                        <GridPoint
-                          key={key}
-                          hex={hex}
-                          spacing={4}
-                          radius={0.05}
-                        />
-                      ))
-                    }
-                    <IsometricStructure spacing={4} />
-                  </Layout>
-                </HexGrid>
+              <div id='foreground-viewport' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
+                <IsometricViewport shouldShowGrid={shouldShowGrid} size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
               </div>
             </TransformComponent>
           </TransformWrapper>
