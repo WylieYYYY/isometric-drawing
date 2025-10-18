@@ -4,6 +4,7 @@ import { Canvg, presets } from 'canvg'
 import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
+import { CodedPlan } from './CodedPlan.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { IsometricViewport } from './isometric/IsometricViewport.tsx'
 import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
@@ -124,6 +125,7 @@ function App() {
             <button onClick={() => downloadPNG(svgSelector, setDownloadUrl, 2400, 2400)}>Export PNG</button>
             <button onClick={() => downloadSVG(svgSelector, setDownloadUrl)}>Export SVG</button>
           </div>
+          <CodedPlan />
         </aside>
         <label htmlFor='collapse-btn' role='button'>
           <div style={{ writingMode: 'vertical-rl' }}>

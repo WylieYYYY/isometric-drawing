@@ -1,5 +1,5 @@
 import type { Quaternion } from 'quaternion'
-import type { Coordinates, Direction } from './isometric/foreground/IsometricStructure.tsx'
+import type { Coordinates, Direction, PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
 import { Hex, HexUtils } from 'react-hexgrid'
 
 type CoordinatesLike = Coordinates & Record<string | number | symbol, unknown>
@@ -22,6 +22,41 @@ export function updateMinMax<Key extends string|number|symbol>(
       max: Math.max(accMinMax[key as Key].max, value)
     }
   }
+}
+
+/**
+ * Makes a two dimensional array by flattening coordinates on an axis into sets, and using the other axes as indices.
+ * If x-axis is flattened, then the map will have [z][y] as indices. (This does not follow alphabetical order)
+ * If y-axis is flattened, then the map will have [x][z] as indices.
+ * If z-axis is flattened, then the map will have [x][y] as indices.
+ * @param flattenAxis - Axis to be flattened into sets.
+ * @param coordinates - Coordinates to create map from.
+ * @returns A tuple of sparse array that represents a map of coordinate sets and the limits of the map.
+ */
+export function coordinatesMap(
+  flattenAxis: PositiveAxis,
+  coordinates: Array<Coordinates>
+): [Array<Array<Set<number>>>, Record<PositiveAxis, { min: number, max: number }>] {
+  // using xzy is intentional as this allows orthographic views to use this function without rotating axes
+  const [firstAxis, secondAxis] = ['x', 'z', 'y'].filter((axis) => axis !== flattenAxis) as Array<PositiveAxis>
+
+  const minMaxCoordinates = {
+    [firstAxis]: { min: Infinity, max: -Infinity },
+    [secondAxis]: { min: Infinity, max: -Infinity }
+  }
+
+  const map: Array<Array<Set<number>>> = []
+
+  for (const xyz of coordinates) {
+    // create elements sparsely, calculations depends on this behavior to check if there are adjacent columns
+    map[xyz[firstAxis]] = map[xyz[firstAxis]] ?? []
+    map[xyz[firstAxis]][xyz[secondAxis]] = map[xyz[firstAxis]][xyz[secondAxis]] ?? new Set()
+    map[xyz[firstAxis]][xyz[secondAxis]].add(xyz[flattenAxis])
+
+    updateMinMax(minMaxCoordinates, { [firstAxis]: xyz[firstAxis], [secondAxis]: xyz[secondAxis] })
+  }
+
+  return [map, minMaxCoordinates as Record<PositiveAxis, { min: number, max: number }>]
 }
 
 /**
