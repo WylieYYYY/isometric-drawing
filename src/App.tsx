@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './CodedPlan.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { IsometricViewport } from './isometric/IsometricViewport.tsx'
+import { OrthographicViews } from './OrthographicViews.tsx'
 import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
 
 const BLOB_URL_TIMEOUT = 500
@@ -110,10 +111,6 @@ function App() {
           <div id='background-render' style={{ display: 'none' }}>
             <IsometricViewport shouldShowGrid={shouldShowGrid} shouldShowAxisArrows={shouldShowAxisArrows} />
           </div>
-          <div style={{ maxHeight: '30%', overflowX: 'hidden', overflowY: 'scroll' }}>
-            <CuboidStructureInputs />
-          </div>
-          <hr />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
             <button onClick={() => setShouldShowAxisArrows(!shouldShowAxisArrows)}>Toggle Axis Arrows</button>
@@ -125,7 +122,22 @@ function App() {
             <button onClick={() => downloadPNG(svgSelector, setDownloadUrl, 2400, 2400)}>Export PNG</button>
             <button onClick={() => downloadSVG(svgSelector, setDownloadUrl)}>Export SVG</button>
           </div>
-          <CodedPlan />
+          <hr />
+          <div style={{ position: 'relative', height: '20%' }}>
+            <label style={{ display: 'block' }}>Coded Plan:</label>
+            <CodedPlan />
+          </div>
+          <div style={{ position: 'relative', height: '20%' }}>
+            <label style={{ display: 'block' }}>Orthographic Views:</label>
+            <OrthographicViews />
+          </div>
+          <hr />
+          <div style={{ maxHeight: '30%', overflowX: 'hidden', overflowY: 'scroll' }}>
+            <details>
+              <summary>Cuboid Structure Inputs</summary>
+              <CuboidStructureInputs />
+            </details>
+          </div>
         </aside>
         <label htmlFor='collapse-btn' role='button'>
           <div style={{ writingMode: 'vertical-rl' }}>
