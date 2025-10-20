@@ -77,11 +77,11 @@ function App() {
   ]))
 
   const keyDownCallback = useCallback((event: KeyboardEvent) => {
-    if (event.repeat || event.code !== 'Delete') return
+    if (event.repeat || (event.key !== 'd' && event.code !== 'Delete')) return
     setHighlightKind('cuboid')
   }, [setHighlightKind])
   const keyUpCallback = useCallback((event: KeyboardEvent) => {
-    if (event.repeat || event.code !== 'Delete') return
+    if (event.repeat || (event.key !== 'd' && event.code !== 'Delete')) return
     setHighlightKind('face')
   }, [setHighlightKind])
 
