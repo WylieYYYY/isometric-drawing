@@ -4,12 +4,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { CodedPlan } from './CodedPlan.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
+import { DrawingProvider } from './isometric/DrawingStore.tsx'
 import { IsometricViewport } from './isometric/IsometricViewport.tsx'
 import { OrthographicViews } from './OrthographicViews.tsx'
 import { RotationButtons } from './RotationButtons.tsx'
 import { SaveButton } from './SaveButton.tsx'
 import { useStore } from './Store.tsx'
-import { IsometricViewportProvider } from './isometric/DrawingStore.tsx'
 
 const BLOB_URL_TIMEOUT = 500
 
@@ -70,7 +70,7 @@ function App() {
   const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
 
   return (
-    <IsometricViewportProvider>
+    <DrawingProvider>
       <a id='download' href={downloadUrl} style={{ display: 'none' }}></a>
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
@@ -126,7 +126,7 @@ function App() {
           </div>
         </section>
       </main>
-    </IsometricViewportProvider>
+    </DrawingProvider>
   )
 }
 

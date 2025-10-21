@@ -7,7 +7,7 @@ import { useRef } from 'react'
 import { Quaternion } from 'quaternion'
 import { createStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-import { IsometricContext } from './DrawingStoreHook.ts'
+import { DrawingContext } from './DrawingStoreHook.ts'
 import { isCubeFaceHighlighted } from './../Store.tsx'
 
 export type DrawingStore = {
@@ -162,13 +162,13 @@ const createDrawingStore = () => createStore<DrawingStore>()(immer((set, get) =>
   }
 })))
 
-export function IsometricViewportProvider({ children }: Omit<PropsWithChildren<{ _: never }>, '_'>) {
+export function DrawingProvider({ children }: Omit<PropsWithChildren<{ _: never }>, '_'>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
   if (storeRef.current === null) storeRef.current = createDrawingStore()
 
   return (
-    <IsometricContext.Provider value={storeRef.current}>
+    <DrawingContext.Provider value={storeRef.current}>
       {children}
-    </IsometricContext.Provider>
+    </DrawingContext.Provider>
   )
 }
