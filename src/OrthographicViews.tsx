@@ -1,6 +1,7 @@
 import { useShallow } from 'zustand/react/shallow'
 import { OrthographicView } from './OrthographicView.tsx'
-import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
+import { cubeLocationFromCuboidValues } from './Store.tsx'
+import { useDrawingStore } from './isometric/DrawingStoreHook.ts'
 import { rotate, updateMinMax } from './util.ts'
 
 /**
@@ -11,7 +12,7 @@ export function OrthographicViews() {
   const [
     cuboidValues,
     rotation
-  ] = useStore(useShallow((state) => [
+  ] = useDrawingStore(useShallow((state) => [
     state.cuboidValues,
     state.rotation
   ]))

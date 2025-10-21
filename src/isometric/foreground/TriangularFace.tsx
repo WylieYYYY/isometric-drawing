@@ -2,6 +2,7 @@ import type { Direction, PositiveAxis } from './IsometricStructure.tsx'
 import type { CubeLocation, HighlightKind } from './../../Store.tsx'
 import { Hex, HexUtils } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
+import { useDrawingStore } from './../DrawingStoreHook.ts'
 import { useStore } from './../../Store.tsx'
 import { hexToPixel, rotate } from './../../util.ts'
 
@@ -17,13 +18,14 @@ type TriangularFaceProps = {
  * This allows culling by removing and adding triangular faces without calculating the unobscured face vertices manually.
  */
 export function TriangularFace({ spacing, cubeLocation, startDirection, highlightedCubeFaceMap }: TriangularFaceProps) {
+  const highlightKind = useStore((state) => state.highlightKind)
   const [
     highlightCubeFace,
     unhighlightCubeFace,
     newCuboidValue,
     deleteCuboidValue,
     rotation
-  ]= useStore(useShallow((state) => [
+  ]= useDrawingStore(useShallow((state) => [
     state.highlightCubeFace,
     state.unhighlightCubeFace,
     state.newCuboidValue,
@@ -86,7 +88,7 @@ export function TriangularFace({ spacing, cubeLocation, startDirection, highligh
       fillOpacity={highlightedCubeFaceMap[faceAxis] !== null ? 0.5 : 0}
       onClick={onClickCallback}
       onMouseOver={() => highlightCubeFace({ cuboidIndex, x, y, z }, faceAxis)}
-      onMouseOut={() => unhighlightCubeFace({ cuboidIndex, x, y, z })}
+      onMouseOut={() => unhighlightCubeFace(highlightKind, { cuboidIndex, x, y, z })}
     />
   )
 }

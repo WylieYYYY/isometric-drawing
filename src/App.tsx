@@ -1,30 +1,17 @@
 import type { IOptions } from 'canvg'
-import type { CubeLocation } from './Store.tsx'
 import { Canvg, presets } from 'canvg'
 import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
-import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './CodedPlan.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { IsometricViewport } from './isometric/IsometricViewport.tsx'
 import { OrthographicViews } from './OrthographicViews.tsx'
-import { cubeLocationFromCuboidValues, useStore } from './Store.tsx'
+import { RotationButtons } from './RotationButtons.tsx'
+import { SaveButton } from './SaveButton.tsx'
+import { useStore } from './Store.tsx'
+import { IsometricViewportProvider } from './isometric/DrawingStore.tsx'
 
 const BLOB_URL_TIMEOUT = 500
-
-function downloadCSV(setDownloadUrl: (downloadUrl: string) => void, cubeLocations: Array<CubeLocation>) {
-  const anchor = document.getElementById('download') as HTMLAnchorElement
-
-  const content = cubeLocations.reduce((rows, cubeLocation) => {
-    const newRow = `${cubeLocation.x},${cubeLocation.y},${cubeLocation.z}`
-    return `${rows}${newRow}\n`
-  }, 'x,y,z\n')
-
-  const blob = new Blob([content], { type: 'text/csv' })
-  setDownloadUrl(URL.createObjectURL(blob))
-  anchor.download = 'structure.csv'
-  setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
-}
 
 function downloadSVG(svgSelector: string, setDownloadUrl: (downloadUrl: string) => void) {
   const svg = document.querySelector(svgSelector)!
@@ -54,27 +41,7 @@ async function downloadPNG(svgSelector: string, setDownloadUrl: (downloadUrl: st
 }
 
 function App() {
-  const [
-    setHighlightKind,
-    cuboidValues,
-    resetRotation,
-    rotateXClockwise,
-    rotateXAnticlockwise,
-    rotateYClockwise,
-    rotateYAnticlockwise,
-    rotateZClockwise,
-    rotateZAnticlockwise
-  ] = useStore(useShallow((state) => [
-    state.setHighlightKind,
-    state.cuboidValues,
-    state.resetRotation,
-    state.rotateXClockwise,
-    state.rotateXAnticlockwise,
-    state.rotateYClockwise,
-    state.rotateYAnticlockwise,
-    state.rotateZClockwise,
-    state.rotateZAnticlockwise
-  ]))
+  const setHighlightKind = useStore((state) => state.setHighlightKind)
 
   const keyDownCallback = useCallback((event: KeyboardEvent) => {
     if (event.repeat || (event.key !== 'd' && event.code !== 'Delete')) return
@@ -103,7 +70,7 @@ function App() {
   const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
 
   return (
-    <>
+    <IsometricViewportProvider>
       <a id='download' href={downloadUrl} style={{ display: 'none' }}></a>
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
@@ -114,7 +81,7 @@ function App() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
             <button onClick={() => setShouldShowAxisArrows(!shouldShowAxisArrows)}>Toggle Axis Arrows</button>
-            <button onClick={() => downloadCSV(setDownloadUrl, cubeLocationFromCuboidValues(cuboidValues))}>Save as CSV</button>
+            <SaveButton setDownloadUrl={setDownloadUrl} />
             <div style={{ display: 'flex' }}>
               <input type='checkbox' name='crop-chk' checked={shouldCropOnExport} onChange={(event) => setShouldCropOnExport(event.target.checked)} />
               <label htmlFor='crop-chk'>Crop on export</label>
@@ -155,17 +122,11 @@ function App() {
             </TransformComponent>
           </TransformWrapper>
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
-            <button onClick={resetRotation}>Reset rotation</button>
-            <button onClick={rotateXClockwise}>Rotate about positive x (→x)</button>
-            <button onClick={rotateXAnticlockwise}>Rotate about negative x (←x)</button>
-            <button onClick={rotateYClockwise}>Rotate about positive y (→y)</button>
-            <button onClick={rotateYAnticlockwise}>Rotate about negative y (←y)</button>
-            <button onClick={rotateZClockwise}>Rotate about positive z (→z)</button>
-            <button onClick={rotateZAnticlockwise}>Rotate about negative z (←z)</button>
+            <RotationButtons />
           </div>
         </section>
       </main>
-    </>
+    </IsometricViewportProvider>
   )
 }
 

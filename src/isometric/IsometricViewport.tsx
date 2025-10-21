@@ -5,7 +5,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { AxisArrows } from './background/AxisArrows.tsx'
 import { GridPoint } from './background/GridPoint.tsx'
 import { IsometricStructure } from './foreground/IsometricStructure.tsx'
-import { cubeLocationFromCuboidValues, useStore } from './../Store.tsx'
+import { cubeLocationFromCuboidValues } from './../Store.tsx'
+import { useDrawingStore } from './DrawingStoreHook.ts'
 import { directionalHex, hexToPixel, rotate, updateMinMax } from './../util.ts'
 
 type ViewBox = {
@@ -95,7 +96,7 @@ export function IsometricViewport({ shouldShowGrid, shouldShowAxisArrows, size }
   const [
     cuboidValues,
     rotation
-  ] = useStore(useShallow((state) => [
+  ] = useDrawingStore(useShallow((state) => [
     state.cuboidValues,
     state.rotation
   ]))

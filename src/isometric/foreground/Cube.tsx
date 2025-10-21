@@ -1,8 +1,8 @@
 import type { Axis,  Direction, PositiveAxis } from './IsometricStructure.tsx'
 import type { CubeLocation, HighlightKind } from './../../Store.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
-import { useShallow } from 'zustand/react/shallow'
 import { isCubeFaceHighlighted, useStore } from './../../Store.tsx'
+import { useDrawingStore } from './../DrawingStoreHook.ts'
 import { TriangularFace } from './TriangularFace.tsx'
 
 type CubeProps = {
@@ -62,13 +62,8 @@ function shouldCull(
  * they should be precomputed by the owner of multiple cubes, like an isometric structure.
  */
 export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
-  const [
-    highlightKind,
-    highlightedTarget
-  ]= useStore(useShallow((state) => [
-    state.highlightKind,
-    state.highlightedTarget
-  ]))
+  const highlightKind = useStore((state) => state.highlightKind)
+  const highlightedTarget = useDrawingStore((state) => state.highlightedTarget)
 
   /* Map of face axis to what kind of highlighting is applied to that face. */
   const highlightedCubeFaceMap = Object.fromEntries(['x', 'y', 'z'].map((axis) => {
