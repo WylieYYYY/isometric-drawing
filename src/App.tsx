@@ -1,13 +1,14 @@
 import type { IOptions } from 'canvg'
 import { Canvg, presets } from 'canvg'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { CodedPlan } from './CodedPlan.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { DrawingProvider } from './isometric/DrawingStore.tsx'
+import { ExportDialog } from './dialog/ExportDialog.tsx'
 import { IsometricViewport } from './isometric/IsometricViewport.tsx'
 import { OrthographicViews } from './OrthographicViews.tsx'
-import { RotationButtons } from './RotationButtons.tsx'
+import { RotationButtons } from './isometric/control/RotationButtons.tsx'
 import { SaveButton } from './SaveButton.tsx'
 import { useStore } from './Store.tsx'
 
@@ -62,12 +63,22 @@ function App() {
     }
   })
 
+  const exportDialogId = useId()
+
   const [downloadUrl, setDownloadUrl] = useState('#')
   const [shouldCropOnExport, setShouldCropOnExport] = useState(true)
   const [shouldShowGrid, setShouldShowGrid] = useState(true)
   const [shouldShowAxisArrows, setShouldShowAxisArrows] = useState(true)
+  const [shouldContinueRenderExportDialog, setShouldContinueRenderExportDialog] = useState(false)
 
   const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
+
+  const exportDialog = document.getElementById(exportDialogId) as HTMLDialogElement|null
+  if (shouldContinueRenderExportDialog) {
+    exportDialog?.showModal()
+  } else {
+    exportDialog?.close()
+  }
 
   return (
     <DrawingProvider>
@@ -88,6 +99,7 @@ function App() {
             </div>
             <button onClick={() => downloadPNG(svgSelector, setDownloadUrl, 2400, 2400)}>Export PNG</button>
             <button onClick={() => downloadSVG(svgSelector, setDownloadUrl)}>Export SVG</button>
+            <button onClick={() => setShouldContinueRenderExportDialog(true)}>Open Export Dialog</button>
           </div>
           <hr />
           <div style={{ position: 'relative', height: '20%' }}>
@@ -124,6 +136,7 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
             <RotationButtons />
           </div>
+          <ExportDialog id={exportDialogId} setShouldContinueRender={setShouldContinueRenderExportDialog} />
         </section>
       </main>
     </DrawingProvider>

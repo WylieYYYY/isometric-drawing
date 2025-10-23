@@ -32,6 +32,9 @@ html, body {
                 width: 0;
                 flex-grow: 0;
             }
+            section > #export-dialog {
+              display: none;
+            }
         }
     }
 }
@@ -79,4 +82,24 @@ label[for=collapse-btn] {
 
     user-select: none;
     cursor: pointer;
+}
+
+.export-dialog {
+  display: absolute;
+  @media (min-width: 60rem) {
+      width: 50%;
+      height: 50%;
+      top: 25%;
+      right: 25%;
+      bottom: 25%;
+      left: 25%;
+  }
+  @media (max-width: 60rem) {
+      width: 80%;
+      height: 80%;
+      top: 10%;
+      right: 10%;
+      bottom: 10%;
+      left: 10%;
+  }
 }

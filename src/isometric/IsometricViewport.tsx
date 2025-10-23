@@ -20,9 +20,9 @@ type IsometricViewportProps = {
   shouldShowGrid: boolean
   shouldShowAxisArrows: boolean
   size?: {
-    width: number
-    height: number
-    viewBox: string
+    width?: number | string
+    height?: number | string
+    viewBox?: string
   }
 }
 
@@ -115,13 +115,11 @@ export function IsometricViewport({ shouldShowGrid, shouldShowAxisArrows, size }
     viewBox: size?.viewBox
   }
 
-  if (size === undefined) {
-    const { x, y, width, height } = autoViewBox(4, axisEndCoordinates, cubeLocations)
-    // same scale as the self-defined size (600 / 40 = 15), can be lifted as a prop
-    newSize.width = width * 15
-    newSize.height = height * 15
-    newSize.viewBox = `${x} ${y} ${width} ${height}`
-  }
+  const { x, y, width, height } = autoViewBox(4, axisEndCoordinates, cubeLocations)
+  // same scale as the self-defined size (600 / 40 = 15), can be lifted as a prop
+  newSize.width = newSize.width ?? width * 15
+  newSize.height = newSize.height ?? height * 15
+  newSize.viewBox = newSize.viewBox ?? `${x} ${y} ${width} ${height}`
 
   return (
     <HexGrid viewBox={newSize.viewBox} style={{ width: newSize.width, height: newSize.height }}>

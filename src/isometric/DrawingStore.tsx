@@ -10,17 +10,19 @@ import { immer } from 'zustand/middleware/immer'
 import { DrawingContext } from './DrawingStoreHook.ts'
 import { isCubeFaceHighlighted } from './../Store.tsx'
 
-export type DrawingStore = {
+type DrawingDefinition = {
+  cuboidValues: Array<CuboidValue>
+  rotation: Quaternion
+}
+
+export type DrawingStore = DrawingDefinition & {
   highlightedTarget: VisibleCubeFaceLocation|null
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => void
 
-  cuboidValues: Array<CuboidValue>
   newCuboidValue: (cuboidValue?: CuboidValue) => void
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => void
   deleteCuboidValue: (index: number) => void
-
-  rotation: Quaternion
 
   resetRotation: () => void
 
@@ -52,7 +54,7 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
   )
 }
 
-const createDrawingStore = () => createStore<DrawingStore>()(immer((set, get) => ({
+const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStore<DrawingStore>()(immer((set, get) => ({
   highlightedTarget: null,
 
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => {
@@ -68,7 +70,7 @@ const createDrawingStore = () => createStore<DrawingStore>()(immer((set, get) =>
   },
 
   /** Cuboid values array, holds cuboids of one isometric structure. */
-  cuboidValues: [
+  cuboidValues: initialDefinition?.cuboidValues ?? [
     { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }
   ],
 
@@ -104,7 +106,7 @@ const createDrawingStore = () => createStore<DrawingStore>()(immer((set, get) =>
   },
 
   /** Quaternion to preserve non-commutative rotations compactly. */
-  rotation: new Quaternion(),
+  rotation: initialDefinition?.rotation ?? new Quaternion(),
 
   /** Resets the rotation such that the rendering coordinates matches the ones denoted in the cuboid values. */
   resetRotation: () => {
@@ -162,9 +164,9 @@ const createDrawingStore = () => createStore<DrawingStore>()(immer((set, get) =>
   }
 })))
 
-export function DrawingProvider({ children }: Omit<PropsWithChildren<{ _: never }>, '_'>) {
+export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: DrawingDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
-  if (storeRef.current === null) storeRef.current = createDrawingStore()
+  if (storeRef.current === null) storeRef.current = createDrawingStore(initialDefinition)
 
   return (
     <DrawingContext.Provider value={storeRef.current}>
