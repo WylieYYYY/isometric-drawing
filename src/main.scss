@@ -32,9 +32,6 @@ html, body {
                 width: 0;
                 flex-grow: 0;
             }
-            section > #export-dialog {
-              display: none;
-            }
         }
     }
 }
@@ -95,7 +92,7 @@ label[for=collapse-btn] {
       left: 25%;
   }
   @media (max-width: 60rem) {
-      width: 80%;
+      width: 80% !important;
       height: 80%;
       top: 10%;
       right: 10%;

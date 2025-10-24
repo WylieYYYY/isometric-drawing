@@ -166,7 +166,7 @@ const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStor
 
 export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: DrawingDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
-  if (storeRef.current === null) storeRef.current = createDrawingStore(initialDefinition)
+  if (storeRef.current === null || initialDefinition !== undefined) storeRef.current = createDrawingStore(initialDefinition)
 
   return (
     <DrawingContext.Provider value={storeRef.current}>
