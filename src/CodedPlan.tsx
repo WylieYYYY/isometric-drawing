@@ -52,13 +52,14 @@ export function CodedPlan() {
             y={parseInt(ZCoordinate)}
             width={1}
             height={1}
-            fill='transparent'
+            fillOpacity={0}
             stroke='black'
             strokeWidth={0.1}
           />
           <text
             x={parseInt(XCoordinate) + 0.5}
             y={parseInt(ZCoordinate) + 0.6}
+            fill='black'
             textAnchor='middle'
             style={{ fontSize: '0.5px', fontFamily: 'monospace' }}
           >

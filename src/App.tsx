@@ -6,6 +6,7 @@ import { CodedPlan } from './CodedPlan.tsx'
 import { CuboidStructureInputs } from './CuboidStructureInputs.tsx'
 import { DrawingProvider } from './isometric/DrawingStore.tsx'
 import { ExportDialog } from './dialog/ExportDialog.tsx'
+import { IsometricControls } from './isometric/control/IsometricControls.tsx'
 import { IsometricViewport } from './isometric/IsometricViewport.tsx'
 import { OrthographicViews } from './OrthographicViews.tsx'
 import { RotationButtons } from './isometric/control/RotationButtons.tsx'
@@ -67,8 +68,6 @@ function App() {
 
   const [downloadUrl, setDownloadUrl] = useState('#')
   const [shouldCropOnExport, setShouldCropOnExport] = useState(true)
-  const [shouldShowGrid, setShouldShowGrid] = useState(true)
-  const [shouldShowAxisArrows, setShouldShowAxisArrows] = useState(true)
   const [shouldContinueRenderExportDialog, setShouldContinueRenderExportDialog] = useState(false)
 
   const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
@@ -87,11 +86,10 @@ function App() {
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div id='background-render' style={{ display: 'none' }}>
-            <IsometricViewport shouldShowGrid={shouldShowGrid} shouldShowAxisArrows={shouldShowAxisArrows} />
+            <IsometricViewport />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-            <button onClick={() => setShouldShowGrid(!shouldShowGrid)}>Toggle Grid</button>
-            <button onClick={() => setShouldShowAxisArrows(!shouldShowAxisArrows)}>Toggle Axis Arrows</button>
+            <IsometricControls />
             <SaveButton setDownloadUrl={setDownloadUrl} />
             <div style={{ display: 'flex' }}>
               <input type='checkbox' name='crop-chk' checked={shouldCropOnExport} onChange={(event) => setShouldCropOnExport(event.target.checked)} />
@@ -102,12 +100,24 @@ function App() {
             <button onClick={() => setShouldContinueRenderExportDialog(true)}>Open Export Dialog</button>
           </div>
           <hr />
-          <div style={{ position: 'relative', height: '20%' }}>
-            <label style={{ display: 'block' }}>Coded Plan:</label>
+          <div id='coded-plan' style={{ position: 'relative', height: '20%' }}>
+            <label style={{ display: 'block' }}>
+              Coded Plan:
+              <span style={{ float: 'right' }}>
+                <button onClick={() => downloadPNG('#coded-plan svg', setDownloadUrl, 2400, 2400)}>Export PNG</button>
+                <button onClick={() => downloadSVG('#coded-plan svg', setDownloadUrl)}>Export SVG</button>
+              </span>
+            </label>
             <CodedPlan />
           </div>
-          <div style={{ position: 'relative', height: '20%' }}>
-            <label style={{ display: 'block' }}>Orthographic Views:</label>
+          <div id='orthographic' style={{ position: 'relative', height: '20%' }}>
+            <label style={{ display: 'block' }}>
+              Orthographic Views:
+              <span style={{ float: 'right' }}>
+                <button onClick={() => downloadPNG('#orthographic svg', setDownloadUrl, 2400, 2400)}>Export PNG</button>
+                <button onClick={() => downloadSVG('#orthographic svg', setDownloadUrl)}>Export SVG</button>
+              </span>
+            </label>
             <OrthographicViews />
           </div>
           <hr />
@@ -129,11 +139,11 @@ function App() {
           <TransformWrapper centerOnInit={true} initialScale={8}>
             <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
               <div id='foreground-viewport' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-                <IsometricViewport shouldShowGrid={shouldShowGrid} shouldShowAxisArrows={shouldShowAxisArrows} size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
+                <IsometricViewport size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
               </div>
             </TransformComponent>
           </TransformWrapper>
-          <div style={{ position: 'fixed', right: '.5em', bottom: '2em', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>
           <ExportDialog id={exportDialogId} setShouldContinueRender={setShouldContinueRenderExportDialog} />

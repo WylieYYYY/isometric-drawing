@@ -17,8 +17,6 @@ type ViewBox = {
 }
 
 type IsometricViewportProps = {
-  shouldShowGrid: boolean
-  shouldShowAxisArrows: boolean
   size?: {
     width?: number | string
     height?: number | string
@@ -92,11 +90,15 @@ function autoViewBox(spacing: number, axisEndCoordinates: Coordinates, cubeLocat
  * Handles the sizing of the drawing area and background features.
  * Main drawing is handled by the structure component.
  */
-export function IsometricViewport({ shouldShowGrid, shouldShowAxisArrows, size }: IsometricViewportProps) {
+export function IsometricViewport({ size }: IsometricViewportProps) {
   const [
+    shouldShowGrid,
+    shouldShowAxisArrows,
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
+    state.shouldShowGrid,
+    state.shouldShowAxisArrows,
     state.cuboidValues,
     state.rotation
   ]))

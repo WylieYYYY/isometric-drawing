@@ -16,6 +16,12 @@ type DrawingDefinition = {
 }
 
 export type DrawingStore = DrawingDefinition & {
+  shouldShowGrid: boolean
+  setShouldShowGrid: (shouldShowGrid: boolean) => void
+
+  shouldShowAxisArrows: boolean
+  setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => void
+
   highlightedTarget: VisibleCubeFaceLocation|null
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => void
@@ -55,6 +61,22 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 }
 
 const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStore<DrawingStore>()(immer((set, get) => ({
+  shouldShowGrid: true,
+
+  setShouldShowGrid: (shouldShowGrid: boolean) => {
+    set((state) => {
+      state.shouldShowGrid = shouldShowGrid
+    })
+  },
+
+  shouldShowAxisArrows: true,
+
+  setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => {
+    set((state) => {
+      state.shouldShowAxisArrows = shouldShowAxisArrows
+    })
+  },
+
   highlightedTarget: null,
 
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => {

@@ -21,7 +21,7 @@ export function RotationButtons() {
   ]))
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 3rem)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 1fr)' }}>
       <button onClick={resetRotation} style={{ gridColumnStart: 2, gridColumnEnd: 4, gridRowStart: 2 }}>Reset rotation</button>
       <button onClick={rotateXClockwise} style={{ gridColumnStart: 4, gridRowStart: 2, backgroundColor: 'red', color: 'white' }}>+X</button>
       <button onClick={rotateXAnticlockwise} style={{ gridColumnStart: 4, gridRowStart: 1, backgroundColor: 'red', color: 'white' }}>-X</button>

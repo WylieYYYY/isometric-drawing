@@ -5,6 +5,7 @@ import { DrawingProvider } from './../isometric/DrawingStore.tsx'
 import { useDrawingStore } from './../isometric/DrawingStoreHook.ts'
 import { IsometricViewport } from './../isometric/IsometricViewport.tsx'
 import { OrthographicViews } from './../OrthographicViews.tsx'
+import { IsometricControls } from './../isometric/control/IsometricControls.tsx'
 import { RotationButtons } from './../isometric/control/RotationButtons.tsx'
 
 type DrawingKind = 'isometric' | 'coded-plan' | 'orthographic'
@@ -24,22 +25,25 @@ export function ExportCard({ initialDrawingKind }: ExportCardProps) {
 
   const [drawingKind, setDrawingKind] = useState<DrawingKind>(initialDrawingKind ?? 'isometric')
 
-  let drawing
+  let drawing, control
   switch (drawingKind) {
     case 'isometric':
-      drawing = <IsometricViewport shouldShowGrid={true} shouldShowAxisArrows={true} size={{ width: '100%', height: '100%' }} />
+      drawing = <IsometricViewport size={{ width: '100%', height: '100%' }} />
+      control = <IsometricControls />
       break
     case 'coded-plan':
       drawing = <CodedPlan />
+      control = null
       break
     case 'orthographic':
       drawing = <OrthographicViews />
+      control = null
       break
   }
 
   return (
     <DrawingProvider initialDefinition={{ cuboidValues: structuredClone(cuboidValues), rotation: rotation.clone() }}>
-      <div>
+      <div style={{ marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
         <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
           {drawing}
         </div>
@@ -51,8 +55,13 @@ export function ExportCard({ initialDrawingKind }: ExportCardProps) {
             <option value='orthographic'>Orthographic</option>
           </select>
         </label>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <RotationButtons />
+        <div style={{ display: 'flex' }}>
+          <div style={{ width: '8rem' }}>
+            <RotationButtons />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {control}
+          </div>
         </div>
       </div>
     </DrawingProvider>
