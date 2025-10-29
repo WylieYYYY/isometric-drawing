@@ -1,6 +1,7 @@
 import type { Axis,  Direction, PositiveAxis } from './IsometricStructure.tsx'
 import type { CubeLocation, HighlightKind } from './../../Store.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
+import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 import { isCubeFaceHighlighted, useStore } from './../../Store.tsx'
 import { TriangularFace } from './TriangularFace.tsx'
@@ -63,7 +64,13 @@ function shouldCull(
  */
 export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
   const highlightKind = useStore((state) => state.highlightKind)
-  const highlightedTarget = useDrawingStore((state) => state.highlightedTarget)
+  const [
+    isInteractive,
+    highlightedTarget
+  ] = useDrawingStore(useShallow((state) => [
+    state.isInteractive,
+    state.highlightedTarget
+  ]))
 
   /* Map of face axis to what kind of highlighting is applied to that face. */
   const highlightedCubeFaceMap = Object.fromEntries(['x', 'y', 'z'].map((axis) => {
@@ -84,7 +91,7 @@ export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, c
   // triangular faces that have a vertex at the center and two vertices at adjacent outline vertices
   // triangular since obscuring may only cover part of a quadrilateral face
   const faces = []
-  for (let startDirection = 0; startDirection < 6; startDirection++) {
+  for (let startDirection = 0; isInteractive && startDirection < 6; startDirection++) {
     const endDirection = (startDirection + 1) % 6
 
     // if the start equals to the obscured direction, this triangle is in the anticlockwise half of the obscuring rhombus

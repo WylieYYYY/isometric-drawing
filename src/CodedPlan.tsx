@@ -18,9 +18,11 @@ function areNumbersContiguous(array: Array<number>): boolean {
 /** Represents a coded plan of a structure, this also rotates with the structure. */
 export function CodedPlan() {
   const [
+    shouldShowCodedPlanNumbers,
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
+    state.shouldShowCodedPlanNumbers,
     state.cuboidValues,
     state.rotation
   ]))
@@ -46,16 +48,19 @@ export function CodedPlan() {
       const height = YCoordinatesArray[YCoordinatesArray.length - 1] + 1
 
       squares.push(
-        <>
-          <rect
-            x={parseInt(XCoordinate)}
-            y={parseInt(ZCoordinate)}
-            width={1}
-            height={1}
-            fillOpacity={0}
-            stroke='black'
-            strokeWidth={0.1}
-          />
+        <rect
+          x={parseInt(XCoordinate)}
+          y={parseInt(ZCoordinate)}
+          width={1}
+          height={1}
+          fillOpacity={0}
+          stroke='black'
+          strokeWidth={0.1}
+        />
+      )
+
+      if (shouldShowCodedPlanNumbers) {
+        squares.push(
           <text
             x={parseInt(XCoordinate) + 0.5}
             y={parseInt(ZCoordinate) + 0.6}
@@ -65,8 +70,8 @@ export function CodedPlan() {
           >
             {height}
           </text>
-        </>
-      )
+        )
+      }
     }
   }
 

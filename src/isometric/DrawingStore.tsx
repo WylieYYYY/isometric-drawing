@@ -11,6 +11,7 @@ import { DrawingContext } from './DrawingStoreHook.ts'
 import { isCubeFaceHighlighted } from './../Store.tsx'
 
 type DrawingDefinition = {
+  isInteractive?: boolean
   cuboidValues: Array<CuboidValue>
   rotation: Quaternion
 }
@@ -21,6 +22,9 @@ export type DrawingStore = DrawingDefinition & {
 
   shouldShowAxisArrows: boolean
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => void
+
+  shouldShowCodedPlanNumbers: boolean
+  setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => void
 
   highlightedTarget: VisibleCubeFaceLocation|null
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
@@ -61,6 +65,8 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 }
 
 const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStore<DrawingStore>()(immer((set, get) => ({
+  isInteractive: initialDefinition?.isInteractive ?? true,
+
   shouldShowGrid: true,
 
   setShouldShowGrid: (shouldShowGrid: boolean) => {
@@ -74,6 +80,14 @@ const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStor
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => {
     set((state) => {
       state.shouldShowAxisArrows = shouldShowAxisArrows
+    })
+  },
+
+  shouldShowCodedPlanNumbers: true,
+
+  setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => {
+    set((state) => {
+      state.shouldShowCodedPlanNumbers = shouldShowCodedPlanNumbers
     })
   },
 

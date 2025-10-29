@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './../CodedPlan.tsx'
+import { CodedPlanControls } from './../isometric/control/CodedPlanControls.tsx'
 import { DrawingProvider } from './../isometric/DrawingStore.tsx'
 import { useDrawingStore } from './../isometric/DrawingStoreHook.ts'
 import { IsometricViewport } from './../isometric/IsometricViewport.tsx'
@@ -33,7 +34,7 @@ export function ExportCard({ initialDrawingKind }: ExportCardProps) {
       break
     case 'coded-plan':
       drawing = <CodedPlan />
-      control = null
+      control = <CodedPlanControls />
       break
     case 'orthographic':
       drawing = <OrthographicViews />
@@ -42,7 +43,7 @@ export function ExportCard({ initialDrawingKind }: ExportCardProps) {
   }
 
   return (
-    <DrawingProvider initialDefinition={{ cuboidValues: structuredClone(cuboidValues), rotation: rotation.clone() }}>
+    <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues: structuredClone(cuboidValues), rotation: rotation.clone() }}>
       <div style={{ marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
         <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
           {drawing}
