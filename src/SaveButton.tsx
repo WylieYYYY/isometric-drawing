@@ -1,5 +1,5 @@
 import type { CubeLocation } from './Store.tsx'
-import { useDrawingStore } from './isometric/DrawingStoreHook.ts'
+import { useDrawingStore } from './drawing/DrawingStoreHook.ts'
 import { cubeLocationFromCuboidValues } from './Store.tsx'
 
 type SaveButtonProps = {

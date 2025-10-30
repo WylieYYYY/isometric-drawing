@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
-import type { CuboidValue } from './CuboidStructureInputs.tsx'
-import type { Coordinates, PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
+import type { CuboidValue } from './drawing/control/CuboidStructureInputs.tsx'
+import type { Coordinates, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { ExportCard } from './dialog/ExportCard.tsx'

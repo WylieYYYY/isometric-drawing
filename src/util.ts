@@ -1,5 +1,5 @@
 import type { Quaternion } from 'quaternion'
-import type { Coordinates, Direction, PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
+import type { Coordinates, Direction, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import { Hex, HexUtils } from 'react-hexgrid'
 
 type CoordinatesLike = Coordinates & Record<string | number | symbol, unknown>

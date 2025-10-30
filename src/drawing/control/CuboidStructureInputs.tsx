@@ -1,6 +1,6 @@
-import type { PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
+import type { PositiveAxis } from './../isometric/foreground/IsometricStructure.tsx'
 import { useShallow } from 'zustand/react/shallow'
-import { useDrawingStore } from './isometric/DrawingStoreHook.ts'
+import { useDrawingStore } from './../DrawingStoreHook.ts'
 
 type CuboidValueComponent = PositiveAxis | 'dx' | 'dy' | 'dz'
 export type CuboidValue = { [Property in CuboidValueComponent]: string }

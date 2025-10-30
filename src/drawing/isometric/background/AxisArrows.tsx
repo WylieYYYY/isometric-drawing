@@ -1,6 +1,6 @@
 import type { Coordinates, Direction, PositiveAxis } from './../foreground/IsometricStructure.tsx'
 import { HexUtils, Path } from 'react-hexgrid'
-import { directionalHex, hexToPixel } from './../../util.ts'
+import { directionalHex, hexToPixel } from './../../../util.ts'
 
 type AxisArrowsProps = {
   spacing: number

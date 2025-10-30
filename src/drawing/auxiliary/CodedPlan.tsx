@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow'
-import { useDrawingStore } from './isometric/DrawingStoreHook.ts'
-import { cubeLocationFromCuboidValues } from './Store.tsx'
-import { coordinatesMap, rotate } from './util.ts'
+import { useDrawingStore } from './../DrawingStoreHook.ts'
+import { cubeLocationFromCuboidValues } from './../../Store.tsx'
+import { coordinatesMap, rotate } from './../../util.ts'
 
 /**
  * Checks if the numbers in the array are contiguous.

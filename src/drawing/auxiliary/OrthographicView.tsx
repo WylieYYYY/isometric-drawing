@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import type { Coordinates, PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
-import { coordinatesMap } from './util.ts'
+import type { Coordinates, PositiveAxis } from './../isometric/foreground/IsometricStructure.tsx'
+import { coordinatesMap } from './../../util.ts'
 
 type LineType = 'solid' | 'dashed' | 'none'
 

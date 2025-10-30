@@ -1,9 +1,9 @@
 import type { Axis,  Direction, PositiveAxis } from './IsometricStructure.tsx'
-import type { CubeLocation, HighlightKind } from './../../Store.tsx'
+import type { CubeLocation, HighlightKind } from './../../../Store.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
-import { useDrawingStore } from './../DrawingStoreHook.ts'
-import { isCubeFaceHighlighted, useStore } from './../../Store.tsx'
+import { useDrawingStore } from './../../DrawingStoreHook.ts'
+import { isCubeFaceHighlighted, useStore } from './../../../Store.tsx'
 import { TriangularFace } from './TriangularFace.tsx'
 
 type CubeProps = {

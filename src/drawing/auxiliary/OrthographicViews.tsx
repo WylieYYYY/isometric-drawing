@@ -1,8 +1,8 @@
 import { useShallow } from 'zustand/react/shallow'
 import { OrthographicView } from './OrthographicView.tsx'
-import { cubeLocationFromCuboidValues } from './Store.tsx'
-import { useDrawingStore } from './isometric/DrawingStoreHook.ts'
-import { rotate, updateMinMax } from './util.ts'
+import { cubeLocationFromCuboidValues } from './../../Store.tsx'
+import { useDrawingStore } from './../DrawingStoreHook.ts'
+import { rotate, updateMinMax } from './../../util.ts'
 
 /**
  * Combined layout of orthographic views.

@@ -1,5 +1,5 @@
 import type { Hex } from 'react-hexgrid'
-import { hexToPixel } from './../../util.ts'
+import { hexToPixel } from './../../../util.ts'
 
 type GridPointProps = {
   hex: Hex
