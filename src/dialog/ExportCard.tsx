@@ -13,9 +13,10 @@ type DrawingKind = 'isometric' | 'coded-plan' | 'orthographic'
 
 type ExportCardProps = {
   initialDrawingKind?: DrawingKind
+  deleteCallback: () => void
 }
 
-export function ExportCard({ initialDrawingKind }: ExportCardProps) {
+export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardProps) {
   const [
     cuboidValues,
     rotation
@@ -44,7 +45,10 @@ export function ExportCard({ initialDrawingKind }: ExportCardProps) {
 
   return (
     <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues: structuredClone(cuboidValues), rotation: rotation.clone() }}>
-      <div style={{ marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
+      <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
+        <div style={{ display: 'flex', justifyContent: 'end' }}>
+          <button onClick={deleteCallback}>Delete</button>
+        </div>
         <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
           {drawing}
         </div>

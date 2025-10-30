@@ -146,7 +146,7 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>
-          <ExportDialog id={exportDialogId} setShouldContinueRender={setShouldContinueRenderExportDialog} />
+          <ExportDialog id={exportDialogId} setShouldContinueRender={setShouldContinueRenderExportDialog} setDownloadUrl={setDownloadUrl} />
         </section>
       </main>
     </DrawingProvider>
