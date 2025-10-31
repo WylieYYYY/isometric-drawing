@@ -48,7 +48,7 @@ export function ExportDialog({ id, setShouldContinueRender, setDownloadUrl }: Ex
       </section>
       <footer>
         <button
-          onClick={() => downloadArchive(`#${CSS.escape(id)} svg`, setDownloadUrl)}
+          onClick={() => downloadArchive(`#${id} .export-container svg`, setDownloadUrl)}
           style={{ float: 'right' }}
         >
           Export Archive

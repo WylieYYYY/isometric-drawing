@@ -3,6 +3,7 @@ import { Canvg, presets } from 'canvg'
 import { useCallback, useEffect, useId, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
+import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
 import { CuboidStructureInputs } from './drawing/control/CuboidStructureInputs.tsx'
 import { DrawingProvider } from './drawing/DrawingStore.tsx'
 import { ExportDialog } from './dialog/ExportDialog.tsx'
@@ -108,6 +109,9 @@ function App() {
                 <button onClick={() => downloadSVG('#coded-plan svg', setDownloadUrl)}>Export SVG</button>
               </span>
             </label>
+            <div>
+              <CodedPlanControls />
+            </div>
             <CodedPlan />
           </div>
           <div id='orthographic' style={{ position: 'relative', height: '20%' }}>

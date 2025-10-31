@@ -4,15 +4,21 @@ import { cubeLocationFromCuboidValues } from './../../Store.tsx'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 import { rotate, updateMinMax } from './../../util.ts'
 
+type OrthographicViewsProps = {
+  isSplittable?: boolean
+}
+
 /**
  * Combined layout of orthographic views.
  * This places the views according to the specification and wrap them in a single SVG.
  */
-export function OrthographicViews() {
+export function OrthographicViews({ isSplittable }: OrthographicViewsProps) {
   const [
+    shouldSplitOrthographicViewsAsThree,
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
+    state.shouldSplitOrthographicViewsAsThree,
     state.cuboidValues,
     state.rotation
   ]))
@@ -31,12 +37,25 @@ export function OrthographicViews() {
     z: minMaxCoordinates.z.max - minMaxCoordinates.z.min + 1
   }
 
-  // padding of 1 between views and margins of 1 (sum of 2 for both sides) to the edges
-  return (
-    <svg width='100%' height='100%' viewBox={`-1 -1 ${size.x + size.z + 1 + 2} ${size.z + size.y + 1 + 2}`}>
+  // splitting does not layout the views so it is only used for exporting
+  return (isSplittable ?? false) && shouldSplitOrthographicViewsAsThree ? (
+    <>
+      <svg viewBox={`-1 -1 ${size.x + 2} ${size.z + 2}`}>
+        <OrthographicView from='y' coordinates={coordinates} offsetX={0} offsetY={0} />
+      </svg>
+      <svg viewBox={`-1 -1 ${size.x + 2} ${size.y + 2}`}>
+        <OrthographicView from='z' coordinates={coordinates} offsetX={0} offsetY={0} />
+      </svg>
+      <svg viewBox={`-1 -1 ${size.z + 2} ${size.y + 2}`}>
+        <OrthographicView from='x' coordinates={coordinates} offsetX={0} offsetY={0} />
+      </svg>
+    </>
+  ) : (
+    // padding of 2 between views and margins of 1 (sum of 2 for both sides) to the edges
+    <svg width='100%' height='100%' viewBox={`-1 -1 ${size.x + size.z + 2 + 2} ${size.z + size.y + 2 + 2}`}>
       <OrthographicView from='y' coordinates={coordinates} offsetX={0} offsetY={0} />
-      <OrthographicView from='z' coordinates={coordinates} offsetX={0} offsetY={size.z + 1} />
-      <OrthographicView from='x' coordinates={coordinates} offsetX={size.x + 1} offsetY={size.z + 1} />
+      <OrthographicView from='z' coordinates={coordinates} offsetX={0} offsetY={size.z + 2} />
+      <OrthographicView from='x' coordinates={coordinates} offsetX={size.x + 2} offsetY={size.z + 2} />
     </svg>
   )
 }

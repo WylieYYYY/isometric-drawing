@@ -26,6 +26,9 @@ export type DrawingStore = DrawingDefinition & {
   shouldShowCodedPlanNumbers: boolean
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => void
 
+  shouldSplitOrthographicViewsAsThree: boolean
+  setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => void
+
   highlightedTarget: VisibleCubeFaceLocation|null
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => void
@@ -88,6 +91,14 @@ const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStor
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => {
     set((state) => {
       state.shouldShowCodedPlanNumbers = shouldShowCodedPlanNumbers
+    })
+  },
+
+  shouldSplitOrthographicViewsAsThree: false,
+
+  setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => {
+    set((state) => {
+      state.shouldSplitOrthographicViewsAsThree = shouldSplitOrthographicViewsAsThree
     })
   },
 

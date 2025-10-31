@@ -4,9 +4,11 @@ import { CodedPlan } from './../drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './../drawing/control/CodedPlanControls.tsx'
 import { DrawingProvider } from './../drawing/DrawingStore.tsx'
 import { useDrawingStore } from './../drawing/DrawingStoreHook.ts'
+import { wrapWithExportContainer } from './../export.tsx'
 import { IsometricViewport } from './../drawing/isometric/IsometricViewport.tsx'
-import { OrthographicViews } from './../drawing/auxiliary/OrthographicViews.tsx'
 import { IsometricControls } from './../drawing/control/IsometricControls.tsx'
+import { OrthographicControls } from './../drawing/control/OrthographicControls.tsx'
+import { OrthographicViews } from './../drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './../drawing/control/RotationButtons.tsx'
 
 type DrawingKind = 'isometric' | 'coded-plan' | 'orthographic'
@@ -30,16 +32,21 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
   let drawing, control
   switch (drawingKind) {
     case 'isometric':
-      drawing = <IsometricViewport size={{ width: '100%', height: '100%' }} />
+      drawing = wrapWithExportContainer(<IsometricViewport size={{ width: '100%', height: '100%' }} />)
       control = <IsometricControls />
       break
     case 'coded-plan':
-      drawing = <CodedPlan />
+      drawing = wrapWithExportContainer(<CodedPlan />)
       control = <CodedPlanControls />
       break
     case 'orthographic':
-      drawing = <OrthographicViews />
-      control = null
+      drawing = (
+        <>
+          <OrthographicViews isSplittable={false} />
+          {wrapWithExportContainer(<OrthographicViews isSplittable={true} />, 'none')}
+        </>
+      )
+      control = <OrthographicControls />
       break
   }
 
