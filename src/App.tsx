@@ -1,47 +1,18 @@
-import type { IOptions } from 'canvg'
-import { Canvg, presets } from 'canvg'
 import { useCallback, useEffect, useId, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
 import { CuboidStructureInputs } from './drawing/control/CuboidStructureInputs.tsx'
 import { DrawingProvider } from './drawing/DrawingStore.tsx'
+import { createExportBlob, openDownloadPopup, wrapWithExportContainer } from './export.tsx'
 import { ExportDialog } from './dialog/ExportDialog.tsx'
 import { IsometricControls } from './drawing/control/IsometricControls.tsx'
 import { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
+import { OrthographicControls } from './drawing/control/OrthographicControls.tsx'
 import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './drawing/control/RotationButtons.tsx'
 import { SaveButton } from './SaveButton.tsx'
 import { useStore } from './Store.tsx'
-
-const BLOB_URL_TIMEOUT = 500
-
-function downloadSVG(svgSelector: string, setDownloadUrl: (downloadUrl: string) => void) {
-  const svg = document.querySelector(svgSelector)!
-  const anchor = document.getElementById('download') as HTMLAnchorElement
-
-  const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' })
-  setDownloadUrl(URL.createObjectURL(blob))
-  anchor.download = 'export.svg'
-  setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
-}
-
-async function downloadPNG(svgSelector: string, setDownloadUrl: (downloadUrl: string) => void, width: number, height: number) {
-  const svg = document.querySelector(svgSelector)!
-  const anchor = document.getElementById('download') as HTMLAnchorElement
-
-  const canvas = new OffscreenCanvas(0, 0)
-  const ctx = canvas.getContext('2d')!
-  const canvg = await Canvg.from(ctx, svg.outerHTML, presets.offscreen() as IOptions)
-  canvg.resize(width, height)
-
-  await canvg.render()
-
-  const blob = await canvas.convertToBlob()
-  setDownloadUrl(URL.createObjectURL(blob))
-  anchor.download = 'export.png'
-  setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
-}
 
 function App() {
   const setHighlightKind = useStore((state) => state.setHighlightKind)
@@ -96,33 +67,41 @@ function App() {
               <input type='checkbox' name='crop-chk' checked={shouldCropOnExport} onChange={(event) => setShouldCropOnExport(event.target.checked)} />
               <label htmlFor='crop-chk'>Crop on export</label>
             </div>
-            <button onClick={() => downloadPNG(svgSelector, setDownloadUrl, 2400, 2400)}>Export PNG</button>
-            <button onClick={() => downloadSVG(svgSelector, setDownloadUrl)}>Export SVG</button>
+            <button onClick={async () => openDownloadPopup(await createExportBlob(svgSelector, true), setDownloadUrl)}>Export PNG</button>
+            <button onClick={async () => openDownloadPopup(await createExportBlob(svgSelector, false), setDownloadUrl)}>Export SVG</button>
             <button onClick={() => setShouldContinueRenderExportDialog(true)}>Open Export Dialog</button>
           </div>
           <hr />
-          <div id='coded-plan' style={{ position: 'relative', height: '20%' }}>
+          <div id='coded-plan' style={{ position: 'relative', height: '30%' }}>
             <label style={{ display: 'block' }}>
               Coded Plan:
               <span style={{ float: 'right' }}>
-                <button onClick={() => downloadPNG('#coded-plan svg', setDownloadUrl, 2400, 2400)}>Export PNG</button>
-                <button onClick={() => downloadSVG('#coded-plan svg', setDownloadUrl)}>Export SVG</button>
+                <button onClick={async () => openDownloadPopup(await createExportBlob('#coded-plan svg', true), setDownloadUrl)}>Export PNG</button>
+                <button onClick={async () => openDownloadPopup(await createExportBlob('#coded-plan svg', false), setDownloadUrl)}>Export SVG</button>
               </span>
             </label>
             <div>
               <CodedPlanControls />
             </div>
-            <CodedPlan />
+            <div style={{ height: '80%' }}>
+              <CodedPlan />
+            </div>
           </div>
-          <div id='orthographic' style={{ position: 'relative', height: '20%' }}>
+          <div id='orthographic' style={{ position: 'relative', height: '30%' }}>
             <label style={{ display: 'block' }}>
               Orthographic Views:
               <span style={{ float: 'right' }}>
-                <button onClick={() => downloadPNG('#orthographic svg', setDownloadUrl, 2400, 2400)}>Export PNG</button>
-                <button onClick={() => downloadSVG('#orthographic svg', setDownloadUrl)}>Export SVG</button>
+                <button onClick={async () => openDownloadPopup(await createExportBlob('#orthographic .export-container svg', true), setDownloadUrl)}>Export PNG</button>
+                <button onClick={async () => openDownloadPopup(await createExportBlob('#orthographic .export-container svg', false), setDownloadUrl)}>Export SVG</button>
               </span>
             </label>
-            <OrthographicViews />
+            <div>
+              <OrthographicControls />
+            </div>
+            <div style={{ height: '80%' }}>
+              <OrthographicViews isSplittable={false} />
+              {wrapWithExportContainer(<OrthographicViews isSplittable={true} />, 'none')}
+            </div>
           </div>
           <hr />
           <div style={{ maxHeight: '30%', overflowX: 'hidden', overflowY: 'scroll' }}>

@@ -1,30 +1,11 @@
-import { BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js"
 import { useShallow } from 'zustand/react/shallow'
+import { createExportBlob, openDownloadPopup } from './../export.tsx'
 import { useStore } from './../Store.tsx'
 
 type ExportDialogProps = {
   id: string
   setShouldContinueRender: (shouldContinueRender: boolean) => void
   setDownloadUrl: (downloadUrl: string) => void
-}
-
-const BLOB_URL_TIMEOUT = 500
-
-async function downloadArchive(svgSelector: string, setDownloadUrl: (downloadUrl: string) => void) {
-  const svgs = document.querySelectorAll(svgSelector)
-  const anchor = document.getElementById('download') as HTMLAnchorElement
-  const zipFileWriter = new BlobWriter()
-
-  const zipWriter = new ZipWriter(zipFileWriter)
-  for (const [index, svg] of svgs.entries()) {
-    const svgReader = new TextReader(svg.outerHTML)
-    await zipWriter.add(`${index}.svg`, svgReader)
-  }
-  await zipWriter.close()
-
-  setDownloadUrl(URL.createObjectURL(await zipFileWriter.getData()))
-  anchor.download = 'archive.zip'
-  setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
 }
 
 export function ExportDialog({ id, setShouldContinueRender, setDownloadUrl }: ExportDialogProps) {
@@ -48,10 +29,16 @@ export function ExportDialog({ id, setShouldContinueRender, setDownloadUrl }: Ex
       </section>
       <footer>
         <button
-          onClick={() => downloadArchive(`#${id} .export-container svg`, setDownloadUrl)}
+          onClick={async () => openDownloadPopup(await createExportBlob(`#${id} .export-container svg`, false), setDownloadUrl)}
           style={{ float: 'right' }}
         >
-          Export Archive
+          Export SVG Archive
+        </button>
+        <button
+          onClick={async () => openDownloadPopup(await createExportBlob(`#${id} .export-container svg`, true), setDownloadUrl)}
+          style={{ float: 'right' }}
+        >
+          Export PNG Archive
         </button>
       </footer>
     </dialog>

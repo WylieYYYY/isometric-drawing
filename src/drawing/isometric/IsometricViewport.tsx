@@ -124,7 +124,7 @@ export function IsometricViewport({ size }: IsometricViewportProps) {
   newSize.viewBox = newSize.viewBox ?? `${x} ${y} ${width} ${height}`
 
   return (
-    <HexGrid viewBox={newSize.viewBox} style={{ width: newSize.width, height: newSize.height }}>
+    <HexGrid viewBox={newSize.viewBox} data-export-name='iso' style={{ width: newSize.width, height: newSize.height }}>
       <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
         {
           generator.map((hex, key) => (

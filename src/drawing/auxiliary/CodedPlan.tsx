@@ -80,7 +80,12 @@ export function CodedPlan() {
   const pixelHeight = limits.z.max - limits.z.min + 1 + 2
 
   return (
-    <svg width='100%' height='100%' viewBox={`${limits.x.min - 1} ${limits.z.min - 1} ${pixelWidth} ${pixelHeight}`}>
+    <svg
+      width='100%'
+      height='100%'
+      viewBox={`${limits.x.min - 1} ${limits.z.min - 1} ${pixelWidth} ${pixelHeight}`}
+      data-export-name='codedplan'
+    >
       {...squares}
     </svg>
   )
