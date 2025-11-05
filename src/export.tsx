@@ -43,10 +43,11 @@ async function rasterizeSVGToPNGBlob(svg: string): Promise<Blob> {
  * The SVG elements should have `data-export-name` attributes to be used as part of the file names.
  * @param svgSelector - Selector for a single or multiple SVGs.
  * @param asPNG - True to export PNGs, false to export SVGs.
+ * @param parent - The element where the SVG selector is run, omit to run for the whole document.
  * @returns A blob that is either a PNG, an SVG or a ZIP file.
  */
-export async function createExportBlob(svgsSelector: string, asPNG: boolean): Promise<Blob> {
-  const svgs = document.querySelectorAll(svgsSelector) as NodeListOf<SVGSVGElement>
+export async function createExportBlob(svgsSelector: string, asPNG: boolean, parent?: Element): Promise<Blob> {
+  const svgs = (parent ?? document).querySelectorAll(svgsSelector) as NodeListOf<SVGSVGElement>
 
   if (svgs.length === 1) {
     if (asPNG) return await rasterizeSVGToPNGBlob(svgs[0].outerHTML)

@@ -1,14 +1,17 @@
+import { useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { createExportBlob, openDownloadPopup } from './../export.tsx'
 import { useStore } from './../Store.tsx'
 
 type ExportDialogProps = {
-  id: string
-  setShouldContinueRender: (shouldContinueRender: boolean) => void
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
   setDownloadUrl: (downloadUrl: string) => void
 }
 
-export function ExportDialog({ id, setShouldContinueRender, setDownloadUrl }: ExportDialogProps) {
+export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement|null>(null)
+
   const [
     exportCards,
     newExportCard
@@ -17,11 +20,18 @@ export function ExportDialog({ id, setShouldContinueRender, setDownloadUrl }: Ex
     state.newExportCard
   ]))
 
+  useEffect(() => {
+    if (!isOpen) return
+    const dialog = dialogRef.current!
+    dialog.showModal()
+    return () => dialog.close()
+  }, [isOpen])
+
   return (
-    <dialog id={id} className='export-dialog'>
+    <dialog ref={dialogRef} className='export-dialog'>
       <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>Export Archive</h1>
-        <button onClick={() => setShouldContinueRender(false)} style={{ float: 'right' }}>Close</button>
+        <button onClick={() => setIsOpen(false)} style={{ float: 'right' }}>Close</button>
       </header>
       <section style={{ display: 'flex', flexDirection: 'row', overflowX: 'scroll' }}>
         {...exportCards}
@@ -29,13 +39,13 @@ export function ExportDialog({ id, setShouldContinueRender, setDownloadUrl }: Ex
       </section>
       <footer>
         <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`#${id} .export-container svg`, false), setDownloadUrl)}
+          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, false, dialogRef.current!), setDownloadUrl)}
           style={{ float: 'right' }}
         >
           Export SVG Archive
         </button>
         <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`#${id} .export-container svg`, true), setDownloadUrl)}
+          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, true, dialogRef.current!), setDownloadUrl)}
           style={{ float: 'right' }}
         >
           Export PNG Archive

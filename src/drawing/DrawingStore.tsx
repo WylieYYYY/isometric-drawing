@@ -17,6 +17,9 @@ type DrawingDefinition = {
 }
 
 export type DrawingStore = DrawingDefinition & {
+  shouldCropIsometricViewport: boolean
+  setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => void
+
   shouldShowGrid: boolean
   setShouldShowGrid: (shouldShowGrid: boolean) => void
 
@@ -69,6 +72,14 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 
 const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStore<DrawingStore>()(immer((set, get) => ({
   isInteractive: initialDefinition?.isInteractive ?? true,
+
+  shouldCropIsometricViewport: true,
+
+  setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => {
+    set((state) => {
+      state.shouldCropIsometricViewport = shouldCropIsometricViewport
+    })
+  },
 
   shouldShowGrid: true,
 

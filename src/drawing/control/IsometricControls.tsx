@@ -3,11 +3,15 @@ import { useDrawingStore } from './../DrawingStoreHook.ts'
 
 export function IsometricControls() {
   const [
+    shouldCropIsometricViewport,
+    setShouldCropIsometricViewport,
     shouldShowGrid,
     setShouldShowGrid,
     shouldShowAxisArrows,
     setShouldShowAxisArrows
   ] = useDrawingStore(useShallow((state) => [
+    state.shouldCropIsometricViewport,
+    state.setShouldCropIsometricViewport,
     state.shouldShowGrid,
     state.setShouldShowGrid,
     state.shouldShowAxisArrows,
@@ -16,6 +20,14 @@ export function IsometricControls() {
 
   return (
     <>
+      <label>
+        <input
+          type='checkbox'
+          checked={shouldCropIsometricViewport}
+          onChange={(event) => setShouldCropIsometricViewport(event.target.checked)}
+        />
+        Crop Export
+      </label>
       <label>
         <input
           type='checkbox'

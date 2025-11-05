@@ -17,6 +17,7 @@ type ViewBox = {
 }
 
 type IsometricViewportProps = {
+  canHaveUndefinedSize?: true
   size?: {
     width?: number | string
     height?: number | string
@@ -90,13 +91,15 @@ function autoViewBox(spacing: number, axisEndCoordinates: Coordinates, cubeLocat
  * Handles the sizing of the drawing area and background features.
  * Main drawing is handled by the structure component.
  */
-export function IsometricViewport({ size }: IsometricViewportProps) {
+export function IsometricViewport({ canHaveUndefinedSize, size }: IsometricViewportProps) {
   const [
+    shouldCropIsometricViewport,
     shouldShowGrid,
     shouldShowAxisArrows,
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
+    state.shouldCropIsometricViewport,
     state.shouldShowGrid,
     state.shouldShowAxisArrows,
     state.cuboidValues,
@@ -111,20 +114,20 @@ export function IsometricViewport({ size }: IsometricViewportProps) {
   const coordinates = cubeLocations.map(({ cuboidIndex, ...rest}) => rest)
   const axisEndCoordinates = calculateAxisEndCoordinates(coordinates)
 
-  const newSize = {
-    width: size?.width,
-    height: size?.height,
-    viewBox: size?.viewBox
-  }
-
   const { x, y, width, height } = autoViewBox(4, axisEndCoordinates, cubeLocations)
   // same scale as the self-defined size (600 / 40 = 15), can be lifted as a prop
-  newSize.width = newSize.width ?? width * 15
-  newSize.height = newSize.height ?? height * 15
-  newSize.viewBox = newSize.viewBox ?? `${x} ${y} ${width} ${height}`
+  const autoViewBoxSize = {
+    width: width * 15,
+    height: height * 15,
+    viewBox: `${x} ${y} ${width} ${height}`
+  }
+
+  // by default, parameters that are not filled by the `size` argument will be filled with auto view box values
+  // however, uncropped export truely does not need the parameters filled, `canHaveUndefinedSize` suppresses the filling
+  const newSize = shouldCropIsometricViewport || !(canHaveUndefinedSize ?? false) ? { ...autoViewBoxSize, ...size } : undefined
 
   return (
-    <HexGrid viewBox={newSize.viewBox} data-export-name='iso' style={{ width: newSize.width, height: newSize.height }}>
+    <HexGrid viewBox={newSize?.viewBox} data-export-name='iso' style={{ width: newSize?.width, height: newSize?.height }}>
       <Layout size={{ x: 0.1, y: 0.1 }} spacing={4}>
         {
           generator.map((hex, key) => (

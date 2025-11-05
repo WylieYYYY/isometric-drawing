@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
@@ -36,20 +36,8 @@ function App() {
     }
   })
 
-  const exportDialogId = useId()
-
   const [downloadUrl, setDownloadUrl] = useState('#')
-  const [shouldCropOnExport, setShouldCropOnExport] = useState(true)
-  const [shouldContinueRenderExportDialog, setShouldContinueRenderExportDialog] = useState(false)
-
-  const svgSelector = shouldCropOnExport ? '#background-render > svg' : '#foreground-viewport > svg'
-
-  const exportDialog = document.getElementById(exportDialogId) as HTMLDialogElement|null
-  if (shouldContinueRenderExportDialog) {
-    exportDialog?.showModal()
-  } else {
-    exportDialog?.close()
-  }
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
 
   return (
     <DrawingProvider>
@@ -61,17 +49,24 @@ function App() {
             <IsometricViewport />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-            <IsometricControls />
             <SaveButton setDownloadUrl={setDownloadUrl} />
-            <div style={{ display: 'flex' }}>
-              <input type='checkbox' name='crop-chk' checked={shouldCropOnExport} onChange={(event) => setShouldCropOnExport(event.target.checked)} />
-              <label htmlFor='crop-chk'>Crop on export</label>
-            </div>
-            <button onClick={async () => openDownloadPopup(await createExportBlob(svgSelector, true), setDownloadUrl)}>Export PNG</button>
-            <button onClick={async () => openDownloadPopup(await createExportBlob(svgSelector, false), setDownloadUrl)}>Export SVG</button>
-            <button onClick={() => setShouldContinueRenderExportDialog(true)}>Open Export Dialog</button>
+            <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
           </div>
           <hr />
+          <div id='isometric'>
+            <label style={{ display: 'block' }}>
+              Isometric Viewport:
+              <span style={{ float: 'right' }}>
+                <button onClick={async () => openDownloadPopup(await createExportBlob('#isometric .export-container svg', true), setDownloadUrl)}>Export PNG</button>
+                <button onClick={async () => openDownloadPopup(await createExportBlob('#isometric .export-container svg', false), setDownloadUrl)}>Export SVG</button>
+              </span>
+            </label>
+            <div>
+              <IsometricControls />
+            </div>
+            {wrapWithExportContainer(<IsometricViewport canHaveUndefinedSize={true} />, 'none')}
+          </div>
+          <hr style={{ visibility: 'hidden' }} />
           <div id='coded-plan' style={{ position: 'relative', height: '30%' }}>
             <label style={{ display: 'block' }}>
               Coded Plan:
@@ -129,7 +124,7 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>
-          <ExportDialog id={exportDialogId} setShouldContinueRender={setShouldContinueRenderExportDialog} setDownloadUrl={setDownloadUrl} />
+          <ExportDialog isOpen={isExportDialogOpen} setIsOpen={setIsExportDialogOpen} setDownloadUrl={setDownloadUrl} />
         </section>
       </main>
     </DrawingProvider>

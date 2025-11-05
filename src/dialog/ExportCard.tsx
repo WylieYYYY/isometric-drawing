@@ -32,7 +32,12 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
   let drawing, control
   switch (drawingKind) {
     case 'isometric':
-      drawing = wrapWithExportContainer(<IsometricViewport size={{ width: '100%', height: '100%' }} />)
+      drawing = (
+        <>
+          <IsometricViewport size={{ width: '100%', height: '100%' }} />
+          {wrapWithExportContainer(<IsometricViewport canHaveUndefinedSize={true} />, 'none')}
+        </>
+      )
       control = <IsometricControls />
       break
     case 'coded-plan':
