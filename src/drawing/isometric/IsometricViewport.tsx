@@ -3,10 +3,9 @@ import type { CubeLocation } from './../../Store.tsx'
 import { GridGenerator, Hex, HexGrid, Layout } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
 import { AxisArrows } from './background/AxisArrows.tsx'
-import { useDrawingStore } from './../DrawingStoreHook.ts'
+import { cubeLocationFromCuboidValues, useDrawingStore } from './../DrawingStoreHook.ts'
 import { GridPoint } from './background/GridPoint.tsx'
 import { IsometricStructure } from './foreground/IsometricStructure.tsx'
-import { cubeLocationFromCuboidValues } from './../../Store.tsx'
 import { directionalHex, hexToPixel, rotate, updateMinMax } from './../../util.ts'
 
 type ViewBox = {

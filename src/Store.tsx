@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react'
-import type { CuboidValue } from './drawing/control/CuboidStructureInputs.tsx'
 import type { Coordinates, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
@@ -8,8 +7,6 @@ import { ExportCard } from './dialog/ExportCard.tsx'
 export type HighlightKind = 'cuboid' | 'face'
 export type CubeLocation = { cuboidIndex: number } & Coordinates
 export type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
-
-type CuboidNumberValue = { [Property in keyof CuboidValue]: number }
 
 type Store = {
   highlightKind: HighlightKind
@@ -40,33 +37,6 @@ export function isCubeFaceHighlighted(
 
   if (faceHighlighted) return 'face'
   return null
-}
-
-/**
- * Extracts an array of individual cube location by iterating over possible coordinates of cuboid values.
- * @param cuboidValues - Array of cuboid values to extract coordinates from.
- * @returns The cube locations.
- */
-export function cubeLocationFromCuboidValues(cuboidValues: Array<CuboidValue>): Array<CubeLocation> {
-  const cubeLocations = []
-
-  for (const [cuboidIndex, cuboidValue] of cuboidValues.entries()) {
-    const parsedCuboidValue: Record<string, number> = {}
-    for (const [key, value] of Object.entries(cuboidValue)) parsedCuboidValue[key] = parseInt(value)
-    if (Object.values(parsedCuboidValue).some(isNaN)) continue
-
-    const { x, y, z, dx, dy, dz } = parsedCuboidValue as CuboidNumberValue
-
-    for (let currentDx = 0; currentDx !== dx; currentDx += Math.sign(dx)) {
-      for (let currentDy = 0; currentDy !== dy; currentDy += Math.sign(dy)) {
-        for (let currentDz = 0; currentDz !== dz; currentDz += Math.sign(dz)) {
-          cubeLocations.push({ cuboidIndex, x: x + currentDx, y: y + currentDy, z: z + currentDz })
-        }
-      }
-    }
-  }
-
-  return cubeLocations
 }
 
 /** Uses storage for global states to be shared by components. */

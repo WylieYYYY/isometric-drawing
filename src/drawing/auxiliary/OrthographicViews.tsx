@@ -1,7 +1,6 @@
 import { useShallow } from 'zustand/react/shallow'
+import { cubeLocationFromCuboidValues, useDrawingStore } from './../DrawingStoreHook.ts'
 import { OrthographicView } from './OrthographicView.tsx'
-import { cubeLocationFromCuboidValues } from './../../Store.tsx'
-import { useDrawingStore } from './../DrawingStoreHook.ts'
 import { rotate, updateMinMax } from './../../util.ts'
 
 type OrthographicViewsProps = {

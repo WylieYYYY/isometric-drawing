@@ -3,12 +3,13 @@ import type { StoreApi } from 'zustand'
 import type { CuboidValue } from './control/CuboidStructureInputs.tsx'
 import type { PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
 import type { CubeLocation, HighlightKind, VisibleCubeFaceLocation } from './../Store.tsx'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Quaternion } from 'quaternion'
-import { createStore } from 'zustand'
+import { createStore, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-import { DrawingContext } from './DrawingStoreHook.ts'
+import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook.ts'
 import { isCubeFaceHighlighted } from './../Store.tsx'
+import { rotate } from './../util.ts'
 
 type DrawingDefinition = {
   isInteractive?: boolean
@@ -36,6 +37,7 @@ export type DrawingStore = DrawingDefinition & {
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => void
 
+  setCuboidValues: (cuboidValues: Array<CuboidValue>) => void
   newCuboidValue: (cuboidValue?: CuboidValue) => void
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => void
   deleteCuboidValue: (index: number) => void
@@ -70,7 +72,7 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
   )
 }
 
-const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStore<DrawingStore>()(immer((set, get) => ({
+const createDrawingStore = (initialDefinition?: Partial<DrawingDefinition>) => createStore<DrawingStore>()(immer((set, get) => ({
   isInteractive: initialDefinition?.isInteractive ?? true,
 
   shouldCropIsometricViewport: true,
@@ -131,6 +133,16 @@ const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStor
   cuboidValues: initialDefinition?.cuboidValues ?? [
     { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }
   ],
+
+  /**
+   * Sets all cuboid values wholesale, use this in provider and prefer other functions in other components.
+   * @param cuboidValues - The new values to take.
+   */
+  setCuboidValues: (cuboidValues: Array<CuboidValue>) => {
+    set((state) => {
+      state.cuboidValues = cuboidValues
+    })
+  },
 
   /**
    * Creates a new cuboid value at the end of the cuboid values array.
@@ -224,7 +236,20 @@ const createDrawingStore = (initialDefinition?: DrawingDefinition) => createStor
 
 export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: DrawingDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
-  if (storeRef.current === null || initialDefinition !== undefined) storeRef.current = createDrawingStore(initialDefinition)
+  if (storeRef.current === null) storeRef.current = createDrawingStore({ isInteractive: initialDefinition?.isInteractive })
+
+  const setCuboidValues = useStore(storeRef.current, (state) => state.setCuboidValues)
+
+  // pre-apply rotation so that the rotation for a provider is separate from the initial definition
+  // removing cuboid support removes the need for marshalling
+  useEffect(() => {
+    if (initialDefinition !== undefined) {
+      const cubeLocations = cubeLocationFromCuboidValues(initialDefinition.cuboidValues)
+      const rotatedCuboidValues = rotate(cubeLocations, initialDefinition.rotation)
+          .map(({ x, y, z }) => ({ x: x.toString(), y: y.toString(), z: z.toString(), dx: '1', dy: '1', dz: '1' }))
+      setCuboidValues(rotatedCuboidValues)
+    }
+  }, [initialDefinition, setCuboidValues])
 
   return (
     <DrawingContext.Provider value={storeRef.current}>

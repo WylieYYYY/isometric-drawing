@@ -1,6 +1,5 @@
 import type { CubeLocation } from './Store.tsx'
-import { useDrawingStore } from './drawing/DrawingStoreHook.ts'
-import { cubeLocationFromCuboidValues } from './Store.tsx'
+import { cubeLocationFromCuboidValues, useDrawingStore } from './drawing/DrawingStoreHook.ts'
 
 type SaveButtonProps = {
   setDownloadUrl: (downloadUrl: string) => void

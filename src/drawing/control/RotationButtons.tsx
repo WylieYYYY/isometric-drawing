@@ -1,8 +1,10 @@
+import { Quaternion } from 'quaternion'
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
 export function RotationButtons() {
   const [
+    rotation,
     resetRotation,
     rotateXClockwise,
     rotateXAnticlockwise,
@@ -11,6 +13,7 @@ export function RotationButtons() {
     rotateZClockwise,
     rotateZAnticlockwise
   ] = useDrawingStore(useShallow((state) => [
+    state.rotation,
     state.resetRotation,
     state.rotateXClockwise,
     state.rotateXAnticlockwise,
@@ -20,9 +23,11 @@ export function RotationButtons() {
     state.rotateZAnticlockwise
   ]))
 
+  const isResetDisabled = rotation.equals(Quaternion.ONE)
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 1fr)' }}>
-      <button onClick={resetRotation} style={{ gridColumnStart: 2, gridColumnEnd: 4, gridRowStart: 2 }}>Reset rotation</button>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', backgroundColor: 'white' }}>
+      <button onClick={resetRotation} disabled={isResetDisabled} style={{ gridColumnStart: 2, gridColumnEnd: 4, gridRowStart: 2 }}>Reset rotation</button>
       <button onClick={rotateXClockwise} style={{ gridColumnStart: 4, gridRowStart: 2, backgroundColor: 'red', color: 'white' }}>+X</button>
       <button onClick={rotateXAnticlockwise} style={{ gridColumnStart: 4, gridRowStart: 1, backgroundColor: 'red', color: 'white' }}>-X</button>
       <button onClick={rotateYClockwise} style={{ gridColumnStart: 3, gridRowStart: 1, backgroundColor: 'limegreen', color: 'white' }}>+Y</button>

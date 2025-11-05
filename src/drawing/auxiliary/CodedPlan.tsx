@@ -1,6 +1,5 @@
 import { useShallow } from 'zustand/react/shallow'
-import { useDrawingStore } from './../DrawingStoreHook.ts'
-import { cubeLocationFromCuboidValues } from './../../Store.tsx'
+import { cubeLocationFromCuboidValues, useDrawingStore } from './../DrawingStoreHook.ts'
 import { coordinatesMap, rotate } from './../../util.ts'
 
 /**
