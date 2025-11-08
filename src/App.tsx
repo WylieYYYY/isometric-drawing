@@ -45,9 +45,6 @@ function App() {
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
-          <div id='background-render' style={{ display: 'none' }}>
-            <IsometricViewport />
-          </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <SaveButton setDownloadUrl={setDownloadUrl} />
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
@@ -116,8 +113,8 @@ function App() {
         <section>
           <TransformWrapper centerOnInit={true} initialScale={8}>
             <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
-              <div id='foreground-viewport' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-                <IsometricViewport size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
+                <IsometricViewport canHaveUndefinedSize={false} size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
               </div>
             </TransformComponent>
           </TransformWrapper>

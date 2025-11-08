@@ -34,7 +34,7 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
     case 'isometric':
       drawing = (
         <>
-          <IsometricViewport size={{ width: '100%', height: '100%' }} />
+          <IsometricViewport canHaveUndefinedSize={false} size={{ width: '100%', height: '100%' }} />
           {wrapWithExportContainer(<IsometricViewport canHaveUndefinedSize={true} />, 'none')}
         </>
       )

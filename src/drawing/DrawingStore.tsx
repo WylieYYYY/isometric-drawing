@@ -21,17 +21,26 @@ export type DrawingStore = DrawingDefinition & {
   shouldCropIsometricViewport: boolean
   setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => void
 
-  shouldShowGrid: boolean
-  setShouldShowGrid: (shouldShowGrid: boolean) => void
+  shouldShowIsometricGrid: boolean
+  setshouldShowIsometricGrid: (shouldShowIsometricGrid: boolean) => void
 
   shouldShowAxisArrows: boolean
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => void
+
+  shouldShowIsometricStructure: boolean
+  setshouldShowIsometricStructure: (shouldShowIsometricStructure: boolean) => void
 
   shouldShowCodedPlanNumbers: boolean
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => void
 
   shouldSplitOrthographicViewsAsThree: boolean
   setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => void
+
+  shouldShowOrthographicViewsGrid: boolean
+  setShouldShowOrthographicViewsGrid: (shouldShowOrthographicViewsGrid: boolean) => void
+
+  shouldShowOrthographicStructure: boolean
+  setShouldShowOrthographicStructure: (shouldShowOrthographicStructure: boolean) => void
 
   highlightedTarget: VisibleCubeFaceLocation|null
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
@@ -83,11 +92,11 @@ const createDrawingStore = (initialDefinition?: Partial<DrawingDefinition>) => c
     })
   },
 
-  shouldShowGrid: true,
+  shouldShowIsometricGrid: true,
 
-  setShouldShowGrid: (shouldShowGrid: boolean) => {
+  setshouldShowIsometricGrid: (shouldShowIsometricGrid: boolean) => {
     set((state) => {
-      state.shouldShowGrid = shouldShowGrid
+      state.shouldShowIsometricGrid = shouldShowIsometricGrid
     })
   },
 
@@ -96,6 +105,14 @@ const createDrawingStore = (initialDefinition?: Partial<DrawingDefinition>) => c
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => {
     set((state) => {
       state.shouldShowAxisArrows = shouldShowAxisArrows
+    })
+  },
+
+  shouldShowIsometricStructure: true,
+
+  setshouldShowIsometricStructure: (shouldShowIsometricStructure: boolean) => {
+    set((state) => {
+      state.shouldShowIsometricStructure = shouldShowIsometricStructure
     })
   },
 
@@ -112,6 +129,22 @@ const createDrawingStore = (initialDefinition?: Partial<DrawingDefinition>) => c
   setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => {
     set((state) => {
       state.shouldSplitOrthographicViewsAsThree = shouldSplitOrthographicViewsAsThree
+    })
+  },
+
+  shouldShowOrthographicViewsGrid: true,
+
+  setShouldShowOrthographicViewsGrid: (shouldShowOrthographicViewsGrid: boolean) => {
+    set((state) => {
+      state.shouldShowOrthographicViewsGrid = shouldShowOrthographicViewsGrid
+    })
+  },
+
+  shouldShowOrthographicStructure: true,
+
+  setShouldShowOrthographicStructure: (shouldShowOrthographicStructure: boolean) => {
+    set((state) => {
+      state.shouldShowOrthographicStructure = shouldShowOrthographicStructure
     })
   },
 

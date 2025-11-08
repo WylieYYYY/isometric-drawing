@@ -5,22 +5,26 @@ export function IsometricControls() {
   const [
     shouldCropIsometricViewport,
     setShouldCropIsometricViewport,
-    shouldShowGrid,
-    setShouldShowGrid,
+    shouldShowIsometricGrid,
+    setshouldShowIsometricGrid,
     shouldShowAxisArrows,
-    setShouldShowAxisArrows
+    setShouldShowAxisArrows,
+    shouldShowIsometricStructure,
+    setshouldShowIsometricStructure
   ] = useDrawingStore(useShallow((state) => [
     state.shouldCropIsometricViewport,
     state.setShouldCropIsometricViewport,
-    state.shouldShowGrid,
-    state.setShouldShowGrid,
+    state.shouldShowIsometricGrid,
+    state.setshouldShowIsometricGrid,
     state.shouldShowAxisArrows,
-    state.setShouldShowAxisArrows
+    state.setShouldShowAxisArrows,
+    state.shouldShowIsometricStructure,
+    state.setshouldShowIsometricStructure
   ]))
 
   return (
     <>
-      <label>
+      <label style={{ display: 'block' }}>
         <input
           type='checkbox'
           checked={shouldCropIsometricViewport}
@@ -28,21 +32,29 @@ export function IsometricControls() {
         />
         Crop Export
       </label>
-      <label>
+      <label style={{ display: 'block' }}>
         <input
           type='checkbox'
-          checked={shouldShowGrid}
-          onChange={(event) => setShouldShowGrid(event.target.checked)}
+          checked={shouldShowIsometricGrid}
+          onChange={(event) => setshouldShowIsometricGrid(event.target.checked)}
         />
         Show Grid
       </label>
-      <label>
+      <label style={{ display: 'block' }}>
         <input
           type='checkbox'
           checked={shouldShowAxisArrows}
           onChange={(event) => setShouldShowAxisArrows(event.target.checked)}
         />
         Show Axes
+      </label>
+      <label style={{ display: 'block' }}>
+        <input
+          type='checkbox'
+          checked={shouldShowIsometricStructure}
+          onChange={(event) => setshouldShowIsometricStructure(event.target.checked)}
+        />
+        Show Structure
       </label>
     </>
   )

@@ -1,5 +1,6 @@
 import type { Coordinates, Direction, PositiveAxis } from './../foreground/IsometricStructure.tsx'
 import { HexUtils, Path } from 'react-hexgrid'
+import { useDrawingStore } from './../../DrawingStoreHook.ts'
 import { directionalHex, hexToPixel } from './../../../util.ts'
 
 type AxisArrowsProps = {
@@ -51,6 +52,8 @@ function makeSegments(obscureSet: Set<number>, end: number): Array<number> {
 
 /** Represents the arrows that mark the axes. */
 export function AxisArrows({ spacing, coordinates, axisEndCoordinates }: AxisArrowsProps) {
+  const shouldShowIsometricStructure = useDrawingStore((state) => state.shouldShowIsometricStructure)
+
   const obscureSets = { x: new Set<number>(), y: new Set<number>(), z: new Set<number>() }
   for (const { x, y, z } of coordinates) {
     // no planar movement can obscure any arrow if any coordinate is behind on any axis
@@ -70,7 +73,7 @@ export function AxisArrows({ spacing, coordinates, axisEndCoordinates }: AxisArr
     const axisDirection = index * 2 as Direction
 
     // make sure the arrow is not obscured, it needs to extend 2 units beyond the origin
-    const hexes = makeSegments(obscureSets[axis], axisEndCoordinates[axis] + 2)
+    const hexes = makeSegments(shouldShowIsometricStructure ? obscureSets[axis] : new Set(), axisEndCoordinates[axis] + 2)
         .map((coordinate) => directionalHex(axisDirection, coordinate))
     const color = axisColorMap[axis]
 

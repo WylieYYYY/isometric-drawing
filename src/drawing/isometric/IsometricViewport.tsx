@@ -16,7 +16,7 @@ type ViewBox = {
 }
 
 type IsometricViewportProps = {
-  canHaveUndefinedSize?: true
+  canHaveUndefinedSize?: boolean
   size?: {
     width?: number | string
     height?: number | string
@@ -93,19 +93,21 @@ function autoViewBox(spacing: number, axisEndCoordinates: Coordinates, cubeLocat
 export function IsometricViewport({ canHaveUndefinedSize, size }: IsometricViewportProps) {
   const [
     shouldCropIsometricViewport,
-    shouldShowGrid,
+    shouldShowIsometricGrid,
     shouldShowAxisArrows,
+    shouldShowIsometricStructure,
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
     state.shouldCropIsometricViewport,
-    state.shouldShowGrid,
+    state.shouldShowIsometricGrid,
     state.shouldShowAxisArrows,
+    state.shouldShowIsometricStructure,
     state.cuboidValues,
     state.rotation
   ]))
 
-  const generator = shouldShowGrid ? GridGenerator.hexagon(20) : []
+  const generator = shouldShowIsometricGrid ? GridGenerator.hexagon(20) : []
 
   let cubeLocations = cubeLocationFromCuboidValues(cuboidValues)
   cubeLocations = rotate(cubeLocations, rotation) as Array<CubeLocation>
@@ -147,7 +149,7 @@ export function IsometricViewport({ canHaveUndefinedSize, size }: IsometricViewp
             />
           ) : null
         }
-        <IsometricStructure spacing={4} cubeLocations={cubeLocations} />
+        {shouldShowIsometricStructure ? <IsometricStructure spacing={4} cubeLocations={cubeLocations} /> : null}
       </Layout>
     </HexGrid>
   )
