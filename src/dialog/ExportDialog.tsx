@@ -28,7 +28,7 @@ export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialog
   }, [isOpen])
 
   return (
-    <dialog ref={dialogRef} className='export-dialog'>
+    <dialog ref={dialogRef}>
       <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>Export Archive</h1>
         <button onClick={() => setIsOpen(false)} style={{ float: 'right' }}>Close</button>

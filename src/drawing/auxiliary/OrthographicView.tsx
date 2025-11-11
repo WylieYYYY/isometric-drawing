@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Coordinates, PositiveAxis } from './../isometric/foreground/IsometricStructure.tsx'
-import { coordinatesMap } from './../../util.ts'
+import { coordinatesMap, joinedEndsSVGLineCoordinatesProps } from './../../util.ts'
 
 type LineType = 'solid' | 'dashed' | 'none'
 
@@ -16,7 +16,7 @@ type OrthographicViewProps = {
  * A neighboring column with zero element signals this function to skip.
  * @param self - The main column which is not nullable since it should be iterated from a map.
  * @param other - Neighboring column which may not exist due to sparse array.
- * @return The line type for the line. May be none where a line should not be drawn.
+ * @returns The line type for the line. May be none where a line should not be drawn.
  */
 function determineLineType(self: Set<number>, other: Set<number>|undefined): LineType {
   // there is no other column, this edge is the boundary
@@ -45,22 +45,17 @@ function determineLineType(self: Set<number>, other: Set<number>|undefined): Lin
  * @param x - X-coordinate to start the line with.
  * @param y - Y-coordinate to start the line with.
  * @param varyX - True to vary x-coordinate, false to vary y-coordinate.
- * @return The line.
+ * @returns The line.
  */
 function getLine(lineType: LineType, x: number, y: number, varyX: boolean): ReactNode|null {
   const STROKE_WIDTH = 0.1
-
-  // account for stroke width so that the lines join without missing corner
-  const x1 = varyX ? x - STROKE_WIDTH / 2 : x
-  const x2 = varyX ? x + 1 + STROKE_WIDTH / 2 : x
-  const y1 = varyX ? y : y - STROKE_WIDTH / 2
-  const y2 = varyX ? y : y + 1 + STROKE_WIDTH / 2
+  const coordinatesProps = joinedEndsSVGLineCoordinatesProps(1, STROKE_WIDTH, varyX, x, y)
 
   switch (lineType) {
     case 'solid':
-      return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke='black' strokeWidth={STROKE_WIDTH} />
+      return <line {...coordinatesProps} stroke='black' strokeWidth={STROKE_WIDTH} />
     case 'dashed':
-      return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke='black' strokeWidth={STROKE_WIDTH} strokeDasharray='0.2' />
+      return <line {...coordinatesProps} stroke='black' strokeWidth={STROKE_WIDTH} strokeDasharray='0.2' />
     case 'none':
       return null
   }

@@ -1,4 +1,5 @@
 import type { Quaternion } from 'quaternion'
+import type { SVGAttributes } from 'react'
 import type { Coordinates, Direction, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import { Hex, HexUtils } from 'react-hexgrid'
 
@@ -147,4 +148,30 @@ export function rotate(coordinates: Array<CoordinatesLike>, rotation: Quaternion
   coordinates = coordinates.map(({ x, y, z, ...rest }) => ({ x: x - 0.5, y: y - 0.5, z: z - 0.5, ...rest }))
 
   return coordinates
+}
+
+/**
+ * Draws a line from the given coordinates rightward or downward with the given length.
+ * Accounts for stroke width so that the lines join without missing corner.
+ * @param length - The length of the line.
+ * @param strokeWidth - The width of the line.
+ * @param isHorizontal - True if the line should extend rightward, false to extend downward.
+ * @param x - X-coordinate to start the line with.
+ * @param y - Y-coordinate to start the line with.
+ * @returns SVG line element attributes that define the start and end of the line (x1, x2, y1, y2).
+ */
+export function joinedEndsSVGLineCoordinatesProps(
+  length: number,
+  strokeWidth: number,
+  isHorizontal: boolean,
+  x: number,
+  y: number
+): SVGAttributes<SVGLineElement> {
+  // account for stroke width so that the lines join without missing corner
+  const x1 = isHorizontal ? x - strokeWidth / 2 : x
+  const x2 = isHorizontal ? x + length + strokeWidth / 2 : x
+  const y1 = isHorizontal ? y : y - strokeWidth / 2
+  const y2 = isHorizontal ? y : y + length + strokeWidth / 2
+
+  return { x1, x2, y1, y2 }
 }

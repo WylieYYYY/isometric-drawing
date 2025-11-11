@@ -9,6 +9,7 @@ import { ExportDialog } from './dialog/ExportDialog.tsx'
 import { IsometricControls } from './drawing/control/IsometricControls.tsx'
 import { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
 import { OrthographicControls } from './drawing/control/OrthographicControls.tsx'
+import { OrthographicEditorDialog } from './dialog/OrthographicEditorDialog.tsx'
 import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './drawing/control/RotationButtons.tsx'
 import { SaveButton } from './SaveButton.tsx'
@@ -38,6 +39,7 @@ function App() {
 
   const [downloadUrl, setDownloadUrl] = useState('#')
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
+  const [isOrthographicEditorDialogOpen, setIsOrthographicEditorDialogOpen] = useState(false)
 
   return (
     <DrawingProvider>
@@ -48,6 +50,7 @@ function App() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <SaveButton setDownloadUrl={setDownloadUrl} />
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
+            <button onClick={() => setIsOrthographicEditorDialogOpen(true)}>Open Orthographic Editor Dialog</button>
           </div>
           <hr />
           <div id='isometric'>
@@ -122,6 +125,7 @@ function App() {
             <RotationButtons />
           </div>
           <ExportDialog isOpen={isExportDialogOpen} setIsOpen={setIsExportDialogOpen} setDownloadUrl={setDownloadUrl} />
+          <OrthographicEditorDialog isOpen={isOrthographicEditorDialogOpen} setIsOpen={setIsOrthographicEditorDialogOpen} setDownloadUrl={setDownloadUrl} />
         </section>
       </main>
     </DrawingProvider>

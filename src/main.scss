@@ -81,7 +81,7 @@ label[for=collapse-btn] {
     cursor: pointer;
 }
 
-.export-dialog {
+dialog {
   display: absolute;
   @media (min-width: 60rem) {
       width: 50%;
