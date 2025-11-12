@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
+import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
 import { CuboidStructureInputs } from './drawing/control/CuboidStructureInputs.tsx'
@@ -16,7 +17,13 @@ import { SaveButton } from './SaveButton.tsx'
 import { useStore } from './Store.tsx'
 
 function App() {
-  const setHighlightKind = useStore((state) => state.setHighlightKind)
+  const [
+    highlightKind,
+    setHighlightKind
+  ] = useStore(useShallow((state) => [
+    state.highlightKind,
+    state.setHighlightKind
+  ]))
 
   const keyDownCallback = useCallback((event: KeyboardEvent) => {
     if (event.repeat || (event.key !== 'd' && event.code !== 'Delete')) return
@@ -121,6 +128,11 @@ function App() {
               </div>
             </TransformComponent>
           </TransformWrapper>
+          <div style={{ position: 'fixed', right: '.5em', top: '2em' }}>
+            <button onClick={() => setHighlightKind(highlightKind === 'cuboid' ? 'face' : 'cuboid')}>
+              {highlightKind === 'cuboid' ? 'Deleting' : 'Building'}
+            </button>
+          </div>
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>

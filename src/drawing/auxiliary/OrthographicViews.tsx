@@ -40,6 +40,14 @@ export function OrthographicViews({ isSplittable }: OrthographicViewsProps) {
     z: minMaxCoordinates.z.max - minMaxCoordinates.z.min + 1
   }
 
+  // using circles as the rasterizer does not rasterize pattern correctly
+  const gridPoints = []
+  for (let cx = 0; cx <= size.x + 2 + size.z; cx++) {
+    for (let cy = 0; cy <= size.z + 2 + size.y; cy++) {
+      gridPoints.push(<circle cx={cx} cy={cy} r={0.1} fill='black' />)
+    }
+  }
+
   // splitting does not layout the views so it is only used for exporting
   return (isSplittable ?? false) && shouldSplitOrthographicViewsAsThree ? (
     <>
@@ -61,18 +69,7 @@ export function OrthographicViews({ isSplittable }: OrthographicViewsProps) {
       viewBox={`-1 -1 ${size.x + size.z + 2 + 2} ${size.z + size.y + 2 + 2}`}
       data-export-name='ortho'
     >
-      {
-        shouldShowOrthographicViewsGrid && !shouldSplitOrthographicViewsAsThree ? (
-          <>
-            <defs>
-              <pattern id='OrthographicGridPattern' x={-0.1} y={-0.1} width={1} height={1} patternUnits='userSpaceOnUse'>
-                <circle cx={0.1} cy={0.1} r={0.1} fill='black' />
-              </pattern>
-            </defs>
-            <rect fill='url(#OrthographicGridPattern)' x={-0.1} y={-0.1} width={size.x + 2 + size.z + 0.2} height={size.z + 2 + size.y + 0.2} />
-          </>
-        ) : null
-      }
+      {shouldShowOrthographicViewsGrid && !shouldSplitOrthographicViewsAsThree ? <>{...gridPoints}</> : null}
       {
         shouldShowOrthographicStructure || shouldSplitOrthographicViewsAsThree ? (
           <>

@@ -2,6 +2,7 @@ import type { LineType } from './OrthographicEditorLine.tsx'
 import { useEffect, useRef, useState } from 'react'
 import { createExportBlob, openDownloadPopup, wrapWithExportContainer } from './../export.tsx'
 import { OrthographicEditorLine } from './OrthographicEditorLine.tsx'
+import { updateMinMax } from './../util.ts'
 
 type OrthographicEditorDialogProps = {
   isOpen: boolean
@@ -29,11 +30,16 @@ export function OrthographicEditorDialog({ isOpen, setIsOpen, setDownloadUrl }: 
     return () => dialog.close()
   }, [isOpen])
 
-  const background = [], lines = []
+  const background = [], lines = [], exportLines = [], minMaxCR = { c: { min: Infinity, max: -Infinity }, r: { min: Infinity, max: -Infinity } }
   for (const [columnIndex, row] of Object.entries(map)) {
     for (const [rowIndex, lineType] of Object.entries(row)) {
       const c = parseInt(columnIndex)
       const r = parseInt(rowIndex)
+
+      if (lineType !== 0) {
+        updateMinMax(minMaxCR, { c: Math.floor((c + 1) / 2), r })
+        if (c % 2 === 0) updateMinMax(minMaxCR, { c: Math.floor((c + 1) / 2), r: r + 1 })
+      }
 
       if (c % 2 === 0 && c !== map.length - 1) {
         background.push(
@@ -47,22 +53,23 @@ export function OrthographicEditorDialog({ isOpen, setIsOpen, setDownloadUrl }: 
         )
       }
 
-      lines.push(
-        <OrthographicEditorLine
-          lineType={lineType}
-          setLineType={
-            (lineType) => {
-              const newMap = [...map]
-              newMap[c][r] = lineType
-              setMap(newMap)
-            }
-          }
-          start={{ x: Math.floor(c / 2), y: r }}
-          isHorizontal={c % 2 === 1}
-        />
-      )
+      const lineProps = {
+        lineType,
+        setLineType: (lineType: LineType) => {
+          const newMap = [...map]
+          newMap[c][r] = lineType
+          setMap(newMap)
+        },
+        start: { x: Math.floor(c / 2), y: r },
+        isHorizontal: c % 2 === 1
+      }
+
+      lines.push(<OrthographicEditorLine isInteractive={true} {...lineProps} />)
+      exportLines.push(<OrthographicEditorLine isInteractive={false} {...lineProps} />)
     }
   }
+
+  const viewBox = `${minMaxCR.c.min - 1} ${minMaxCR.r.min - 1} ${minMaxCR.c.max + 2} ${minMaxCR.r.max + 2}`
 
   return (
     <dialog ref={dialogRef}>
@@ -75,7 +82,7 @@ export function OrthographicEditorDialog({ isOpen, setIsOpen, setDownloadUrl }: 
           {...background}
           {...lines}
         </svg>
-        {wrapWithExportContainer(<svg viewBox={`-1 -1 ${(map.length - 1) / 2 + 2} ${map[0].length + 2}`}>{...lines}</svg>, 'none')}
+        {wrapWithExportContainer(<svg viewBox={viewBox}>{...exportLines}</svg>, 'none')}
       </section>
       <footer>
         <button

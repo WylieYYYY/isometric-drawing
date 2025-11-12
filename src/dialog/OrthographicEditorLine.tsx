@@ -5,13 +5,14 @@ import { joinedEndsSVGLineCoordinatesProps } from './../util.ts'
 export type LineType = 0 | 1 | 2
 
 type OrthographicEditorLineProps = {
+  isInteractive: boolean
   lineType: LineType
   setLineType: (lineType: LineType) => void
   start: { x: number, y: number }
   isHorizontal: boolean
 }
 
-export function OrthographicEditorLine({ lineType, setLineType, start, isHorizontal }: OrthographicEditorLineProps) {
+export function OrthographicEditorLine({ isInteractive, lineType, setLineType, start, isHorizontal }: OrthographicEditorLineProps) {
   const [isHighlighted, setIsHighlighted] = useState(false)
 
   const lineProps: Record<'regular'|'highlighted', Array<SVGAttributes<SVGLineElement>>> = { regular: [], highlighted: [] }
@@ -45,14 +46,18 @@ export function OrthographicEditorLine({ lineType, setLineType, start, isHorizon
           return <line {...coordinatesProps} strokeWidth={STROKE_WIDTH} {...props} />
         })
       }
-      <line
-        {...coordinatesProps}
-        strokeWidth={STROKE_WIDTH}
-        stroke='transparent'
-        onClick={() => setLineType((lineType + 1) % 3 as LineType)}
-        onMouseOver={() => setIsHighlighted(true)}
-        onMouseOut={() => setIsHighlighted(false)}
-      />
+      {
+        isInteractive ? (
+          <line
+            {...coordinatesProps}
+            strokeWidth={STROKE_WIDTH}
+            stroke='transparent'
+            onClick={() => setLineType((lineType + 1) % 3 as LineType)}
+            onMouseOver={() => setIsHighlighted(true)}
+            onMouseOut={() => setIsHighlighted(false)}
+          />
+        ) : null
+      }
     </>
   )
 }
