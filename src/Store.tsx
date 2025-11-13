@@ -9,6 +9,9 @@ export type CubeLocation = { cuboidIndex: number } & Coordinates
 export type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
 
 type Store = {
+  supportsHover: boolean
+  setSupportsHover: (supportsHover: boolean) => void
+
   highlightKind: HighlightKind
   setHighlightKind: (highlightKind: HighlightKind) => void
 
@@ -41,6 +44,14 @@ export function isCubeFaceHighlighted(
 
 /** Uses storage for global states to be shared by components. */
 export const useStore = create<Store>()(immer((set, get) => ({
+  supportsHover: true,
+
+  setSupportsHover: (supportsHover: boolean) => {
+    set((state) => {
+      state.supportsHover = supportsHover
+    })
+  },
+
   highlightKind: 'face',
 
   setHighlightKind: (highlightKind: HighlightKind) => {

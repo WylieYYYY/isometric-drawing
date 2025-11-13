@@ -18,9 +18,11 @@ import { useStore } from './Store.tsx'
 
 function App() {
   const [
+    setSupportsHover,
     highlightKind,
     setHighlightKind
   ] = useStore(useShallow((state) => [
+    state.setSupportsHover,
     state.highlightKind,
     state.setHighlightKind
   ]))
@@ -38,9 +40,15 @@ function App() {
     document.addEventListener('keydown', keyDownCallback)
     document.addEventListener('keyup', keyUpCallback)
 
+    const media = window.matchMedia('(hover: hover)')
+    setSupportsHover(media.matches)
+    const supportsHoverChangedCallback = () => setSupportsHover(media.matches)
+    media.addEventListener('change', supportsHoverChangedCallback)
+
     return () => {
       document.removeEventListener('keydown', keyDownCallback)
       document.removeEventListener('keyup', keyUpCallback)
+      media.removeEventListener('change', supportsHoverChangedCallback)
     }
   })
 

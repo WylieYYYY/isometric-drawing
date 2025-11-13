@@ -18,7 +18,13 @@ type TriangularFaceProps = {
  * This allows culling by removing and adding triangular faces without calculating the unobscured face vertices manually.
  */
 export function TriangularFace({ spacing, cubeLocation, startDirection, highlightedCubeFaceMap }: TriangularFaceProps) {
-  const highlightKind = useStore((state) => state.highlightKind)
+  const [
+    supportsHover,
+    highlightKind
+  ] = useStore(useShallow((state) => [
+    state.supportsHover,
+    state.highlightKind
+  ]))
   const [
     highlightCubeFace,
     unhighlightCubeFace,
@@ -84,7 +90,7 @@ export function TriangularFace({ spacing, cubeLocation, startDirection, highligh
   return (
     <polygon
       points={points}
-      fill={fill}
+      fill={supportsHover ? fill : 'transparent'}
       fillOpacity={highlightedCubeFaceMap[faceAxis] !== null ? 0.5 : 0}
       onClick={onClickCallback}
       onMouseOver={() => highlightCubeFace({ cuboidIndex, x, y, z }, faceAxis)}

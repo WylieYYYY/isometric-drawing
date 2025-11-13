@@ -37,8 +37,8 @@ export function OrthographicEditorDialog({ isOpen, setIsOpen, setDownloadUrl }: 
       const r = parseInt(rowIndex)
 
       if (lineType !== 0) {
-        updateMinMax(minMaxCR, { c: Math.floor((c + 1) / 2), r })
-        if (c % 2 === 0) updateMinMax(minMaxCR, { c: Math.floor((c + 1) / 2), r: r + 1 })
+        updateMinMax(minMaxCR, { c: Math.floor(c / 2), r })
+        updateMinMax(minMaxCR, { c: Math.floor(c / 2) + c % 2, r: r + (1 - c % 2) })
       }
 
       if (c % 2 === 0 && c !== map.length - 1) {
@@ -69,7 +69,7 @@ export function OrthographicEditorDialog({ isOpen, setIsOpen, setDownloadUrl }: 
     }
   }
 
-  const viewBox = `${minMaxCR.c.min - 1} ${minMaxCR.r.min - 1} ${minMaxCR.c.max + 2} ${minMaxCR.r.max + 2}`
+  const viewBox = `${minMaxCR.c.min - 1} ${minMaxCR.r.min - 1} ${minMaxCR.c.max - minMaxCR.c.min + 2} ${minMaxCR.r.max - minMaxCR.r.min + 2}`
 
   return (
     <dialog ref={dialogRef}>

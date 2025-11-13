@@ -1,5 +1,6 @@
 import type { SVGAttributes } from 'react'
 import { useState } from 'react'
+import { useStore } from './../Store.tsx'
 import { joinedEndsSVGLineCoordinatesProps } from './../util.ts'
 
 export type LineType = 0 | 1 | 2
@@ -13,6 +14,8 @@ type OrthographicEditorLineProps = {
 }
 
 export function OrthographicEditorLine({ isInteractive, lineType, setLineType, start, isHorizontal }: OrthographicEditorLineProps) {
+  const supportsHover = useStore((state) => state.supportsHover)
+
   const [isHighlighted, setIsHighlighted] = useState(false)
 
   const lineProps: Record<'regular'|'highlighted', Array<SVGAttributes<SVGLineElement>>> = { regular: [], highlighted: [] }
@@ -37,7 +40,7 @@ export function OrthographicEditorLine({ isInteractive, lineType, setLineType, s
   const STROKE_WIDTH = 0.1
   const coordinatesProps = joinedEndsSVGLineCoordinatesProps(1, STROKE_WIDTH, isHorizontal, start.x, start.y)
 
-  const chosenStateLineProps = isHighlighted ? lineProps.highlighted : lineProps.regular
+  const chosenStateLineProps = supportsHover && isHighlighted ? lineProps.highlighted : lineProps.regular
 
   return (
     <>
