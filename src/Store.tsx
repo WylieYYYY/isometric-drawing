@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react'
+import type { DrawingDefinition } from './drawing/DrawingStore.tsx'
 import type { Coordinates, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
+import { Quaternion } from 'quaternion'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { ExportCard } from './dialog/ExportCard.tsx'
@@ -14,6 +16,11 @@ type Store = {
 
   highlightKind: HighlightKind
   setHighlightKind: (highlightKind: HighlightKind) => void
+
+  drawings: Array<DrawingDefinition>
+  newDrawing: () => number
+  setDrawing: (index: number, definition: DrawingDefinition) => void
+  deleteDrawing: (index: number) => void
 
   exportCards: Array<ReactElement<unknown, typeof ExportCard>>
   newExportCard: () => void
@@ -57,6 +64,38 @@ export const useStore = create<Store>()(immer((set, get) => ({
   setHighlightKind: (highlightKind: HighlightKind) => {
     set((state) => {
       state.highlightKind = highlightKind
+    })
+  },
+
+  drawings: [],
+
+  newDrawing: () => {
+    const DEFAULT_CUBOID_VALUES = [{ x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }]
+    const DEFAULT_ROTATION = new Quaternion()
+
+    const index = get().drawings.length
+
+    set((state) => {
+      state.drawings.push({
+        drawingIndex: index,
+        name: 'Untitled Drawing',
+        cuboidValues: DEFAULT_CUBOID_VALUES,
+        rotation: DEFAULT_ROTATION
+      })
+    })
+
+    return index
+  },
+
+  setDrawing: (index: number, definition: DrawingDefinition) => {
+    set((state) => {
+      state.drawings[index] = definition
+    })
+  },
+
+  deleteDrawing: (index: number) => {
+    set((state) => {
+      delete state.drawings[index]
     })
   },
 

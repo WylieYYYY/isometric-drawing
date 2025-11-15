@@ -14,6 +14,7 @@ import { OrthographicEditorDialog } from './dialog/OrthographicEditorDialog.tsx'
 import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './drawing/control/RotationButtons.tsx'
 import { SaveButton } from './SaveButton.tsx'
+import { StoreDrawingControls } from './drawing/StoreDrawingControls.tsx'
 import { useStore } from './Store.tsx'
 
 function App() {
@@ -67,6 +68,8 @@ function App() {
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button onClick={() => setIsOrthographicEditorDialogOpen(true)}>Open Orthographic Editor Dialog</button>
           </div>
+          <hr />
+          <StoreDrawingControls />
           <hr />
           <div id='isometric'>
             <label style={{ display: 'block' }}>

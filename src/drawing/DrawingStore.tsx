@@ -11,13 +11,20 @@ import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook
 import { isCubeFaceHighlighted } from './../Store.tsx'
 import { rotate } from './../util.ts'
 
-type DrawingDefinition = {
-  isInteractive?: boolean
+export type DrawingDefinition = {
+  drawingIndex: number|null
+  name: string
   cuboidValues: Array<CuboidValue>
   rotation: Quaternion
 }
 
 export type DrawingStore = DrawingDefinition & {
+  setDrawingIndex: (drawingIndex: number) => void
+
+  setName: (name: string) => void
+
+  isInteractive: boolean
+
   shouldCropIsometricViewport: boolean
   setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => void
 
@@ -63,6 +70,8 @@ export type DrawingStore = DrawingDefinition & {
   rotateZAnticlockwise: () => void
 }
 
+type InitialDefinition = DrawingDefinition & { isInteractive?: boolean }
+
 /**
  * Calibrates a quaternion rotation such that it does not drift from 90 degree angles
  * after multiple rotations, causing iterated rotation to not work.
@@ -81,7 +90,23 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
   )
 }
 
-const createDrawingStore = (initialDefinition?: Partial<DrawingDefinition>) => createStore<DrawingStore>()(immer((set, get) => ({
+const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => createStore<DrawingStore>()(immer((set, get) => ({
+  drawingIndex: initialDefinition?.drawingIndex ?? null,
+
+  setDrawingIndex: (drawingIndex: number) => {
+    set((state) => {
+      state.drawingIndex = drawingIndex
+    })
+  },
+
+  name: initialDefinition?.name ?? 'Untitled Drawing',
+
+  setName: (name: string) => {
+    set((state) => {
+      state.name = name
+    })
+  },
+
   isInteractive: initialDefinition?.isInteractive ?? true,
 
   shouldCropIsometricViewport: true,
@@ -267,7 +292,7 @@ const createDrawingStore = (initialDefinition?: Partial<DrawingDefinition>) => c
   }
 })))
 
-export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: DrawingDefinition }>) {
+export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: InitialDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
   if (storeRef.current === null) storeRef.current = createDrawingStore({ isInteractive: initialDefinition?.isInteractive })
 

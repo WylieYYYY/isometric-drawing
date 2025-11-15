@@ -10,6 +10,7 @@ import { IsometricControls } from './../drawing/control/IsometricControls.tsx'
 import { OrthographicControls } from './../drawing/control/OrthographicControls.tsx'
 import { OrthographicViews } from './../drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './../drawing/control/RotationButtons.tsx'
+import { useStore } from './../Store.tsx'
 
 type DrawingKind = 'isometric' | 'coded-plan' | 'orthographic'
 
@@ -19,6 +20,8 @@ type ExportCardProps = {
 }
 
 export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardProps) {
+  const drawings = useStore((state) => state.drawings)
+
   const [
     cuboidValues,
     rotation
@@ -27,6 +30,7 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
     state.rotation
   ]))
 
+  const [selectedDrawingIndex, setSelectedDrawingIndex] = useState<number|'current'>('current')
   const [drawingKind, setDrawingKind] = useState<DrawingKind>(initialDrawingKind ?? 'isometric')
 
   let drawing, control
@@ -55,8 +59,15 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
       break
   }
 
+  const initialDefinition = selectedDrawingIndex === 'current' ? {
+    drawingIndex: null,
+    name: '',
+    cuboidValues: structuredClone(cuboidValues),
+    rotation: rotation.clone()
+  } : drawings[selectedDrawingIndex]
+
   return (
-    <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues: structuredClone(cuboidValues), rotation: rotation.clone() }}>
+    <DrawingProvider initialDefinition={{ isInteractive: false, ...initialDefinition }}>
       <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
         <div style={{ display: 'flex', justifyContent: 'end' }}>
           <button onClick={deleteCallback}>Delete</button>
@@ -64,9 +75,16 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
         <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
           {drawing}
         </div>
+        <label style={{ display: 'block' }}>
+          Drawing:
+          <select value={selectedDrawingIndex} onChange={(event) => setSelectedDrawingIndex(event.target.value === 'current' ? 'current' : parseInt(event.target.value))}>
+            <option value='current'>[Current Drawing]</option>
+            {...drawings.map((drawing) => <option value={drawing.drawingIndex!.toString()}>{drawing.name}</option>)}
+          </select>
+        </label>
         <label>
           Drawing Kind:
-          <select value={drawingKind} onChange={event => setDrawingKind(event.target.value as DrawingKind)}>
+          <select value={drawingKind} onChange={(event) => setDrawingKind(event.target.value as DrawingKind)}>
             <option value='isometric'>Isometric</option>
             <option value='coded-plan'>Coded Plan</option>
             <option value='orthographic'>Orthographic</option>
