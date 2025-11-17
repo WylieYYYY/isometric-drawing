@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
 import { CuboidStructureInputs } from './drawing/control/CuboidStructureInputs.tsx'
+import { DrawingsDialog } from './dialog/DrawingsDialog.tsx'
 import { DrawingProvider } from './drawing/DrawingStore.tsx'
 import { createExportBlob, openDownloadPopup, wrapWithExportContainer } from './export.tsx'
 import { ExportDialog } from './dialog/ExportDialog.tsx'
@@ -15,7 +16,7 @@ import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './drawing/control/RotationButtons.tsx'
 import { SaveButton } from './SaveButton.tsx'
 import { StoreDrawingControls } from './drawing/StoreDrawingControls.tsx'
-import { useStore } from './Store.tsx'
+import { defaultDrawingDefinition, useStore } from './Store.tsx'
 
 function App() {
   const [
@@ -53,18 +54,21 @@ function App() {
     }
   })
 
+  const [appInitialDefinition, setAppInitialDefinition] = useState(defaultDrawingDefinition())
   const [downloadUrl, setDownloadUrl] = useState('#')
+  const [isDrawingsDialogOpen, setIsDrawingsDialogOpen] = useState(false)
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [isOrthographicEditorDialogOpen, setIsOrthographicEditorDialogOpen] = useState(false)
 
   return (
-    <DrawingProvider>
+    <DrawingProvider initialDefinition={appInitialDefinition}>
       <a id='download' href={downloadUrl} style={{ display: 'none' }}></a>
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <SaveButton setDownloadUrl={setDownloadUrl} />
+            <button onClick={() => setIsDrawingsDialogOpen(true)}>Open Drawings Dialog</button>
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button onClick={() => setIsOrthographicEditorDialogOpen(true)}>Open Orthographic Editor Dialog</button>
           </div>
@@ -147,6 +151,7 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>
+          <DrawingsDialog isOpen={isDrawingsDialogOpen} setIsOpen={setIsDrawingsDialogOpen} setInitialDefinition={setAppInitialDefinition} />
           <ExportDialog isOpen={isExportDialogOpen} setIsOpen={setIsExportDialogOpen} setDownloadUrl={setDownloadUrl} />
           <OrthographicEditorDialog isOpen={isOrthographicEditorDialogOpen} setIsOpen={setIsOrthographicEditorDialogOpen} setDownloadUrl={setDownloadUrl} />
         </section>

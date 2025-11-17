@@ -3,8 +3,8 @@ import type { StoreApi } from 'zustand'
 import type { CuboidValue } from './control/CuboidStructureInputs.tsx'
 import type { PositiveAxis } from './isometric/foreground/IsometricStructure.tsx'
 import type { CubeLocation, HighlightKind, VisibleCubeFaceLocation } from './../Store.tsx'
-import { useEffect, useRef } from 'react'
 import { Quaternion } from 'quaternion'
+import { useEffect, useRef } from 'react'
 import { createStore, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook.ts'
@@ -19,7 +19,9 @@ export type DrawingDefinition = {
 }
 
 export type DrawingStore = DrawingDefinition & {
-  setDrawingIndex: (drawingIndex: number) => void
+  hasDefinitionChanged: boolean,
+
+  setDrawingIndex: (drawingIndex: number|null) => void
 
   setName: (name: string) => void
 
@@ -91,11 +93,14 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 }
 
 const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => createStore<DrawingStore>()(immer((set, get) => ({
+  hasDefinitionChanged: false,
+
   drawingIndex: initialDefinition?.drawingIndex ?? null,
 
-  setDrawingIndex: (drawingIndex: number) => {
+  setDrawingIndex: (drawingIndex: number|null) => {
     set((state) => {
       state.drawingIndex = drawingIndex
+      state.hasDefinitionChanged = drawingIndex === null
     })
   },
 
@@ -104,6 +109,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   setName: (name: string) => {
     set((state) => {
       state.name = name
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -209,6 +215,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   newCuboidValue: (cuboidValue: CuboidValue = { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }) => {
     set((state) => {
       state.cuboidValues.push(cuboidValue)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -220,6 +227,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => {
     set((state) => {
       state.cuboidValues[index] = cuboidValue
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -230,6 +238,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   deleteCuboidValue: (index: number) => {
     set((state) => {
       state.cuboidValues.splice(index, 1)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -240,6 +249,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   resetRotation: () => {
     set((state) => {
       state.rotation = new Quaternion()
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -248,6 +258,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], Math.PI / 2).mul(state.rotation)
       state.rotation = calibrateRotation(state.rotation)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -256,6 +267,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], -Math.PI / 2).mul(state.rotation)
       state.rotation = calibrateRotation(state.rotation)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -264,6 +276,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], Math.PI / 2).mul(state.rotation)
       state.rotation = calibrateRotation(state.rotation)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -272,6 +285,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], -Math.PI / 2).mul(state.rotation)
       state.rotation = calibrateRotation(state.rotation)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -280,6 +294,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], Math.PI / 2).mul(state.rotation)
       state.rotation = calibrateRotation(state.rotation)
+      state.hasDefinitionChanged = true
     })
   },
 
@@ -288,6 +303,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], -Math.PI / 2).mul(state.rotation)
       state.rotation = calibrateRotation(state.rotation)
+      state.hasDefinitionChanged = true
     })
   }
 })))
@@ -296,18 +312,26 @@ export function DrawingProvider({ initialDefinition, children }: PropsWithChildr
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
   if (storeRef.current === null) storeRef.current = createDrawingStore({ isInteractive: initialDefinition?.isInteractive })
 
+  const setDrawingIndex = useStore(storeRef.current, (state) => state.setDrawingIndex)
+  const setName = useStore(storeRef.current, (state) => state.setName)
   const setCuboidValues = useStore(storeRef.current, (state) => state.setCuboidValues)
 
-  // pre-apply rotation so that the rotation for a provider is separate from the initial definition
-  // removing cuboid support removes the need for marshalling
   useEffect(() => {
     if (initialDefinition !== undefined) {
+      setName(initialDefinition.name)
+
+      // pre-apply rotation so that the rotation for a provider is separate from the initial definition
+      // removing cuboid support removes the need for marshalling
       const cubeLocations = cubeLocationFromCuboidValues(initialDefinition.cuboidValues)
       const rotatedCuboidValues = rotate(cubeLocations, initialDefinition.rotation)
           .map(({ x, y, z }) => ({ x: x.toString(), y: y.toString(), z: z.toString(), dx: '1', dy: '1', dz: '1' }))
       setCuboidValues(rotatedCuboidValues)
+
+      // setting the drawing index must be last as this defines whether
+      // a drawing definition has changed from the initial definition
+      setDrawingIndex(initialDefinition.drawingIndex)
     }
-  }, [initialDefinition, setCuboidValues])
+  }, [initialDefinition, setCuboidValues, setDrawingIndex, setName])
 
   return (
     <DrawingContext.Provider value={storeRef.current}>

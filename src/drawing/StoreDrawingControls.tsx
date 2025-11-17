@@ -12,6 +12,7 @@ export function StoreDrawingControls() {
   ]))
 
   const [
+    hasDefinitionChanged,
     existingDrawingIndex,
     setDrawingIndex,
     name,
@@ -19,6 +20,7 @@ export function StoreDrawingControls() {
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
+    state.hasDefinitionChanged,
     state.drawingIndex,
     state.setDrawingIndex,
     state.name,
@@ -40,6 +42,7 @@ export function StoreDrawingControls() {
         <input value={name} maxLength={20} placeholder='Untitled Drawing' onChange={(event) => setName(event.target.value)} />
       </label>
       <button onClick={save}>Save</button>
+      <span>{hasDefinitionChanged ? '(Unsaved)' : `(Saved)`}</span>
     </>
   )
 }

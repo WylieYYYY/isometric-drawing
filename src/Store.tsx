@@ -27,6 +27,18 @@ type Store = {
   deleteExportCard: (index: number) => void
 }
 
+export function defaultDrawingDefinition(index: number|null = null): DrawingDefinition {
+  const DEFAULT_CUBOID_VALUES = [{ x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }]
+  const DEFAULT_ROTATION = new Quaternion()
+
+  return {
+    drawingIndex: index,
+    name: 'Untitled Drawing',
+    cuboidValues: DEFAULT_CUBOID_VALUES,
+    rotation: DEFAULT_ROTATION
+  }
+}
+
 export function isCubeFaceHighlighted(
   highlightKind: HighlightKind,
   highlightedTarget: VisibleCubeFaceLocation|null,
@@ -70,18 +82,11 @@ export const useStore = create<Store>()(immer((set, get) => ({
   drawings: [],
 
   newDrawing: () => {
-    const DEFAULT_CUBOID_VALUES = [{ x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }]
-    const DEFAULT_ROTATION = new Quaternion()
-
     const index = get().drawings.length
+    const drawing = defaultDrawingDefinition(index)
 
     set((state) => {
-      state.drawings.push({
-        drawingIndex: index,
-        name: 'Untitled Drawing',
-        cuboidValues: DEFAULT_CUBOID_VALUES,
-        rotation: DEFAULT_ROTATION
-      })
+      state.drawings.push(drawing)
     })
 
     return index
