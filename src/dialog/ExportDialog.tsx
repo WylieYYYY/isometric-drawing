@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { createExportBlob, openDownloadPopup } from './../export.tsx'
 import { useStore } from './../Store.tsx'
@@ -20,6 +20,8 @@ export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialog
     state.newExportCard
   ]))
 
+  const [archiveName, setArchiveName] = useState('')
+
   useEffect(() => {
     if (!isOpen) return
     const dialog = dialogRef.current!
@@ -38,14 +40,18 @@ export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialog
         <button onClick={newExportCard}>+</button>
       </section>
       <footer>
+        <label>
+          Archive Name:
+          <input value={archiveName} placeholder='export' onChange={(event) => setArchiveName(event.target.value)} />
+        </label>
         <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, false, dialogRef.current!), setDownloadUrl)}
+          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, false, dialogRef.current!), setDownloadUrl, archiveName)}
           style={{ float: 'right' }}
         >
           Export SVG Archive
         </button>
         <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, true, dialogRef.current!), setDownloadUrl)}
+          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, true, dialogRef.current!), setDownloadUrl, archiveName)}
           style={{ float: 'right' }}
         >
           Export PNG Archive

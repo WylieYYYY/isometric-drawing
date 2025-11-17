@@ -72,10 +72,13 @@ export async function createExportBlob(svgsSelector: string, asPNG: boolean, par
  * If the blob type is anthing other than the listed, it is assumed to be a ZIP file.
  * @param blob - File to be downloaded, in blob form.
  * @param setDownloadUrl - Function to set the URL for the download anchor.
+ * @param name - Name of the file, defaults to `export`.
  */
-export function openDownloadPopup(blob: Blob, setDownloadUrl: (downloadUrl: string) => void) {
+export function openDownloadPopup(blob: Blob, setDownloadUrl: (downloadUrl: string) => void, name?: string) {
   const anchor = document.getElementById('download') as HTMLAnchorElement
   setDownloadUrl(URL.createObjectURL(blob))
+
+  const resolvedName = name === '' || name === undefined ? 'export' : name
   switch (blob.type) {
     case 'image/png':
       anchor.download = `export.png`
@@ -84,8 +87,9 @@ export function openDownloadPopup(blob: Blob, setDownloadUrl: (downloadUrl: stri
       anchor.download = `export.svg`
       break
     default:
-      anchor.download = `export.zip`
+      anchor.download = `${resolvedName}.zip`
       break
   }
+
   setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
 }
