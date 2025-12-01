@@ -128,5 +128,7 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
 })), {
   name: 'app-storage',
   storage: createJSONStorage(() => sessionStorage),
-  partialize: (state) => ({ drawings: state.drawings.filter((drawing) => drawing !== null) })
+  partialize: (state) => ({
+    drawings: state.drawings
+  })
 }))

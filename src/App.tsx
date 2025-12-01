@@ -68,12 +68,11 @@ function App() {
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <SaveButton setDownloadUrl={setDownloadUrl} />
-            <button onClick={() => setIsDrawingsDialogOpen(true)}>Open Drawings Dialog</button>
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button onClick={() => setIsOrthographicEditorDialogOpen(true)}>Open Orthographic Editor Dialog</button>
           </div>
           <hr />
-          <StoreDrawingControls />
+          <StoreDrawingControls setInitialDefinition={setAppInitialDefinition} setIsDrawingsDialogOpen={setIsDrawingsDialogOpen} />
           <hr />
           <div id='isometric'>
             <label style={{ display: 'block' }}>

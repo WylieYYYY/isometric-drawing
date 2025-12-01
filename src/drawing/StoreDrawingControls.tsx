@@ -1,8 +1,14 @@
+import type { DrawingDefinition } from './DrawingStore.tsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './DrawingStoreHook.ts'
-import { useStore } from './../Store.tsx'
+import { defaultDrawingDefinition, useStore } from './../Store.tsx'
 
-export function StoreDrawingControls() {
+type StoreDrawingControlsProps = {
+  setInitialDefinition: (initialDefinition: DrawingDefinition) => void
+  setIsDrawingsDialogOpen: (isDrawingsDialogOpen: boolean) => void
+}
+
+export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialogOpen }: StoreDrawingControlsProps) {
   const [
     newDrawing,
     setDrawing
@@ -44,6 +50,8 @@ export function StoreDrawingControls() {
 
   return (
     <>
+      <button onClick={() => setInitialDefinition(defaultDrawingDefinition())}>New</button>
+      <button onClick={() => setIsDrawingsDialogOpen(true)}>Open / Manage</button>
       <button
         onClick={() => save(existingDrawingIndex!)}
         disabled={!hasDefinitionChanged || existingDrawingIndex === null}
