@@ -1,3 +1,4 @@
+import { Quaternion } from 'quaternion'
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './../drawing/auxiliary/CodedPlan.tsx'
@@ -59,12 +60,18 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
       break
   }
 
-  const initialDefinition = selectedDrawingIndex === 'current' ? {
-    drawingIndex: null,
-    name: '',
-    cuboidValues: structuredClone(cuboidValues),
-    rotation: rotation.clone()
-  } : drawings[selectedDrawingIndex]
+  let initialDefinition
+  if (selectedDrawingIndex === 'current') {
+    initialDefinition = {
+      drawingIndex: null,
+      name: '',
+      cuboidValues: structuredClone(cuboidValues),
+      rotation: rotation.clone()
+    }
+  } else {
+    const { rotation, ...rest } = drawings[selectedDrawingIndex]!
+    initialDefinition = { rotation: new Quaternion(rotation), ...rest }
+  }
 
   return (
     <DrawingProvider initialDefinition={{ isInteractive: false, ...initialDefinition }}>
@@ -79,7 +86,7 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
           Drawing:
           <select value={selectedDrawingIndex} onChange={(event) => setSelectedDrawingIndex(event.target.value === 'current' ? 'current' : parseInt(event.target.value))}>
             <option value='current'>[Current Drawing]</option>
-            {...drawings.map((drawing) => <option value={drawing.drawingIndex!.toString()}>{drawing.name}</option>)}
+            {...drawings.filter((drawing) => drawing !== null).map((drawing) => <option value={drawing.drawingIndex!.toString()}>{drawing.name}</option>)}
           </select>
         </label>
         <label>

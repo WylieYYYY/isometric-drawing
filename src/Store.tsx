@@ -3,12 +3,15 @@ import type { DrawingDefinition } from './drawing/DrawingStore.tsx'
 import type { Coordinates, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import { Quaternion } from 'quaternion'
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { ExportCard } from './dialog/ExportCard.tsx'
 
 export type HighlightKind = 'cuboid' | 'face'
 export type CubeLocation = { cuboidIndex: number } & Coordinates
 export type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
+
+type SerializableDrawingDefinition = Omit<DrawingDefinition, 'rotation'> & { rotation: { w: number, x: number, y: number, z: number } }
 
 type Store = {
   supportsHover: boolean
@@ -17,7 +20,7 @@ type Store = {
   highlightKind: HighlightKind
   setHighlightKind: (highlightKind: HighlightKind) => void
 
-  drawings: Array<DrawingDefinition>
+  drawings: Array<SerializableDrawingDefinition|null>
   newDrawing: () => number
   setDrawing: (index: number, definition: DrawingDefinition) => void
   deleteDrawing: (index: number) => void
@@ -62,7 +65,7 @@ export function isCubeFaceHighlighted(
 }
 
 /** Uses storage for global states to be shared by components. */
-export const useStore = create<Store>()(immer((set, get) => ({
+export const useStore = create<Store>()(persist(immer((set, get) => ({
   supportsHover: true,
 
   setSupportsHover: (supportsHover: boolean) => {
@@ -100,7 +103,7 @@ export const useStore = create<Store>()(immer((set, get) => ({
 
   deleteDrawing: (index: number) => {
     set((state) => {
-      delete state.drawings[index]
+      state.drawings[index] = null
     })
   },
 
@@ -122,4 +125,8 @@ export const useStore = create<Store>()(immer((set, get) => ({
       delete state.exportCards[index]
     })
   }
-})))
+})), {
+  name: 'app-storage',
+  storage: createJSONStorage(() => sessionStorage),
+  partialize: (state) => ({ drawings: state.drawings.filter((drawing) => drawing !== null) })
+}))

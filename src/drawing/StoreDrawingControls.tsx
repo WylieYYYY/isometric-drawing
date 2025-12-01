@@ -29,20 +29,30 @@ export function StoreDrawingControls() {
     state.rotation
   ]))
 
-  function save() {
-    const drawingIndex = existingDrawingIndex ?? newDrawing()
+  function save(drawingIndex: number, newName?: string) {
     setDrawingIndex(drawingIndex)
-    setDrawing(drawingIndex, { drawingIndex, name, cuboidValues, rotation })
+    setDrawing(drawingIndex, { drawingIndex, name: newName ?? name, cuboidValues, rotation })
+  }
+
+  function saveAs() {
+    const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
+    if (name === null) return
+    const drawingIndex = newDrawing()
+    setName(name)
+    save(drawingIndex, name)
   }
 
   return (
     <>
-      <label>
-        Name:
-        <input value={name} maxLength={20} placeholder='Untitled Drawing' onChange={(event) => setName(event.target.value)} />
-      </label>
-      <button onClick={save}>Save</button>
-      <span>{hasDefinitionChanged ? '(Unsaved)' : `(Saved)`}</span>
+      <button
+        onClick={() => save(existingDrawingIndex!)}
+        disabled={!hasDefinitionChanged || existingDrawingIndex === null}
+      >
+        Save
+      </button>
+      <button onClick={saveAs}>Save As</button>
+      <span>{hasDefinitionChanged ? '(Unsaved)' : '(Saved)'}</span>
+      <div>Current Drawing: <code>{name}</code></div>
     </>
   )
 }
