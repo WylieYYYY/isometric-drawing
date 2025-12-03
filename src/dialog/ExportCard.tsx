@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+import type { TaggedDefinition } from './../Store.tsx'
 import { Quaternion } from 'quaternion'
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
@@ -9,6 +11,7 @@ import { wrapWithExportContainer } from './../export.tsx'
 import { IsometricViewport } from './../drawing/isometric/IsometricViewport.tsx'
 import { IsometricControls } from './../drawing/control/IsometricControls.tsx'
 import { OrthographicControls } from './../drawing/control/OrthographicControls.tsx'
+import { OrthographicEditor } from './OrthographicEditor.tsx'
 import { OrthographicViews } from './../drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './../drawing/control/RotationButtons.tsx'
 import { useStore } from './../Store.tsx'
@@ -20,18 +23,45 @@ type ExportCardProps = {
   deleteCallback: () => void
 }
 
-export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardProps) {
-  const drawings = useStore((state) => state.drawings)
+type TemplateCardProps = {
+  drawings: Array<TaggedDefinition|null>
+  deleteCallback: () => void
+  drawing: ReactNode
+  selectedDrawingIndex: number
+  setSelectedDrawingIndex: (selectedDrawingIndex: number) => void
+  controls: ReactNode
+}
 
-  const [
-    cuboidValues,
-    rotation
-  ] = useDrawingStore(useShallow((state) => [
-    state.cuboidValues,
-    state.rotation
-  ]))
+type DrawingDefinitionCardProps = {
+  initialDrawingKind?: DrawingKind
+  drawings: Array<TaggedDefinition|null>
+  deleteCallback: () => void
+  selectedDrawingIndex: number
+  setSelectedDrawingIndex: (selectedDrawingIndex: number) => void
+}
 
-  const [selectedDrawingIndex, setSelectedDrawingIndex] = useState<number|'current'>('current')
+function TemplateCard({ drawings, deleteCallback, drawing, selectedDrawingIndex, setSelectedDrawingIndex, controls } : TemplateCardProps) {
+  return (
+    <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
+      <div style={{ display: 'flex', justifyContent: 'end' }}>
+        <button onClick={deleteCallback}>Delete</button>
+      </div>
+      <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
+        {drawing}
+      </div>
+      <label style={{ display: 'block' }}>
+        Drawing:
+        <select value={selectedDrawingIndex} onChange={(event) => setSelectedDrawingIndex(parseInt(event.target.value))}>
+          <option value='-1'>[Current Drawing]</option>
+          {...drawings.filter((drawing) => drawing !== null).map(({ definition: { drawingIndex, name } }) => <option value={drawingIndex!.toString()}>{name}</option>)}
+        </select>
+      </label>
+      {controls}
+    </div>
+  )
+}
+
+function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, selectedDrawingIndex, setSelectedDrawingIndex } : DrawingDefinitionCardProps) {
   const [drawingKind, setDrawingKind] = useState<DrawingKind>(initialDrawingKind ?? 'isometric')
 
   let drawing, control
@@ -60,8 +90,71 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
       break
   }
 
+  const controls = (
+    <>
+      <label>
+        Drawing Kind:
+        <select value={drawingKind} onChange={(event) => setDrawingKind(event.target.value as DrawingKind)}>
+          <option value='isometric'>Isometric</option>
+          <option value='coded-plan'>Coded Plan</option>
+          <option value='orthographic'>Orthographic</option>
+        </select>
+      </label>
+      <div style={{ display: 'flex' }}>
+        <div style={{ width: '8rem' }}>
+          <RotationButtons />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {control}
+        </div>
+      </div>
+    </>
+  )
+
+  return (
+    <TemplateCard
+      drawings={drawings}
+      deleteCallback={deleteCallback}
+      drawing={drawing}
+      selectedDrawingIndex={selectedDrawingIndex}
+      setSelectedDrawingIndex={setSelectedDrawingIndex}
+      controls={controls}
+    />
+  )
+}
+
+export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardProps) {
+  const drawings = useStore((state) => state.drawings)
+
+  const [
+    cuboidValues,
+    rotation
+  ] = useDrawingStore(useShallow((state) => [
+    state.cuboidValues,
+    state.rotation
+  ]))
+
+  const [selectedDrawingIndex, setSelectedDrawingIndex] = useState<number>(-1)
+
+  if (drawings[selectedDrawingIndex]?.definitionKind === 'orthographic') {
+    return (
+      <TemplateCard
+        drawings={drawings}
+        deleteCallback={deleteCallback}
+        drawing={wrapWithExportContainer(<OrthographicEditor map={drawings[selectedDrawingIndex].definition.map} />)}
+        selectedDrawingIndex={selectedDrawingIndex}
+        setSelectedDrawingIndex={setSelectedDrawingIndex}
+        controls={null}
+      />
+    )
+  }
+
+  if (selectedDrawingIndex !== -1 && drawings[selectedDrawingIndex] === null) {
+    setSelectedDrawingIndex(-1)
+  }
+
   let initialDefinition
-  if (selectedDrawingIndex === 'current') {
+  if (selectedDrawingIndex === -1) {
     initialDefinition = {
       drawingIndex: null,
       name: '',
@@ -69,43 +162,19 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
       rotation: rotation.clone()
     }
   } else {
-    const { rotation, ...rest } = drawings[selectedDrawingIndex]!
+    const { definition: { rotation, ...rest } } = drawings[selectedDrawingIndex]!
     initialDefinition = { rotation: new Quaternion(rotation), ...rest }
   }
 
   return (
     <DrawingProvider initialDefinition={{ isInteractive: false, ...initialDefinition }}>
-      <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
-        <div style={{ display: 'flex', justifyContent: 'end' }}>
-          <button onClick={deleteCallback}>Delete</button>
-        </div>
-        <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
-          {drawing}
-        </div>
-        <label style={{ display: 'block' }}>
-          Drawing:
-          <select value={selectedDrawingIndex} onChange={(event) => setSelectedDrawingIndex(event.target.value === 'current' ? 'current' : parseInt(event.target.value))}>
-            <option value='current'>[Current Drawing]</option>
-            {...drawings.filter((drawing) => drawing !== null).map((drawing) => <option value={drawing.drawingIndex!.toString()}>{drawing.name}</option>)}
-          </select>
-        </label>
-        <label>
-          Drawing Kind:
-          <select value={drawingKind} onChange={(event) => setDrawingKind(event.target.value as DrawingKind)}>
-            <option value='isometric'>Isometric</option>
-            <option value='coded-plan'>Coded Plan</option>
-            <option value='orthographic'>Orthographic</option>
-          </select>
-        </label>
-        <div style={{ display: 'flex' }}>
-          <div style={{ width: '8rem' }}>
-            <RotationButtons />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {control}
-          </div>
-        </div>
-      </div>
+      <DrawingDefinitionCard
+        initialDrawingKind={initialDrawingKind}
+        drawings={drawings}
+        deleteCallback={deleteCallback}
+        selectedDrawingIndex={selectedDrawingIndex}
+        setSelectedDrawingIndex={setSelectedDrawingIndex}
+      />
     </DrawingProvider>
   )
 }

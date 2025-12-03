@@ -6,14 +6,13 @@ import { joinedEndsSVGLineCoordinatesProps } from './../util.ts'
 export type LineType = 0 | 1 | 2
 
 type OrthographicEditorLineProps = {
-  isInteractive: boolean
   lineType: LineType
-  setLineType: (lineType: LineType) => void
+  setLineType?: (lineType: LineType) => void
   start: { x: number, y: number }
   isHorizontal: boolean
 }
 
-export function OrthographicEditorLine({ isInteractive, lineType, setLineType, start, isHorizontal }: OrthographicEditorLineProps) {
+export function OrthographicEditorLine({ lineType, setLineType, start, isHorizontal }: OrthographicEditorLineProps) {
   const supportsHover = useStore((state) => state.supportsHover)
 
   const [isHighlighted, setIsHighlighted] = useState(false)
@@ -45,12 +44,12 @@ export function OrthographicEditorLine({ isInteractive, lineType, setLineType, s
   return (
     <>
       {
-        chosenStateLineProps.map((props) => {
-          return <line {...coordinatesProps} strokeWidth={STROKE_WIDTH} {...props} />
+        chosenStateLineProps.map((props, index) => {
+          return <line key={`${index} ${start.x} ${start.y} ${isHorizontal}`} {...coordinatesProps} strokeWidth={STROKE_WIDTH} {...props} />
         })
       }
       {
-        isInteractive ? (
+        setLineType === undefined ? null : (
           <line
             {...coordinatesProps}
             strokeWidth={STROKE_WIDTH}
@@ -59,7 +58,7 @@ export function OrthographicEditorLine({ isInteractive, lineType, setLineType, s
             onMouseOver={() => setIsHighlighted(true)}
             onMouseOut={() => setIsHighlighted(false)}
           />
-        ) : null
+        )
       }
     </>
   )

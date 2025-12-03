@@ -37,13 +37,21 @@ export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialog
 
   function save(drawingIndex: number, newName?: string) {
     setDrawingIndex(drawingIndex)
-    setDrawing(drawingIndex, { drawingIndex, name: newName ?? name, cuboidValues, rotation })
+    setDrawing(drawingIndex, {
+      definitionKind: 'drawing',
+      definition: {
+        drawingIndex,
+        name: newName ?? name,
+        cuboidValues,
+        rotation
+      }
+    })
   }
 
   function saveAs() {
     const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
     if (name === null) return
-    const drawingIndex = newDrawing()
+    const drawingIndex = newDrawing('drawing')
     setName(name)
     save(drawingIndex, name)
   }

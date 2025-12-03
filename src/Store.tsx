@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import type { DrawingDefinition } from './drawing/DrawingStore.tsx'
 import type { Coordinates, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
+import type { LineType } from './dialog/OrthographicEditorLine.tsx'
 import { Quaternion } from 'quaternion'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
@@ -10,7 +11,10 @@ import { ExportCard } from './dialog/ExportCard.tsx'
 export type HighlightKind = 'cuboid' | 'face'
 export type CubeLocation = { cuboidIndex: number } & Coordinates
 export type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
+export type OrthographicDrawingDefinition = { drawingIndex: number, name: string, map: Array<Array<LineType>> }
+export type TaggedDefinition = { definitionKind: 'drawing', definition: SerializableDrawingDefinition } | { definitionKind: 'orthographic', definition: OrthographicDrawingDefinition }
 
+type DefinitionKind = 'drawing' | 'orthographic'
 type SerializableDrawingDefinition = Omit<DrawingDefinition, 'rotation'> & { rotation: { w: number, x: number, y: number, z: number } }
 
 type Store = {
@@ -20,9 +24,9 @@ type Store = {
   highlightKind: HighlightKind
   setHighlightKind: (highlightKind: HighlightKind) => void
 
-  drawings: Array<SerializableDrawingDefinition|null>
-  newDrawing: () => number
-  setDrawing: (index: number, definition: DrawingDefinition) => void
+  drawings: Array<TaggedDefinition|null>
+  newDrawing: (definitionKind: DefinitionKind) => number
+  setDrawing: (index: number, definition: TaggedDefinition) => void
   deleteDrawing: (index: number) => void
 
   exportCards: Array<ReactElement<unknown, typeof ExportCard>>
@@ -39,6 +43,24 @@ export function defaultDrawingDefinition(index: number|null = null): DrawingDefi
     name: 'Untitled Drawing',
     cuboidValues: DEFAULT_CUBOID_VALUES,
     rotation: DEFAULT_ROTATION
+  }
+}
+
+export function defaultOrthographicDrawingDefinition(index: number): OrthographicDrawingDefinition {
+  const DEFAULT_MAP: Array<Array<LineType>> = [
+    [0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0]
+  ]
+
+  return {
+    drawingIndex: index,
+    name: 'Untitled Drawing',
+    map: DEFAULT_MAP
   }
 }
 
@@ -84,18 +106,24 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
 
   drawings: [],
 
-  newDrawing: () => {
+  newDrawing: (definitionKind: DefinitionKind) => {
     const index = get().drawings.length
-    const drawing = defaultDrawingDefinition(index)
 
     set((state) => {
-      state.drawings.push(drawing)
+      switch (definitionKind) {
+        case 'drawing':
+          state.drawings.push({ definitionKind: 'drawing', definition: defaultDrawingDefinition(index) })
+          break
+        case 'orthographic':
+          state.drawings.push({ definitionKind: 'orthographic', definition: defaultOrthographicDrawingDefinition(index) })
+          break
+      }
     })
 
     return index
   },
 
-  setDrawing: (index: number, definition: DrawingDefinition) => {
+  setDrawing: (index: number, definition: TaggedDefinition) => {
     set((state) => {
       state.drawings[index] = definition
     })

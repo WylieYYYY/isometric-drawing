@@ -1,88 +1,53 @@
 import type { LineType } from './OrthographicEditorLine.tsx'
-import { useEffect, useRef, useState } from 'react'
+import type { OrthographicDrawingDefinition } from './../Store.tsx'
+import { useEffect, useRef } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { createExportBlob, openDownloadPopup, wrapWithExportContainer } from './../export.tsx'
-import { OrthographicEditorLine } from './OrthographicEditorLine.tsx'
-import { updateMinMax } from './../util.ts'
+import { OrthographicEditor } from './OrthographicEditor.tsx'
+import { useStore } from './../Store.tsx'
 
 type OrthographicEditorDialogProps = {
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  drawingIndex: number|null
+  setDrawingIndex: (index: number|null) => void
   setDownloadUrl: (downloadUrl: string) => void
 }
 
-export function OrthographicEditorDialog({ isOpen, setIsOpen, setDownloadUrl }: OrthographicEditorDialogProps) {
+export function OrthographicEditorDialog({ drawingIndex, setDrawingIndex, setDownloadUrl }: OrthographicEditorDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
-  const [map, setMap] = useState<Array<Array<LineType>>>([
-    [0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0]
-  ])
+  const [
+    drawings,
+    setDrawing
+  ] = useStore(useShallow((state) => [
+    state.drawings,
+    state.setDrawing
+  ]))
 
   useEffect(() => {
-    if (!isOpen) return
+    if (drawingIndex === null) return
     const dialog = dialogRef.current!
     dialog.showModal()
     return () => dialog.close()
-  }, [isOpen])
+  }, [drawingIndex])
 
-  const background = [], lines = [], exportLines = [], minMaxCR = { c: { min: Infinity, max: -Infinity }, r: { min: Infinity, max: -Infinity } }
-  for (const [columnIndex, row] of Object.entries(map)) {
-    for (const [rowIndex, lineType] of Object.entries(row)) {
-      const c = parseInt(columnIndex)
-      const r = parseInt(rowIndex)
+  if (drawingIndex === null) return null
 
-      if (lineType !== 0) {
-        updateMinMax(minMaxCR, { c: Math.floor(c / 2), r })
-        updateMinMax(minMaxCR, { c: Math.floor(c / 2) + c % 2, r: r + (1 - c % 2) })
-      }
-
-      if (c % 2 === 0 && c !== map.length - 1) {
-        background.push(
-          <rect
-            x={Math.floor(c / 2)} y={r}
-            width={1} height={1}
-            fill='transparent'
-            stroke='lightgray'
-            strokeWidth={0.1}
-          />
-        )
-      }
-
-      const lineProps = {
-        lineType,
-        setLineType: (lineType: LineType) => {
-          const newMap = [...map]
-          newMap[c][r] = lineType
-          setMap(newMap)
-        },
-        start: { x: Math.floor(c / 2), y: r },
-        isHorizontal: c % 2 === 1
-      }
-
-      lines.push(<OrthographicEditorLine isInteractive={true} {...lineProps} />)
-      exportLines.push(<OrthographicEditorLine isInteractive={false} {...lineProps} />)
-    }
+  const map = (drawings[drawingIndex]!.definition as OrthographicDrawingDefinition).map
+  const setMap = (map: Array<Array<LineType>>) => {
+    const drawing = structuredClone(drawings[drawingIndex]!);
+    (drawing.definition as OrthographicDrawingDefinition).map = map
+    setDrawing(drawingIndex!, drawing)
   }
-
-  const viewBox = `${minMaxCR.c.min - 1} ${minMaxCR.r.min - 1} ${minMaxCR.c.max - minMaxCR.c.min + 2} ${minMaxCR.r.max - minMaxCR.r.min + 2}`
 
   return (
     <dialog ref={dialogRef}>
       <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>Orthographic Editor</h1>
-        <button onClick={() => setIsOpen(false)} style={{ float: 'right' }}>Close</button>
+        <button onClick={() => setDrawingIndex(null)} style={{ float: 'right' }}>Close</button>
       </header>
       <section style={{ height: '20rem' }}>
-        <svg width='100%' height='100%' viewBox={`-1 -1 ${(map.length - 1) / 2 + 2} ${map[0].length + 2}`}>
-          {...background}
-          {...lines}
-        </svg>
-        {wrapWithExportContainer(<svg viewBox={viewBox}>{...exportLines}</svg>, 'none')}
+        <OrthographicEditor map={map} setMap={setMap} />
+        {wrapWithExportContainer(<OrthographicEditor map={map} />, 'none')}
       </section>
       <footer>
         <button
