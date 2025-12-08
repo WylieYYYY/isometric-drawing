@@ -7,6 +7,7 @@ type OrthographicEditorProps = {
   setMap?: (map: Array<Array<LineType>>) => void
 }
 
+/** Editor that allows orthographic drawings to be produced by drawing lines by hand. */
 export function OrthographicEditor({ map, setMap }: OrthographicEditorProps) {
   const background = [], lines = [], minMaxCR = { c: { min: Infinity, max: -Infinity }, r: { min: Infinity, max: -Infinity } }
   for (const [columnIndex, row] of Object.entries(map)) {
@@ -14,11 +15,16 @@ export function OrthographicEditor({ map, setMap }: OrthographicEditorProps) {
       const c = parseInt(columnIndex)
       const r = parseInt(rowIndex)
 
+      // if the line is visible, update the boundary of the drawn lines
       if (lineType !== 0) {
+        // account for start of the line
         updateMinMax(minMaxCR, { c: Math.floor(c / 2), r })
+        // account for end of the line, can extend downward or rightward
         updateMinMax(minMaxCR, { c: Math.floor(c / 2) + c % 2, r: r + (1 - c % 2) })
       }
 
+      // background sqaures to draw on, one square every two line columns
+      // this has acceptable overlapping renders
       if (c % 2 === 0 && c !== map.length - 1) {
         background.push(
           <rect
@@ -33,6 +39,8 @@ export function OrthographicEditor({ map, setMap }: OrthographicEditorProps) {
 
       const lineProps = {
         lineType,
+        // only allow setting lines if the map can be set
+        // reconstructs the map with the line type changed
         setLineType: setMap === undefined ? undefined : (lineType: LineType) => {
           const newMap = structuredClone(map)
           newMap[c][r] = lineType
@@ -46,10 +54,14 @@ export function OrthographicEditor({ map, setMap }: OrthographicEditorProps) {
     }
   }
 
+  // view box of the drawing cropped to its boundary of the drawn lines
   const viewBox = `${minMaxCR.c.min - 1} ${minMaxCR.r.min - 1} ${minMaxCR.c.max - minMaxCR.c.min + 2} ${minMaxCR.r.max - minMaxCR.r.min + 2}`
 
+  // if the map is not changeable then the image should be cropped for display or export
   if (setMap === undefined) return <svg width='100%' height='100%' viewBox={viewBox} data-export-name='orthodraw'>{...lines}</svg>
 
+  // otherwise show background and the full extent
+  // `data-export-name` is not required here as the drawing should not be exported in this state
   return (
     <svg width='100%' height='100%' viewBox={`-1 -1 ${(map.length - 1) / 2 + 2} ${map[0].length + 2}`} data-export-name='orthodraw'>
       {...background}

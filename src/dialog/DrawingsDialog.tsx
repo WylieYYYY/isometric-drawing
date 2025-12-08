@@ -15,6 +15,10 @@ type DrawingsDialogProps = {
   setOrthographicEditorDrawingIndex: (orthographicEditorDrawingIndex: number|null) => void
 }
 
+/**
+ * Dialog for management of drawings.
+ * Dialogs exist in tree at all time, only the visibility is toggled.
+ */
 export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrthographicEditorDrawingIndex }: DrawingsDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
@@ -79,6 +83,7 @@ export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrt
                     onClick={
                       (event) => {
                         deleteDrawing(definition.drawingIndex!)
+                        // the current drawing is the one being deleted, switch to the default drawing
                         if (definition.drawingIndex === drawingIndex) setInitialDefinition(defaultDrawingDefinition())
                         event.stopPropagation()
                       }
@@ -95,17 +100,6 @@ export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrt
         }
       </section>
       <footer>
-        <button
-          onClick={
-            () => {
-              setInitialDefinition(defaultDrawingDefinition())
-              setIsOpen(false)
-            }
-          }
-          style={{ float: 'right' }}
-        >
-          Create New Drawing
-        </button>
       </footer>
     </dialog>
   )

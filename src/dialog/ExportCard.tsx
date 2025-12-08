@@ -40,6 +40,10 @@ type DrawingDefinitionCardProps = {
   setSelectedDrawingIndex: (selectedDrawingIndex: number) => void
 }
 
+/**
+ * Base template card to be used by all definitions.
+ * Preview can be customized via `drawing` and controls can be customized via `controls`.
+ */
 function TemplateCard({ drawings, deleteCallback, drawing, selectedDrawingIndex, setSelectedDrawingIndex, controls } : TemplateCardProps) {
   return (
     <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
@@ -61,6 +65,7 @@ function TemplateCard({ drawings, deleteCallback, drawing, selectedDrawingIndex,
   )
 }
 
+/** Card to use when the definition is a drawing definition. */
 function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, selectedDrawingIndex, setSelectedDrawingIndex } : DrawingDefinitionCardProps) {
   const [drawingKind, setDrawingKind] = useState<DrawingKind>(initialDrawingKind ?? 'isometric')
 
@@ -123,6 +128,7 @@ function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, s
   )
 }
 
+/** Card in export dialog that display a preview with its control and exposes an export container. */
 export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardProps) {
   const drawings = useStore((state) => state.drawings)
 
@@ -134,6 +140,7 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
     state.rotation
   ]))
 
+  // current drawing as the default, no index is suitable as the current drawing may be unsaved
   const [selectedDrawingIndex, setSelectedDrawingIndex] = useState<number>(-1)
 
   if (drawings[selectedDrawingIndex]?.definitionKind === 'orthographic') {
@@ -149,12 +156,16 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
     )
   }
 
+  // the definition is deleted while the card is displaying it
+  // set the card to the current drawing as a fallback without self deleting
   if (selectedDrawingIndex !== -1 && drawings[selectedDrawingIndex] === null) {
     setSelectedDrawingIndex(-1)
   }
 
   let initialDefinition
   if (selectedDrawingIndex === -1) {
+    // This card is not wrapped in a more specific drawing provider
+    // so this takes from the outer most drawing provider
     initialDefinition = {
       drawingIndex: null,
       name: '',
@@ -162,6 +173,7 @@ export function ExportCard({ initialDrawingKind, deleteCallback }: ExportCardPro
       rotation: rotation.clone()
     }
   } else {
+    // the drawing should not be null as the index would have set to -1
     const { definition: { rotation, ...rest } } = drawings[selectedDrawingIndex]!
     initialDefinition = { rotation: new Quaternion(rotation), ...rest }
   }

@@ -9,6 +9,10 @@ type ExportDialogProps = {
   setDownloadUrl: (downloadUrl: string) => void
 }
 
+/**
+ * Dialog for archive export of drawings.
+ * Dialogs exist in tree at all time, only the visibility is toggled.
+ */
 export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 

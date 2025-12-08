@@ -12,6 +12,12 @@ type OrthographicEditorDialogProps = {
   setDownloadUrl: (downloadUrl: string) => void
 }
 
+/**
+ * Editor dialog that allows orthographic drawings to be produced by drawing lines by hand.
+ * Unlike other dialogs, this dialog is unrendered from tree when closed.
+ * The given `drawingIndex` must point to a valid orthographic drawing definition,
+ * or be null which unrenders the dialog.
+ */
 export function OrthographicEditorDialog({ drawingIndex, setDrawingIndex, setDownloadUrl }: OrthographicEditorDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
@@ -30,9 +36,13 @@ export function OrthographicEditorDialog({ drawingIndex, setDrawingIndex, setDow
     return () => dialog.close()
   }, [drawingIndex])
 
+  // don't render at all if there is no valid index
+  // since there is no way to provide valid `map` and `setMap`
   if (drawingIndex === null) return null
 
+  // relies on the pre-conditions mentioned in the component description
   const map = (drawings[drawingIndex]!.definition as OrthographicDrawingDefinition).map
+  // reconstructs the definition with the map changed
   const setMap = (map: Array<Array<LineType>>) => {
     const drawing = structuredClone(drawings[drawingIndex]!);
     (drawing.definition as OrthographicDrawingDefinition).map = map

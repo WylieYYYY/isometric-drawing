@@ -34,6 +34,11 @@ type Store = {
   deleteExportCard: (index: number) => void
 }
 
+/**
+ * Creates a default isometric drawing definition, which consists of the default cube.
+ * @param index - A definition index, or null if the definition is not yet saved.
+ * @returns The default isometric drawing definition.
+ */
 export function defaultDrawingDefinition(index: number|null = null): DrawingDefinition {
   const DEFAULT_CUBOID_VALUES = [{ x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }]
   const DEFAULT_ROTATION = new Quaternion()
@@ -46,6 +51,11 @@ export function defaultDrawingDefinition(index: number|null = null): DrawingDefi
   }
 }
 
+/**
+ * Creates a default orthographic drawing definition, which is an empty 3x3 grid.
+ * @param index - A valid definition index, since orthographic drawing must be saved before editing.
+ * @returns The default orthographic drawing definition.
+ */
 export function defaultOrthographicDrawingDefinition(index: number): OrthographicDrawingDefinition {
   const DEFAULT_MAP: Array<Array<LineType>> = [
     [0, 0, 0],
@@ -64,6 +74,14 @@ export function defaultOrthographicDrawingDefinition(index: number): Orthographi
   }
 }
 
+/**
+ * Checks if the given attributes match the current highlighting.
+ * @param highlightKind - Current highlight kind which determines what attributes to check.
+ * @param highlightedTarget - Current highlighted target that is stored.
+ * @param cubeLocation - Cuboid index is checked if kind is `cuboid`, coordinates are checked otherwise.
+ * @param axis - Additional axis check for face highlighting if non-null.
+ * @returns Highlight kind if the given attributes match the current highlighting, null otherwise.
+ */
 export function isCubeFaceHighlighted(
   highlightKind: HighlightKind,
   highlightedTarget: VisibleCubeFaceLocation|null,
@@ -88,24 +106,46 @@ export function isCubeFaceHighlighted(
 
 /** Uses storage for global states to be shared by components. */
 export const useStore = create<Store>()(persist(immer((set, get) => ({
+  /** Whether the device supports hovering properly. */
   supportsHover: true,
 
+  /**
+   * Sets whether the device supports hovering properly.
+   * @param supportsHover - The new value.
+   */
   setSupportsHover: (supportsHover: boolean) => {
     set((state) => {
       state.supportsHover = supportsHover
     })
   },
 
+  /**
+   * Kind of highlighting applied if there is currently any highlighting.
+   * Whether anything is highlighted is determined by the drawing store, not here.
+   */
   highlightKind: 'face',
 
+  /**
+   * Sets the kind of highlighting applied if there is currently any highlighting.
+   * @param highlightKind - The new kind.
+   */
   setHighlightKind: (highlightKind: HighlightKind) => {
     set((state) => {
       state.highlightKind = highlightKind
     })
   },
 
+  /**
+   * The definitions array.
+   * Definitions are set to null when deleted rather than removed to preserve indices.
+   */
   drawings: [],
 
+  /**
+   * Creates a new definition of the given kind at the end of the definitions array.
+   * @param definitionKind - Kind of the definition for which the default definition will follow.
+   * @returns Index of the new defintion in the definitions array.
+   */
   newDrawing: (definitionKind: DefinitionKind) => {
     const index = get().drawings.length
 
@@ -123,24 +163,35 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
     return index
   },
 
+  /**
+   * Sets the definition at the given index to the given definition.
+   * @param index - Index of the defintion in the definitions array.
+   * @param definition - The new definition.
+   */
   setDrawing: (index: number, definition: TaggedDefinition) => {
     set((state) => {
       state.drawings[index] = definition
     })
   },
 
+  /**
+   * Deletes a definition at the given index.
+   * @param index - Index of the definition in the definitions array.
+   */
   deleteDrawing: (index: number) => {
     set((state) => {
       state.drawings[index] = null
     })
   },
 
+  /** Export cards array, each have internal drawing states so the whole components are stored. */
   exportCards: [
     <ExportCard initialDrawingKind='isometric' deleteCallback={() => get().deleteExportCard(0)} />,
     <ExportCard initialDrawingKind='coded-plan' deleteCallback={() => get().deleteExportCard(1)} />,
     <ExportCard initialDrawingKind='orthographic' deleteCallback={() => get().deleteExportCard(2)} />
   ],
 
+  /** Creates a new export card at the end of the export cards array. */
   newExportCard: () => {
     set((state) => {
       const index = state.exportCards.length
@@ -148,6 +199,10 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
     })
   },
 
+  /**
+   * Deletes an export card at the given index.
+   * @param index - Index of the card in the export cards array.
+   */
   deleteExportCard: (index: number) => {
     set((state) => {
       delete state.exportCards[index]
@@ -155,6 +210,7 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
   }
 })), {
   name: 'app-storage',
+  // move to a more persistent storage once stable
   storage: createJSONStorage(() => sessionStorage),
   partialize: (state) => ({
     drawings: state.drawings

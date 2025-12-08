@@ -7,7 +7,8 @@ type GridPointProps = {
   radius: number
 }
 
+/** Represents the points that forms the grid background. */
 export function GridPoint({ hex, spacing, radius }: GridPointProps) {
   const centerPixel = hexToPixel(hex, spacing)
-  return <circle cx={centerPixel.x} cy={centerPixel.y} r={radius} />
+  return <circle fill='black' cx={centerPixel.x} cy={centerPixel.y} r={radius} />
 }

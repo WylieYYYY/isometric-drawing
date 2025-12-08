@@ -8,6 +8,7 @@ type StoreDrawingControlsProps = {
   setIsDrawingsDialogOpen: (isDrawingsDialogOpen: boolean) => void
 }
 
+/** The "New", "Open / Manage", "Save", "Save As" buttons, as well as the save indicator and file name display. */
 export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialogOpen }: StoreDrawingControlsProps) {
   const [
     newDrawing,
@@ -36,6 +37,8 @@ export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialog
   ]))
 
   function save(drawingIndex: number, newName?: string) {
+    // this is required even if the index did not change
+    // as it remove the unsaved change flag `hasDefinitionChanged`
     setDrawingIndex(drawingIndex)
     setDrawing(drawingIndex, {
       definitionKind: 'drawing',
@@ -48,6 +51,7 @@ export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialog
     })
   }
 
+  // only need to allocate new index and set a name for the new drawing, then save as usual
   function saveAs() {
     const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
     if (name === null) return

@@ -12,6 +12,7 @@ type OrthographicEditorLineProps = {
   isHorizontal: boolean
 }
 
+/** Represents a line in an orthographic drawing. */
 export function OrthographicEditorLine({ lineType, setLineType, start, isHorizontal }: OrthographicEditorLineProps) {
   const supportsHover = useStore((state) => state.supportsHover)
 
@@ -49,6 +50,8 @@ export function OrthographicEditorLine({ lineType, setLineType, start, isHorizon
         })
       }
       {
+        // transparent event detection lines are rendered over the stateful lines
+        // so that events are not repeatedly triggered when changing states
         setLineType === undefined ? null : (
           <line
             {...coordinatesProps}

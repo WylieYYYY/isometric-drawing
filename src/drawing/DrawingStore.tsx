@@ -7,6 +7,7 @@ import { Quaternion } from 'quaternion'
 import { useEffect, useRef } from 'react'
 import { createStore, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
+import { useShallow } from 'zustand/react/shallow'
 import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook.ts'
 import { isCubeFaceHighlighted } from './../Store.tsx'
 import { rotate } from './../util.ts'
@@ -92,11 +93,27 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
   )
 }
 
+/**
+ * Creates a new instance of the drawing store, overriding the defaults if needed.
+ * @param initialDefinition - Optional definition to set the drawing to, the drawing will reset if this changes.
+ *  This is usually used to allow external control and reuse of drawing providers.
+ * @returns The created drawing store.
+ */
 const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => createStore<DrawingStore>()(immer((set, get) => ({
+  /**
+   * Flag to indicate whether attributes that are in the definition has changed.
+   * This will be set to zero when `setDrawingIndex`, which is when a drawing is loaded or saved.
+   */
   hasDefinitionChanged: false,
 
+  /** Index of the current drawing in the global storage, null if the current drawing is not saved at all. */
   drawingIndex: initialDefinition?.drawingIndex ?? null,
 
+  /**
+   * Sets the index of the current drawing in the global storage, null if the current drawing is not saved at all.
+   * This will reset `hasDefinitionChanged` to false since this is called when a drawing is loaded or saved.
+   * @param drawingIndex - The new drawing index.
+   */
   setDrawingIndex: (drawingIndex: number|null) => {
     set((state) => {
       state.drawingIndex = drawingIndex
@@ -104,8 +121,13 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     })
   },
 
+  /** Name of the drawing, no unique constraint since that is enforced by the drawing index. */
   name: initialDefinition?.name ?? 'Untitled Drawing',
 
+  /**
+   * Sets the name of the drawing.
+   * @param name - The new name.
+   */
   setName: (name: string) => {
     set((state) => {
       state.name = name
@@ -113,80 +135,148 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
     })
   },
 
+  /**
+   * Whether to generate interactive faces in the isometric drawing.
+   * Exported SVG can avoid large file size due to transparent triangles by setting this to false.
+   */
   isInteractive: initialDefinition?.isInteractive ?? true,
 
+  /**
+   * Whether the isometric viewport is cropped to fit the axes and structure tightly.
+   * To override the cropping behavior, one of the following can be done:
+   *  - Set this as false and set `canHaveUndefinedSize` to true to have the size unset. (used for uncropped export)
+   *  - Set `size` parameter fully. (used for main viewport)
+   */
   shouldCropIsometricViewport: true,
 
+  /**
+   * Set whether the isometric viewport is cropped to fit the axes and structure tightly.
+   * @param shouldCropIsometricViewport - The new value.
+   */
   setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => {
     set((state) => {
       state.shouldCropIsometricViewport = shouldCropIsometricViewport
     })
   },
 
+  /** Whether the background grid is shown on the isometric drawing. */
   shouldShowIsometricGrid: true,
 
+  /**
+   * Sets whether the background grid is shown on the isometric drawing.
+   * @param shouldShowIsometricGrid - The new value.
+   */
   setshouldShowIsometricGrid: (shouldShowIsometricGrid: boolean) => {
     set((state) => {
       state.shouldShowIsometricGrid = shouldShowIsometricGrid
     })
   },
 
+  /** Whether the background axis arrows are shown on the isometric drawing. */
   shouldShowAxisArrows: true,
 
+  /**
+   * Sets whether the background axis arrows are shown on the isometric drawing.
+   * @param shouldShowAxisArrows - The new value.
+   */
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => {
     set((state) => {
       state.shouldShowAxisArrows = shouldShowAxisArrows
     })
   },
 
+  /** Whether the foreground structure is shown on the isometric drawing. */
   shouldShowIsometricStructure: true,
 
+  /**
+   * Sets whether the foreground structure is shown on the isometric drawing.
+   * @param shouldShowIsometricStructure - The new value.
+   */
   setshouldShowIsometricStructure: (shouldShowIsometricStructure: boolean) => {
     set((state) => {
       state.shouldShowIsometricStructure = shouldShowIsometricStructure
     })
   },
 
+  /** Whether the numbers are shown on the coded plan. */
   shouldShowCodedPlanNumbers: true,
 
+  /**
+   * Sets whether the numbers are shown on the coded plan.
+   * @param shouldShowCodedPlanNumbers - The new value.
+   */
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => {
     set((state) => {
       state.shouldShowCodedPlanNumbers = shouldShowCodedPlanNumbers
     })
   },
 
+  /**
+   * Sets whether the orthographic views should be split into three images.
+   * The images are not laid out so they can only be used for export purpose.
+   */
   shouldSplitOrthographicViewsAsThree: false,
 
+  /**
+   * Sets whether the orthographic views should be split into three images.
+   * @param shouldSplitOrthographicViewsAsThree - The new value.
+   */
   setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => {
     set((state) => {
       state.shouldSplitOrthographicViewsAsThree = shouldSplitOrthographicViewsAsThree
     })
   },
 
+  /** Whether the background grid is shown on the orthographic views. */
   shouldShowOrthographicViewsGrid: true,
 
+  /**
+   * Sets whether the background grid is shown on the orthographic views.
+   * @param shouldShowOrthographicViewsGrid - The new value.
+   */
   setShouldShowOrthographicViewsGrid: (shouldShowOrthographicViewsGrid: boolean) => {
     set((state) => {
       state.shouldShowOrthographicViewsGrid = shouldShowOrthographicViewsGrid
     })
   },
 
+  /** Whether the foreground structure is shown on the orthographic views. */
   shouldShowOrthographicStructure: true,
 
+  /**
+   * Sets whether the foreground structure is shown on the orthographic views.
+   * @param shouldShowOrthographicStructure - The new value.
+   */
   setShouldShowOrthographicStructure: (shouldShowOrthographicStructure: boolean) => {
     set((state) => {
       state.shouldShowOrthographicStructure = shouldShowOrthographicStructure
     })
   },
 
+  /**
+   * Detail required for every highlight kinds to allow switching between them,
+   * null for no current highlight.
+   */
   highlightedTarget: null,
 
+  /**
+   * Request highlight for a face, highlight kind determines the final highlight area.
+   * @param cubeLocation - The cube location.
+   * @param axis - Positive axis which the face is facing towards.
+   */
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => {
     set((state) => {
       state.highlightedTarget = { cubeLocation, axis }
     })
   },
 
+  /**
+   * Unhighlights if the `isCubeFaceHighlighted` function determines
+   * that the given attributes match the current highlighting.
+   * This is to prevent stale request if the highlight changes before the request is received.
+   * @param highlightKind - Only unhighlights if the specified highlight kind is in effect.
+   * @param cubeLocation - The cube location, used for attributes matching.
+   */
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => {
     if (isCubeFaceHighlighted(highlightKind, get().highlightedTarget, cubeLocation, null) !== null) {
       set((state) => { state.highlightedTarget = null })
@@ -222,7 +312,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   /**
    * Sets the cuboid value at the given index to the given value.
    * @param index - Index of the value in the cuboid values array.
-   * @param cuboidValue - The replacement value.
+   * @param cuboidValue - The new value.
    */
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => {
     set((state) => {
@@ -308,14 +398,27 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   }
 })))
 
+/**
+ * Provider that injects context value (the drawing store) for children that are using the drawing store.
+ * It is an error to use components that relies on the drawing store without a provider parent.
+ */
 export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: InitialDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
+  // interactivity is not changeable after the first value
+  // set it in the effect below if changing interactivity dynamically is required
   if (storeRef.current === null) storeRef.current = createDrawingStore({ isInteractive: initialDefinition?.isInteractive })
 
-  const setDrawingIndex = useStore(storeRef.current, (state) => state.setDrawingIndex)
-  const setName = useStore(storeRef.current, (state) => state.setName)
-  const setCuboidValues = useStore(storeRef.current, (state) => state.setCuboidValues)
+  const [
+    setDrawingIndex,
+    setName,
+    setCuboidValues
+  ] = useStore(storeRef.current, useShallow((state) => [
+    state.setDrawingIndex,
+    state.setName,
+    state.setCuboidValues
+  ]))
 
+  // detects external change to the definition and synchronize the store with it
   useEffect(() => {
     if (initialDefinition !== undefined) {
       setName(initialDefinition.name)
