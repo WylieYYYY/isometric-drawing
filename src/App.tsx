@@ -69,11 +69,13 @@ function App() {
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-            <SaveButton setDownloadUrl={setDownloadUrl} />
+            <SaveButton setInitialDefinition={setAppInitialDefinition} setDownloadUrl={setDownloadUrl} />
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button
               onClick={
                 () => {
+                  const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
+                  if (name === null) return
                   const drawingIndex = newDrawing('orthographic')
                   setOrthographicEditorDrawingIndex(drawingIndex)
                 }

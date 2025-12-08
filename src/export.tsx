@@ -6,6 +6,13 @@ import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
 /** Timeout to make sure the download anchor has reacted to URL change. */
 const BLOB_URL_TIMEOUT = 500
 
+/** Map of recognized MIME-types to file extensions. */
+const MIME_EXTENSION_MAP: Record<string, string> = {
+  'image/png': 'png',
+  'image/svg+xml': 'svg',
+  'text/csv': 'csv'
+}
+
 /**
  * Constructs a container that occupies the parent element fully and has class `export-container`
  * and wraps the given node in the container.
@@ -68,7 +75,7 @@ export async function createExportBlob(svgsSelector: string, asPNG: boolean, par
 
 /**
  * Opens a download pop-up for the given blob, deduces a suitable file name.
- * Accepts blobs with either `image/png`, `image/svg+xml` or `application/zip` MIME type.
+ * Accepts blobs with either `application/zip`, `image/png`, `image/svg+xml` or `text/csv` MIME type.
  * If the blob type is anthing other than the listed, it is assumed to be a ZIP file.
  * @param blob - File to be downloaded, in blob form.
  * @param setDownloadUrl - Function to set the URL for the download anchor.
@@ -79,17 +86,7 @@ export function openDownloadPopup(blob: Blob, setDownloadUrl: (downloadUrl: stri
   setDownloadUrl(URL.createObjectURL(blob))
 
   const resolvedName = name === '' || name === undefined ? 'export' : name
-  switch (blob.type) {
-    case 'image/png':
-      anchor.download = `export.png`
-      break
-    case 'image/svg+xml':
-      anchor.download = `export.svg`
-      break
-    default:
-      anchor.download = `${resolvedName}.zip`
-      break
-  }
+  anchor.download = `${resolvedName}.${MIME_EXTENSION_MAP[blob.type] ?? 'zip'}`
 
   setTimeout(() => anchor.click(), BLOB_URL_TIMEOUT)
 }
