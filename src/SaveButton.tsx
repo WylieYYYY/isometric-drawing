@@ -13,7 +13,7 @@ type SaveButtonProps = {
 }
 
 /**
- * Parses the given file as CSV and set the main viewport to the resulting structure.
+ * Parses the given file as CSV and sets the main viewport to the resulting structure.
  * Do nothing and alert if the file is not of the correct format.
  * @param file - File object provided by a file input that contains a CSV representation.
  * @param setInitialDefinition - Setter for initial definition of the main viewport.

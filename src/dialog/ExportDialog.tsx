@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { createExportBlob, openDownloadPopup } from './../export.tsx'
+import { ExportPresetControls } from './ExportPresetControls.tsx'
 import { useStore } from './../Store.tsx'
 
 type ExportDialogProps = {
@@ -41,13 +42,14 @@ export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialog
       </header>
       <section style={{ display: 'flex', flexDirection: 'row', overflowX: 'scroll' }}>
         {...exportCards}
-        <button onClick={newExportCard}>+</button>
+        <button onClick={() => newExportCard()}>+</button>
       </section>
       <footer>
         <label>
           Archive Name:
           <input value={archiveName} placeholder='export' onChange={(event) => setArchiveName(event.target.value)} />
         </label>
+        <ExportPresetControls parent={dialogRef.current!} setDownloadUrl={setDownloadUrl} />
         <button
           onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, false, dialogRef.current!), setDownloadUrl, archiveName)}
           style={{ float: 'right' }}

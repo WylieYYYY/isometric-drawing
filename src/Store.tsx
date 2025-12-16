@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import type { DrawingDefinition } from './drawing/DrawingStore.tsx'
+import type { ExportCardProps } from './dialog/ExportCard.tsx'
 import type { Coordinates, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import type { LineType } from './dialog/OrthographicEditorLine.tsx'
 import { Quaternion } from 'quaternion'
@@ -30,7 +31,8 @@ type Store = {
   deleteDrawing: (index: number) => void
 
   exportCards: Array<ReactElement<unknown, typeof ExportCard>>
-  newExportCard: () => void
+  clearExportCards: () => void
+  newExportCard: (props?: Omit<ExportCardProps, 'deleteCallback'>) => void
   deleteExportCard: (index: number) => void
 }
 
@@ -191,11 +193,21 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
     <ExportCard initialDrawingKind='orthographic' deleteCallback={() => get().deleteExportCard(2)} />
   ],
 
-  /** Creates a new export card at the end of the export cards array. */
-  newExportCard: () => {
+  /** Clears all created export cards. */
+  clearExportCards: () => {
+    set((state) => {
+      state.exportCards = []
+    })
+  },
+
+  /**
+   * Creates a new export card at the end of the export cards array.
+   * @param props - Props to be passed on to the export card being created.
+   */
+  newExportCard: (props?: Omit<ExportCardProps, 'deleteCallback'>) => {
     set((state) => {
       const index = state.exportCards.length
-      state.exportCards.push(<ExportCard deleteCallback={() => get().deleteExportCard(index)} />)
+      state.exportCards.push(<ExportCard {...props} deleteCallback={() => get().deleteExportCard(index)} />)
     })
   },
 

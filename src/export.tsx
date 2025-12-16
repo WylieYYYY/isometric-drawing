@@ -8,6 +8,7 @@ const BLOB_URL_TIMEOUT = 500
 
 /** Map of recognized MIME-types to file extensions. */
 const MIME_EXTENSION_MAP: Record<string, string> = {
+  'application/json': 'json',
   'image/png': 'png',
   'image/svg+xml': 'svg',
   'text/csv': 'csv'
@@ -75,7 +76,7 @@ export async function createExportBlob(svgsSelector: string, asPNG: boolean, par
 
 /**
  * Opens a download pop-up for the given blob, deduces a suitable file name.
- * Accepts blobs with either `application/zip`, `image/png`, `image/svg+xml` or `text/csv` MIME type.
+ * Accepts blobs with either `application/json`, `application/zip`, `image/png`, `image/svg+xml` or `text/csv` MIME type.
  * If the blob type is anthing other than the listed, it is assumed to be a ZIP file.
  * @param blob - File to be downloaded, in blob form.
  * @param setDownloadUrl - Function to set the URL for the download anchor.

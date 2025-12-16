@@ -19,7 +19,18 @@ export type DrawingDefinition = {
   rotation: Quaternion
 }
 
-export type DrawingStore = DrawingDefinition & {
+export type DrawingPreference = {
+  shouldCropIsometricViewport: boolean
+  shouldShowIsometricGrid: boolean
+  shouldShowAxisArrows: boolean
+  shouldShowIsometricStructure: boolean
+  shouldShowCodedPlanNumbers: boolean
+  shouldSplitOrthographicViewsAsThree: boolean
+  shouldShowOrthographicViewsGrid: boolean
+  shouldShowOrthographicStructure: boolean
+}
+
+export type DrawingStore = DrawingDefinition & DrawingPreference & {
   hasDefinitionChanged: boolean,
 
   setDrawingIndex: (drawingIndex: number|null) => void
@@ -28,28 +39,13 @@ export type DrawingStore = DrawingDefinition & {
 
   isInteractive: boolean
 
-  shouldCropIsometricViewport: boolean
   setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => void
-
-  shouldShowIsometricGrid: boolean
   setshouldShowIsometricGrid: (shouldShowIsometricGrid: boolean) => void
-
-  shouldShowAxisArrows: boolean
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => void
-
-  shouldShowIsometricStructure: boolean
   setshouldShowIsometricStructure: (shouldShowIsometricStructure: boolean) => void
-
-  shouldShowCodedPlanNumbers: boolean
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => void
-
-  shouldSplitOrthographicViewsAsThree: boolean
   setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => void
-
-  shouldShowOrthographicViewsGrid: boolean
   setShouldShowOrthographicViewsGrid: (shouldShowOrthographicViewsGrid: boolean) => void
-
-  shouldShowOrthographicStructure: boolean
   setShouldShowOrthographicStructure: (shouldShowOrthographicStructure: boolean) => void
 
   highlightedTarget: VisibleCubeFaceLocation|null
@@ -73,7 +69,8 @@ export type DrawingStore = DrawingDefinition & {
   rotateZAnticlockwise: () => void
 }
 
-type InitialDefinition = DrawingDefinition & { isInteractive?: boolean }
+type InitialPreference = Partial<DrawingPreference> & { isInteractive?: boolean }
+type InitialDefinition = DrawingDefinition & InitialPreference
 
 /**
  * Calibrates a quaternion rotation such that it does not drift from 90 degree angles
@@ -95,11 +92,10 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 
 /**
  * Creates a new instance of the drawing store, overriding the defaults if needed.
- * @param initialDefinition - Optional definition to set the drawing to, the drawing will reset if this changes.
- *  This is usually used to allow external control and reuse of drawing providers.
+ * @param initialPreference - Preference to be populated initially.
  * @returns The created drawing store.
  */
-const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => createStore<DrawingStore>()(immer((set, get) => ({
+const createDrawingStore = (initialPreference: InitialPreference) => createStore<DrawingStore>()(immer((set, get) => ({ ...{
   /**
    * Flag to indicate whether attributes that are in the definition has changed.
    * This will be set to zero when `setDrawingIndex`, which is when a drawing is loaded or saved.
@@ -107,7 +103,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   hasDefinitionChanged: false,
 
   /** Index of the current drawing in the global storage, null if the current drawing is not saved at all. */
-  drawingIndex: initialDefinition?.drawingIndex ?? null,
+  drawingIndex: null,
 
   /**
    * Sets the index of the current drawing in the global storage, null if the current drawing is not saved at all.
@@ -122,7 +118,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   },
 
   /** Name of the drawing, no unique constraint since that is enforced by the drawing index. */
-  name: initialDefinition?.name ?? 'Untitled Drawing',
+  name: 'Untitled Drawing',
 
   /**
    * Sets the name of the drawing.
@@ -139,7 +135,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
    * Whether to generate interactive faces in the isometric drawing.
    * Exported SVG can avoid large file size due to transparent triangles by setting this to false.
    */
-  isInteractive: initialDefinition?.isInteractive ?? true,
+  isInteractive: true,
 
   /**
    * Whether the isometric viewport is cropped to fit the axes and structure tightly.
@@ -284,7 +280,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   },
 
   /** Cuboid values array, holds cuboids of one isometric structure. */
-  cuboidValues: initialDefinition?.cuboidValues ?? [
+  cuboidValues: [
     { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }
   ],
 
@@ -333,7 +329,7 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
   },
 
   /** Quaternion to preserve non-commutative rotations compactly. */
-  rotation: initialDefinition?.rotation ?? new Quaternion(),
+  rotation: new Quaternion(),
 
   /** Resets the rotation such that the rendering coordinates matches the ones denoted in the cuboid values. */
   resetRotation: () => {
@@ -396,17 +392,20 @@ const createDrawingStore = (initialDefinition?: Partial<InitialDefinition>) => c
       state.hasDefinitionChanged = true
     })
   }
-})))
+}, ...initialPreference })))
 
 /**
  * Provider that injects context value (the drawing store) for children that are using the drawing store.
  * It is an error to use components that relies on the drawing store without a provider parent.
  */
-export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: InitialDefinition }>) {
+export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition: InitialDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
-  // interactivity is not changeable after the first value
-  // set it in the effect below if changing interactivity dynamically is required
-  if (storeRef.current === null) storeRef.current = createDrawingStore({ isInteractive: initialDefinition?.isInteractive })
+
+  const { drawingIndex, name, cuboidValues, rotation, ...rest } = initialDefinition
+
+  // preference is not externally changeable after the first value
+  // set it in the effect below if changing preference dynamically is required
+  if (storeRef.current === null) storeRef.current = createDrawingStore(rest)
 
   const [
     setDrawingIndex,
@@ -421,20 +420,20 @@ export function DrawingProvider({ initialDefinition, children }: PropsWithChildr
   // detects external change to the definition and synchronize the store with it
   useEffect(() => {
     if (initialDefinition !== undefined) {
-      setName(initialDefinition.name)
+      setName(name)
 
       // pre-apply rotation so that the rotation for a provider is separate from the initial definition
       // removing cuboid support removes the need for marshalling
-      const cubeLocations = cubeLocationFromCuboidValues(initialDefinition.cuboidValues)
-      const rotatedCuboidValues = rotate(cubeLocations, initialDefinition.rotation)
+      const cubeLocations = cubeLocationFromCuboidValues(cuboidValues)
+      const rotatedCuboidValues = rotate(cubeLocations, rotation)
           .map(({ x, y, z }) => ({ x: x.toString(), y: y.toString(), z: z.toString(), dx: '1', dy: '1', dz: '1' }))
       setCuboidValues(rotatedCuboidValues)
 
       // setting the drawing index must be last as this defines whether
       // a drawing definition has changed from the initial definition
-      setDrawingIndex(initialDefinition.drawingIndex)
+      setDrawingIndex(drawingIndex)
     }
-  }, [initialDefinition, setCuboidValues, setDrawingIndex, setName])
+  }, [cuboidValues, drawingIndex, initialDefinition, name, rotation, setCuboidValues, setDrawingIndex, setName])
 
   return (
     <DrawingContext.Provider value={storeRef.current}>
