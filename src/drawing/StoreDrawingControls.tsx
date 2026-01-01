@@ -11,39 +11,39 @@ type StoreDrawingControlsProps = {
 /** The "New", "Open / Manage", "Save", "Save As" buttons, as well as the save indicator and file name display. */
 export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialogOpen }: StoreDrawingControlsProps) {
   const [
-    newDrawing,
-    setDrawing
+    newDefinition,
+    setDefinition
   ] = useStore(useShallow((state) => [
-    state.newDrawing,
-    state.setDrawing
+    state.newDefinition,
+    state.setDefinition
   ]))
 
   const [
     hasDefinitionChanged,
-    existingDrawingIndex,
-    setDrawingIndex,
+    existingDefinitionIndex,
+    setDefinitionIndex,
     name,
     setName,
     cuboidValues,
     rotation
   ] = useDrawingStore(useShallow((state) => [
     state.hasDefinitionChanged,
-    state.drawingIndex,
-    state.setDrawingIndex,
+    state.definitionIndex,
+    state.setDefinitionIndex,
     state.name,
     state.setName,
     state.cuboidValues,
     state.rotation
   ]))
 
-  function save(drawingIndex: number, newName?: string) {
+  function save(definitionIndex: number, newName?: string) {
     // this is required even if the index did not change
     // as it remove the unsaved change flag `hasDefinitionChanged`
-    setDrawingIndex(drawingIndex)
-    setDrawing(drawingIndex, {
+    setDefinitionIndex(definitionIndex)
+    setDefinition(definitionIndex, {
       definitionKind: 'drawing',
       definition: {
-        drawingIndex,
+        definitionIndex,
         name: newName ?? name,
         cuboidValues,
         rotation
@@ -55,9 +55,9 @@ export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialog
   function saveAs() {
     const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
     if (name === null) return
-    const drawingIndex = newDrawing('drawing')
+    const definitionIndex = newDefinition('drawing')
     setName(name)
-    save(drawingIndex, name)
+    save(definitionIndex, name)
   }
 
   return (
@@ -65,8 +65,8 @@ export function StoreDrawingControls({ setInitialDefinition, setIsDrawingsDialog
       <button onClick={() => setInitialDefinition(defaultDrawingDefinition())}>New</button>
       <button onClick={() => setIsDrawingsDialogOpen(true)}>Open / Manage</button>
       <button
-        onClick={() => save(existingDrawingIndex!)}
-        disabled={!hasDefinitionChanged || existingDrawingIndex === null}
+        onClick={() => save(existingDefinitionIndex!)}
+        disabled={!hasDefinitionChanged || existingDefinitionIndex === null}
       >
         Save
       </button>

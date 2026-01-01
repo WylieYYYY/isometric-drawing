@@ -7,53 +7,53 @@ import { OrthographicEditor } from './OrthographicEditor.tsx'
 import { useStore } from './../Store.tsx'
 
 type OrthographicEditorDialogProps = {
-  drawingIndex: number|null
-  setDrawingIndex: (index: number|null) => void
+  definitionIndex: number|null
+  setDefinitionIndex: (index: number|null) => void
   setDownloadUrl: (downloadUrl: string) => void
 }
 
 /**
  * Editor dialog that allows orthographic drawings to be produced by drawing lines by hand.
  * Unlike other dialogs, this dialog is unrendered from tree when closed.
- * The given `drawingIndex` must point to a valid orthographic drawing definition,
+ * The given `definitionIndex` must point to a valid orthographic drawing definition,
  * or be null which unrenders the dialog.
  */
-export function OrthographicEditorDialog({ drawingIndex, setDrawingIndex, setDownloadUrl }: OrthographicEditorDialogProps) {
+export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex, setDownloadUrl }: OrthographicEditorDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
   const [
-    drawings,
-    setDrawing
+    definition,
+    setDefinition
   ] = useStore(useShallow((state) => [
-    state.drawings,
-    state.setDrawing
+    state.definitions,
+    state.setDefinition
   ]))
 
   useEffect(() => {
-    if (drawingIndex === null) return
+    if (definitionIndex === null) return
     const dialog = dialogRef.current!
     dialog.showModal()
     return () => dialog.close()
-  }, [drawingIndex])
+  }, [definitionIndex])
 
   // don't render at all if there is no valid index
   // since there is no way to provide valid `map` and `setMap`
-  if (drawingIndex === null) return null
+  if (definitionIndex === null) return null
 
   // relies on the pre-conditions mentioned in the component description
-  const map = (drawings[drawingIndex]!.definition as OrthographicDrawingDefinition).map
+  const map = (definition[definitionIndex]!.definition as OrthographicDrawingDefinition).map
   // reconstructs the definition with the map changed
   const setMap = (map: Array<Array<LineType>>) => {
-    const drawing = structuredClone(drawings[drawingIndex]!);
-    (drawing.definition as OrthographicDrawingDefinition).map = map
-    setDrawing(drawingIndex!, drawing)
+    const definitionClone = structuredClone(definition[definitionIndex]!);
+    (definitionClone.definition as OrthographicDrawingDefinition).map = map
+    setDefinition(definitionIndex!, definitionClone)
   }
 
   return (
     <dialog ref={dialogRef}>
       <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>Orthographic Editor</h1>
-        <button onClick={() => setDrawingIndex(null)} style={{ float: 'right' }}>Close</button>
+        <button onClick={() => setDefinitionIndex(null)} style={{ float: 'right' }}>Close</button>
       </header>
       <section style={{ height: '20rem' }}>
         <OrthographicEditor map={map} setMap={setMap} />

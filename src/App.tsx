@@ -23,12 +23,12 @@ function App() {
     setSupportsHover,
     highlightKind,
     setHighlightKind,
-    newDrawing
+    newDefinition
   ] = useStore(useShallow((state) => [
     state.setSupportsHover,
     state.highlightKind,
     state.setHighlightKind,
-    state.newDrawing
+    state.newDefinition
   ]))
 
   const keyDownCallback = useCallback((event: KeyboardEvent) => {
@@ -60,7 +60,7 @@ function App() {
   const [downloadUrl, setDownloadUrl] = useState('#')
   const [isDrawingsDialogOpen, setIsDrawingsDialogOpen] = useState(false)
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
-  const [orthographicEditorDrawingIndex, setOrthographicEditorDrawingIndex] = useState<number|null>(null)
+  const [orthographicEditorDefinitionIndex, setOrthographicEditorDefinitionIndex] = useState<number|null>(null)
 
   return (
     <DrawingProvider initialDefinition={appInitialDefinition}>
@@ -76,8 +76,8 @@ function App() {
                 () => {
                   const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
                   if (name === null) return
-                  const drawingIndex = newDrawing('orthographic')
-                  setOrthographicEditorDrawingIndex(drawingIndex)
+                  const definitionIndex = newDefinition('orthographic')
+                  setOrthographicEditorDefinitionIndex(definitionIndex)
                 }
               }
             >
@@ -163,9 +163,9 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>
-          <DrawingsDialog isOpen={isDrawingsDialogOpen} setIsOpen={setIsDrawingsDialogOpen} setInitialDefinition={setAppInitialDefinition} setOrthographicEditorDrawingIndex={setOrthographicEditorDrawingIndex} />
+          <DrawingsDialog isOpen={isDrawingsDialogOpen} setIsOpen={setIsDrawingsDialogOpen} setInitialDefinition={setAppInitialDefinition} setOrthographicEditorDefinitionIndex={setOrthographicEditorDefinitionIndex} />
           <ExportDialog isOpen={isExportDialogOpen} setIsOpen={setIsExportDialogOpen} setDownloadUrl={setDownloadUrl} />
-          <OrthographicEditorDialog drawingIndex={orthographicEditorDrawingIndex} setDrawingIndex={setOrthographicEditorDrawingIndex} setDownloadUrl={setDownloadUrl} />
+          <OrthographicEditorDialog definitionIndex={orthographicEditorDefinitionIndex} setDefinitionIndex={setOrthographicEditorDefinitionIndex} setDownloadUrl={setDownloadUrl} />
         </section>
       </main>
     </DrawingProvider>

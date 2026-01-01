@@ -13,7 +13,7 @@ import { isCubeFaceHighlighted } from './../Store.tsx'
 import { rotate } from './../util.ts'
 
 export type DrawingDefinition = {
-  drawingIndex: number|null
+  definitionIndex: number|null
   name: string
   cuboidValues: Array<CuboidValue>
   rotation: Quaternion
@@ -33,7 +33,7 @@ export type DrawingPreference = {
 export type DrawingStore = DrawingDefinition & DrawingPreference & {
   hasDefinitionChanged: boolean,
 
-  setDrawingIndex: (drawingIndex: number|null) => void
+  setDefinitionIndex: (definitionIndex: number|null) => void
 
   setName: (name: string) => void
 
@@ -98,22 +98,22 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
 const createDrawingStore = (initialPreference: InitialPreference) => createStore<DrawingStore>()(immer((set, get) => ({ ...{
   /**
    * Flag to indicate whether attributes that are in the definition has changed.
-   * This will be set to zero when `setDrawingIndex`, which is when a drawing is loaded or saved.
+   * This will be set to zero when `setDefinitionIndex`, which is when a drawing is loaded or saved.
    */
   hasDefinitionChanged: false,
 
   /** Index of the current drawing in the global storage, null if the current drawing is not saved at all. */
-  drawingIndex: null,
+  definitionIndex: null,
 
   /**
    * Sets the index of the current drawing in the global storage, null if the current drawing is not saved at all.
    * This will reset `hasDefinitionChanged` to false since this is called when a drawing is loaded or saved.
-   * @param drawingIndex - The new drawing index.
+   * @param definitionIndex - The new drawing index.
    */
-  setDrawingIndex: (drawingIndex: number|null) => {
+  setDefinitionIndex: (definitionIndex: number|null) => {
     set((state) => {
-      state.drawingIndex = drawingIndex
-      state.hasDefinitionChanged = drawingIndex === null
+      state.definitionIndex = definitionIndex
+      state.hasDefinitionChanged = definitionIndex === null
     })
   },
 
@@ -401,18 +401,18 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
 export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition: InitialDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
 
-  const { drawingIndex, name, cuboidValues, rotation, ...rest } = initialDefinition
+  const { definitionIndex, name, cuboidValues, rotation, ...rest } = initialDefinition
 
   // preference is not externally changeable after the first value
   // set it in the effect below if changing preference dynamically is required
   if (storeRef.current === null) storeRef.current = createDrawingStore(rest)
 
   const [
-    setDrawingIndex,
+    setDefinitionIndex,
     setName,
     setCuboidValues
   ] = useStore(storeRef.current, useShallow((state) => [
-    state.setDrawingIndex,
+    state.setDefinitionIndex,
     state.setName,
     state.setCuboidValues
   ]))
@@ -431,9 +431,9 @@ export function DrawingProvider({ initialDefinition, children }: PropsWithChildr
 
       // setting the drawing index must be last as this defines whether
       // a drawing definition has changed from the initial definition
-      setDrawingIndex(drawingIndex)
+      setDefinitionIndex(definitionIndex)
     }
-  }, [cuboidValues, drawingIndex, initialDefinition, name, rotation, setCuboidValues, setDrawingIndex, setName])
+  }, [cuboidValues, definitionIndex, initialDefinition, name, rotation, setCuboidValues, setDefinitionIndex, setName])
 
   return (
     <DrawingContext.Provider value={storeRef.current}>

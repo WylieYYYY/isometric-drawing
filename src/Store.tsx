@@ -12,7 +12,7 @@ import { ExportCard } from './dialog/ExportCard.tsx'
 export type HighlightKind = 'cuboid' | 'face'
 export type CubeLocation = { cuboidIndex: number } & Coordinates
 export type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
-export type OrthographicDrawingDefinition = { drawingIndex: number, name: string, map: Array<Array<LineType>> }
+export type OrthographicDrawingDefinition = { definitionIndex: number, name: string, map: Array<Array<LineType>> }
 export type TaggedDefinition = { definitionKind: 'drawing', definition: SerializableDrawingDefinition } | { definitionKind: 'orthographic', definition: OrthographicDrawingDefinition }
 
 type DefinitionKind = 'drawing' | 'orthographic'
@@ -25,10 +25,10 @@ type Store = {
   highlightKind: HighlightKind
   setHighlightKind: (highlightKind: HighlightKind) => void
 
-  drawings: Array<TaggedDefinition|null>
-  newDrawing: (definitionKind: DefinitionKind) => number
-  setDrawing: (index: number, definition: TaggedDefinition) => void
-  deleteDrawing: (index: number) => void
+  definitions: Array<TaggedDefinition|null>
+  newDefinition: (definitionKind: DefinitionKind) => number
+  setDefinition: (index: number, definition: TaggedDefinition) => void
+  deleteDefinition: (index: number) => void
 
   exportCards: Array<ReactElement<unknown, typeof ExportCard>>
   clearExportCards: () => void
@@ -46,7 +46,7 @@ export function defaultDrawingDefinition(index: number|null = null): DrawingDefi
   const DEFAULT_ROTATION = new Quaternion()
 
   return {
-    drawingIndex: index,
+    definitionIndex: index,
     name: 'Untitled Drawing',
     cuboidValues: DEFAULT_CUBOID_VALUES,
     rotation: DEFAULT_ROTATION
@@ -70,7 +70,7 @@ export function defaultOrthographicDrawingDefinition(index: number): Orthographi
   ]
 
   return {
-    drawingIndex: index,
+    definitionIndex: index,
     name: 'Untitled Drawing',
     map: DEFAULT_MAP
   }
@@ -141,23 +141,23 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
    * The definitions array.
    * Definitions are set to null when deleted rather than removed to preserve indices.
    */
-  drawings: [],
+  definitions: [],
 
   /**
    * Creates a new definition of the given kind at the end of the definitions array.
    * @param definitionKind - Kind of the definition for which the default definition will follow.
    * @returns Index of the new defintion in the definitions array.
    */
-  newDrawing: (definitionKind: DefinitionKind) => {
-    const index = get().drawings.length
+  newDefinition: (definitionKind: DefinitionKind) => {
+    const index = get().definitions.length
 
     set((state) => {
       switch (definitionKind) {
         case 'drawing':
-          state.drawings.push({ definitionKind: 'drawing', definition: defaultDrawingDefinition(index) })
+          state.definitions.push({ definitionKind: 'drawing', definition: defaultDrawingDefinition(index) })
           break
         case 'orthographic':
-          state.drawings.push({ definitionKind: 'orthographic', definition: defaultOrthographicDrawingDefinition(index) })
+          state.definitions.push({ definitionKind: 'orthographic', definition: defaultOrthographicDrawingDefinition(index) })
           break
       }
     })
@@ -170,9 +170,9 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
    * @param index - Index of the defintion in the definitions array.
    * @param definition - The new definition.
    */
-  setDrawing: (index: number, definition: TaggedDefinition) => {
+  setDefinition: (index: number, definition: TaggedDefinition) => {
     set((state) => {
-      state.drawings[index] = definition
+      state.definitions[index] = definition
     })
   },
 
@@ -180,9 +180,9 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
    * Deletes a definition at the given index.
    * @param index - Index of the definition in the definitions array.
    */
-  deleteDrawing: (index: number) => {
+  deleteDefinition: (index: number) => {
     set((state) => {
-      state.drawings[index] = null
+      state.definitions[index] = null
     })
   },
 
@@ -225,6 +225,6 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
   // move to a more persistent storage once stable
   storage: createJSONStorage(() => sessionStorage),
   partialize: (state) => ({
-    drawings: state.drawings
+    drawings: state.definitions
   })
 }))

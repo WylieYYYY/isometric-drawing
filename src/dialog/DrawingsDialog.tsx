@@ -12,25 +12,25 @@ type DrawingsDialogProps = {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
   setInitialDefinition: (initialDefinition: DrawingDefinition) => void
-  setOrthographicEditorDrawingIndex: (orthographicEditorDrawingIndex: number|null) => void
+  setOrthographicEditorDefinitionIndex: (orthographicEditorDefinitionIndex: number|null) => void
 }
 
 /**
- * Dialog for management of drawings.
+ * Dialog for management of definitions.
  * Dialogs exist in tree at all time, only the visibility is toggled.
  */
-export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrthographicEditorDrawingIndex }: DrawingsDialogProps) {
+export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrthographicEditorDefinitionIndex }: DrawingsDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
   const [
-    drawings,
-    deleteDrawing
+    definitions,
+    deleteDefinition
   ] = useStore(useShallow((state) => [
-    state.drawings,
-    state.deleteDrawing
+    state.definitions,
+    state.deleteDefinition
   ]))
 
-  const drawingIndex = useDrawingStore((state) => state.drawingIndex)
+  const definitionIndex = useDrawingStore((state) => state.definitionIndex)
 
   useEffect(() => {
     if (!isOpen) return
@@ -47,7 +47,7 @@ export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrt
       </header>
       <section style={{ display: 'flex', flexDirection: 'row', overflowX: 'scroll' }}>
         {
-          ...drawings.filter((drawing) => drawing !== null).map(({ definitionKind, definition }) => {
+          ...definitions.filter((definition) => definition !== null).map(({ definitionKind, definition }) => {
             let switchToDefinition, preview
             switch (definitionKind) {
               case 'drawing': {
@@ -62,7 +62,7 @@ export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrt
                 break
               }
               case 'orthographic':
-                switchToDefinition = () => setOrthographicEditorDrawingIndex(definition.drawingIndex)
+                switchToDefinition = () => setOrthographicEditorDefinitionIndex(definition.definitionIndex)
                 preview = <OrthographicEditor map={definition.map} />
                 break
             }
@@ -82,9 +82,9 @@ export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrt
                   <button
                     onClick={
                       (event) => {
-                        deleteDrawing(definition.drawingIndex!)
+                        deleteDefinition(definition.definitionIndex!)
                         // the current drawing is the one being deleted, switch to the default drawing
-                        if (definition.drawingIndex === drawingIndex) setInitialDefinition(defaultDrawingDefinition())
+                        if (definition.definitionIndex === definitionIndex) setInitialDefinition(defaultDrawingDefinition())
                         event.stopPropagation()
                       }
                     }>

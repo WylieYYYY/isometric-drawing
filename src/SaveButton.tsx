@@ -42,7 +42,7 @@ async function loadCSV(file: File, setInitialDefinition: (initialDefinition: Dra
     }
 
     setInitialDefinition({
-      drawingIndex: null,
+      definitionIndex: null,
       name: 'Untitled Drawing',
       cuboidValues,
       rotation: new Quaternion()

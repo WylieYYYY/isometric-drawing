@@ -11,7 +11,7 @@ type ExportDialogProps = {
 }
 
 /**
- * Dialog for archive export of drawings.
+ * Dialog for archive export of definitions.
  * Dialogs exist in tree at all time, only the visibility is toggled.
  */
 export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialogProps) {

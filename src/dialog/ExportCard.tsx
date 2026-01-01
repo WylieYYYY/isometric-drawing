@@ -28,26 +28,26 @@ export type ExportCardProps = {
 }
 
 type TemplateCardProps = {
-  drawings: Array<TaggedDefinition|null>
+  definitions: Array<TaggedDefinition|null>
   deleteCallback: () => void
-  drawing: ReactNode
-  selectedDrawingIndex: number
-  setSelectedDrawingIndex: (selectedDrawingIndex: number) => void
+  preview: ReactNode
+  selectedDefinitionIndex: number
+  setSelectedDefinitionIndex: (selectedDefinitionIndex: number) => void
   controls: ReactNode
 }
 
 type DrawingDefinitionCardProps = {
   initialDrawingKind?: Exclude<DrawingKind, 'orthographic-editor'>
-  drawings: Array<TaggedDefinition|null>
+  definitions: Array<TaggedDefinition|null>
   deleteCallback: () => void
-  selectedDrawingIndex: number
-  setSelectedDrawingIndex: (selectedDrawingIndex: number) => void
+  selectedDefinitionIndex: number
+  setSelectedDefinitionIndex: (selectedDefinitionIndex: number) => void
 }
 
 /** Drawing index to use to represent the potentially unsaved drawing on the main viewport. */
-const SENTINEL_CURRENT_DRAWING_INDEX = -1
+const SENTINEL_CURRENT_DEFINITION_INDEX = -1
 /** Drawing index to use for the placeholder after loading a preset. */
-const SENTINEL_PLACEHOLDER_DRAWING_INDEX = -2
+const SENTINEL_PLACEHOLDER_DEFINITION_INDEX = -2
 
 /** Placeholder orthographic editor map, shapes like a `P`. */
 const PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP: Array<Array<LineType>> = [
@@ -70,21 +70,21 @@ const PLACEHOLDER_DRAWING_DEFINITION_CUBOID_VALUES = [
  * Base template card to be used by all definitions.
  * Preview can be customized via `drawing` and controls can be customized via `controls`.
  */
-function TemplateCard({ drawings, deleteCallback, drawing, selectedDrawingIndex, setSelectedDrawingIndex, controls } : TemplateCardProps) {
+function TemplateCard({ definitions, deleteCallback, preview, selectedDefinitionIndex, setSelectedDefinitionIndex, controls } : TemplateCardProps) {
   return (
     <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <button onClick={deleteCallback}>Delete</button>
       </div>
       <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
-        {drawing}
+        {preview}
       </div>
       <label style={{ display: 'block' }}>
         Drawing:
-        <select value={selectedDrawingIndex} onChange={(event) => setSelectedDrawingIndex(parseInt(event.target.value))}>
-          {selectedDrawingIndex === SENTINEL_PLACEHOLDER_DRAWING_INDEX ? <option value={SENTINEL_PLACEHOLDER_DRAWING_INDEX}>Select Drawing...</option> : null}
-          <option value={SENTINEL_CURRENT_DRAWING_INDEX}>[Current Drawing]</option>
-          {...drawings.filter((drawing) => drawing !== null).map(({ definition: { drawingIndex, name } }) => <option value={drawingIndex!.toString()}>{name}</option>)}
+        <select value={selectedDefinitionIndex} onChange={(event) => setSelectedDefinitionIndex(parseInt(event.target.value))}>
+          {selectedDefinitionIndex === SENTINEL_PLACEHOLDER_DEFINITION_INDEX ? <option value={SENTINEL_PLACEHOLDER_DEFINITION_INDEX}>Select Drawing...</option> : null}
+          <option value={SENTINEL_CURRENT_DEFINITION_INDEX}>[Current Drawing]</option>
+          {...definitions.filter((definition) => definition !== null).map(({ definition: { definitionIndex, name } }) => <option value={definitionIndex!.toString()}>{name}</option>)}
         </select>
       </label>
       {controls}
@@ -93,7 +93,7 @@ function TemplateCard({ drawings, deleteCallback, drawing, selectedDrawingIndex,
 }
 
 /** Card to use when the definition is a drawing definition. */
-function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, selectedDrawingIndex, setSelectedDrawingIndex } : DrawingDefinitionCardProps) {
+function DrawingDefinitionCard({ initialDrawingKind, definitions, deleteCallback, selectedDefinitionIndex, setSelectedDefinitionIndex } : DrawingDefinitionCardProps) {
   const preference = useDrawingStore(useShallow((state) => ({
     shouldCropIsometricViewport: state.shouldCropIsometricViewport,
     shouldShowIsometricGrid: state.shouldShowIsometricGrid,
@@ -107,10 +107,10 @@ function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, s
 
   const [drawingKind, setDrawingKind] = useState<DrawingKind>(initialDrawingKind ?? 'isometric')
 
-  let drawing, control
+  let preview, control
   switch (drawingKind) {
     case 'isometric':
-      drawing = (
+      preview = (
         <>
           <IsometricViewport canHaveUndefinedSize={false} size={{ width: '100%', height: '100%' }} />
           {wrapWithExportContainer(<IsometricViewport canHaveUndefinedSize={true} />, 'none')}
@@ -119,11 +119,11 @@ function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, s
       control = <IsometricControls />
       break
     case 'coded-plan':
-      drawing = wrapWithExportContainer(<CodedPlan />)
+      preview = wrapWithExportContainer(<CodedPlan />)
       control = <CodedPlanControls />
       break
     case 'orthographic':
-      drawing = (
+      preview = (
         <>
           <OrthographicViews isSplittable={false} />
           {wrapWithExportContainer(<OrthographicViews isSplittable={true} />, 'none')}
@@ -158,11 +158,11 @@ function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, s
     <>
       <span className='data-container' data-preset-json={JSON.stringify({ drawingKind, ...preference })}></span>
       <TemplateCard
-        drawings={drawings}
+        definitions={definitions}
         deleteCallback={deleteCallback}
-        drawing={drawing}
-        selectedDrawingIndex={selectedDrawingIndex}
-        setSelectedDrawingIndex={setSelectedDrawingIndex}
+        preview={preview}
+        selectedDefinitionIndex={selectedDefinitionIndex}
+        setSelectedDefinitionIndex={setSelectedDefinitionIndex}
         controls={controls}
       />
     </>
@@ -171,7 +171,7 @@ function DrawingDefinitionCard({ initialDrawingKind, drawings, deleteCallback, s
 
 /** Card in export dialog that display a preview with its control and exposes an export container. */
 export function ExportCard({ initialDrawingKind, initialPreference, deleteCallback, startWithPlaceholder }: ExportCardProps) {
-  const drawings = useStore((state) => state.drawings)
+  const definitions = useStore((state) => state.definitions)
 
   const [
     cuboidValues,
@@ -184,36 +184,36 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
   // current drawing as the default, no index is suitable as the current drawing may be unsaved
   const initialIndex = (
     (startWithPlaceholder ?? false) || initialDrawingKind === 'orthographic-editor' ?
-    SENTINEL_PLACEHOLDER_DRAWING_INDEX : SENTINEL_CURRENT_DRAWING_INDEX
+    SENTINEL_PLACEHOLDER_DEFINITION_INDEX : SENTINEL_CURRENT_DEFINITION_INDEX
   )
-  const [selectedDrawingIndex, setSelectedDrawingIndex] = useState<number>(initialIndex)
+  const [selectedDefinitionIndex, setSelectedDefinitionIndex] = useState<number>(initialIndex)
 
-  if (initialDrawingKind === 'orthographic-editor' && selectedDrawingIndex === SENTINEL_PLACEHOLDER_DRAWING_INDEX) {
+  if (initialDrawingKind === 'orthographic-editor' && selectedDefinitionIndex === SENTINEL_PLACEHOLDER_DEFINITION_INDEX) {
     return (
       <>
         <span className='data-container' data-preset-json={JSON.stringify({ drawingKind: 'orthographic-editor' })}></span>
         <TemplateCard
-          drawings={drawings}
+          definitions={definitions}
           deleteCallback={deleteCallback}
-          drawing={wrapWithExportContainer(<OrthographicEditor map={PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP} />)}
-          selectedDrawingIndex={selectedDrawingIndex}
-          setSelectedDrawingIndex={setSelectedDrawingIndex}
+          preview={wrapWithExportContainer(<OrthographicEditor map={PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP} />)}
+          selectedDefinitionIndex={selectedDefinitionIndex}
+          setSelectedDefinitionIndex={setSelectedDefinitionIndex}
           controls={null}
         />
       </>
     )
   }
 
-  if (drawings[selectedDrawingIndex]?.definitionKind === 'orthographic') {
+  if (definitions[selectedDefinitionIndex]?.definitionKind === 'orthographic') {
     return (
       <>
         <span className='data-container' data-preset-json={JSON.stringify({ drawingKind: 'orthographic-editor' })}></span>
         <TemplateCard
-          drawings={drawings}
+          definitions={definitions}
           deleteCallback={deleteCallback}
-          drawing={wrapWithExportContainer(<OrthographicEditor map={drawings[selectedDrawingIndex].definition.map} />)}
-          selectedDrawingIndex={selectedDrawingIndex}
-          setSelectedDrawingIndex={setSelectedDrawingIndex}
+          preview={wrapWithExportContainer(<OrthographicEditor map={definitions[selectedDefinitionIndex].definition.map} />)}
+          selectedDefinitionIndex={selectedDefinitionIndex}
+          setSelectedDefinitionIndex={setSelectedDefinitionIndex}
           controls={null}
         />
       </>
@@ -222,33 +222,33 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
 
   // the definition is deleted while the card is displaying it
   // set the card to the current drawing as a fallback without self deleting
-  if (selectedDrawingIndex !== SENTINEL_CURRENT_DRAWING_INDEX && drawings[selectedDrawingIndex] === null) {
-    setSelectedDrawingIndex(SENTINEL_CURRENT_DRAWING_INDEX)
+  if (selectedDefinitionIndex !== SENTINEL_CURRENT_DEFINITION_INDEX && definitions[selectedDefinitionIndex] === null) {
+    setSelectedDefinitionIndex(SENTINEL_CURRENT_DEFINITION_INDEX)
   }
 
   let initialDefinition
-  switch (selectedDrawingIndex) {
-    case SENTINEL_CURRENT_DRAWING_INDEX:
+  switch (selectedDefinitionIndex) {
+    case SENTINEL_CURRENT_DEFINITION_INDEX:
       // This card is not wrapped in a more specific drawing provider
       // so this takes from the outer most drawing provider
       initialDefinition = {
-        drawingIndex: null,
+        definitionIndex: null,
         name: '',
         cuboidValues: structuredClone(cuboidValues),
         rotation: rotation.clone()
       }
       break
-    case SENTINEL_PLACEHOLDER_DRAWING_INDEX:
+    case SENTINEL_PLACEHOLDER_DEFINITION_INDEX:
       initialDefinition = {
-        drawingIndex: null,
+        definitionIndex: null,
         name: '',
         cuboidValues: PLACEHOLDER_DRAWING_DEFINITION_CUBOID_VALUES,
         rotation: new Quaternion()
       }
       break
     default: {
-      // the drawing should not be null as the index would have set to SENTINEL_CURRENT_DRAWING_INDEX
-      const { definition: { rotation, ...rest } } = drawings[selectedDrawingIndex]!
+      // the drawing should not be null as the index would have set to SENTINEL_CURRENT_DEFINITION_INDEX
+      const { definition: { rotation, ...rest } } = definitions[selectedDefinitionIndex]!
       initialDefinition = { rotation: new Quaternion(rotation), ...rest }
       break
     }
@@ -258,10 +258,10 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
     <DrawingProvider initialDefinition={{ isInteractive: false, ...initialDefinition, ...initialPreference }}>
       <DrawingDefinitionCard
         initialDrawingKind={initialDrawingKind === 'orthographic-editor' ? 'isometric' : initialDrawingKind}
-        drawings={drawings}
+        definitions={definitions}
         deleteCallback={deleteCallback}
-        selectedDrawingIndex={selectedDrawingIndex}
-        setSelectedDrawingIndex={setSelectedDrawingIndex}
+        selectedDefinitionIndex={selectedDefinitionIndex}
+        setSelectedDefinitionIndex={setSelectedDefinitionIndex}
       />
     </DrawingProvider>
   )
