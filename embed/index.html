@@ -17,7 +17,7 @@
   <body>
     <div id="root" style="width: 24rem; height: 12rem;"></div>
     <script type="text/babel" data-type="module">
-      import React, { createElement, StrictMode, useState } from 'react'
+      import React, { StrictMode, useState } from 'react'
       import { createRoot } from 'react-dom/client'
       import { DrawingProvider, IsometricViewport, OrthographicEditor, Quaternion, RotationButtons, useDrawingStore } from './isometric-drawing.js'
 
@@ -38,16 +38,16 @@
         }
 
         return (
-          <DrawingProvider initialDefinition={{ isInteractive: false, drawingIndex: null, name: 'Untitled Drawing', cuboidValues, rotation: expectedRotation }}>
+          <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues, rotation: expectedRotation }}>
             <RotationButtons />
             <RotationVerifier expectedRotation={expectedRotation} />
             <div style={{ display: 'flex' }}>
               <div style={{ width: '10rem', height: '10rem', border: '0.3rem solid black' }}>
-                <IsometricViewport canHaveUndefinedSize={false} size={{ width: '10rem', height: '10rem', viewBox: '-4 -4 8 8'}} />
+                <IsometricViewport size={{ width: '10rem', height: '10rem', viewBox: '-4 -4 8 8'}} />
               </div>
-              <DrawingProvider initialDefinition={{ isInteractive: false, drawingIndex: null, name: 'Untitled Drawing', cuboidValues, rotation: new Quaternion() }}>
+              <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues }}>
                 <div style={{ width: '10rem', height: '10rem', border: '0.3rem solid black' }}>
-                  <IsometricViewport canHaveUndefinedSize={false} size={{ width: '100%', height: '100%' }} />
+                  <IsometricViewport size={{ width: '100%', height: '100%' }} />
                 </div>
               </DrawingProvider>
             </div>

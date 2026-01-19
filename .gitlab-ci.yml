@@ -44,4 +44,4 @@ pages:
             - dist
     publish: dist
     only:
-        - master
+        - pages

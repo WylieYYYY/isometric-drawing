@@ -9,7 +9,7 @@ import { createStore, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { useShallow } from 'zustand/react/shallow'
 import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook.ts'
-import { isCubeFaceHighlighted } from './../Store.tsx'
+import { defaultDrawingDefinition, isCubeFaceHighlighted } from './../Store.tsx'
 import { rotate } from './../util.ts'
 
 export type DrawingDefinition = {
@@ -70,7 +70,7 @@ export type DrawingStore = DrawingDefinition & DrawingPreference & {
 }
 
 type InitialPreference = Partial<DrawingPreference> & { isInteractive?: boolean }
-type InitialDefinition = DrawingDefinition & InitialPreference
+type InitialDefinition = Partial<DrawingDefinition> & InitialPreference
 
 /**
  * Calibrates a quaternion rotation such that it does not drift from 90 degree angles
@@ -398,10 +398,10 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
  * Provider that injects context value (the drawing store) for children that are using the drawing store.
  * It is an error to use components that relies on the drawing store without a provider parent.
  */
-export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition: InitialDefinition }>) {
+export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: InitialDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)
 
-  const { definitionIndex, name, cuboidValues, rotation, ...rest } = initialDefinition
+  const { definitionIndex, name, cuboidValues, rotation, ...rest } = { ...defaultDrawingDefinition(), ...initialDefinition }
 
   // preference is not externally changeable after the first value
   // set it in the effect below if changing preference dynamically is required
