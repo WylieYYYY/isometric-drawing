@@ -9,30 +9,103 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { ExportCard } from './dialog/ExportCard.tsx'
 
+/** Kinds of highlighting available. */
 export type HighlightKind = 'cuboid' | 'face'
-export type CubeLocation = { cuboidIndex: number } & Coordinates
-export type VisibleCubeFaceLocation = { cubeLocation: CubeLocation, axis: PositiveAxis }
-export type OrthographicDrawingDefinition = { definitionIndex: number, name: string, map: Array<Array<LineType>> }
+/**
+ * Coordinates with the cuboid index so that receivers know where is the cube and which cuboid.
+ * The receivers can decide whether to act on the individual cube or the entire cuboid.
+ */
+export type CubeLocation = {
+  /** Index of the value in the cuboid values array. */
+  cuboidIndex: number
+} & Coordinates
+/**
+ * Location of the cube and an axis that specifies the face.
+ * Can only specify faces that are facing towards the user.
+ */
+export type VisibleCubeFaceLocation = {
+  /** Location of the cube. */
+  cubeLocation: CubeLocation
+  /** Facing axis. */
+  axis: PositiveAxis
+}
+/** Definition that represents an orthographic drawing that was created with the line editor. */
+export type OrthographicDrawingDefinition = {
+  /** Index of the definition in the global storage, cannot be null as this type of drawing must always be saved. */
+  definitionIndex: number
+  /** Name of the definition, no unique constraint since that is enforced by the definition index. */
+  name: string
+  /**
+   * Map of lines forming a grid for drawing, 3 by 3 grid will have array sizes of [3, 4, 3, 4, 3, 4, 3].
+   * It means 3 vertical lines, then 4 horizontal lines, then 3 vertical lines and so on.
+   */
+  map: Array<Array<LineType>>
+}
+/** Tagged union of definitions. */
 export type TaggedDefinition = { definitionKind: 'drawing', definition: SerializableDrawingDefinition } | { definitionKind: 'orthographic', definition: OrthographicDrawingDefinition }
 
+/** Tags for identifying the kinds of definitions. */
 type DefinitionKind = 'drawing' | 'orthographic'
+/** Drawing definition that is serializable by converting attributes to regular objects. */
 type SerializableDrawingDefinition = Omit<DrawingDefinition, 'rotation'> & { rotation: { w: number, x: number, y: number, z: number } }
 
+/** Global states to be shared within the application. */
 type Store = {
+  /** Whether the device supports hovering properly. */
   supportsHover: boolean
+  /**
+   * Sets whether the device supports hovering properly.
+   * @param supportsHover - The new value.
+   */
   setSupportsHover: (supportsHover: boolean) => void
 
+  /**
+   * Kind of highlighting applied if there is currently any highlighting.
+   * Whether anything is highlighted is determined by the drawing store, not here.
+   */
   highlightKind: HighlightKind
+  /**
+   * Sets the kind of highlighting applied if there is currently any highlighting.
+   * @param highlightKind - The new kind.
+   */
   setHighlightKind: (highlightKind: HighlightKind) => void
 
+  /**
+   * The definitions array.
+   * Definitions are set to null when deleted rather than removed to preserve indices.
+   */
   definitions: Array<TaggedDefinition|null>
+  /**
+   * Creates a new definition of the given kind at the end of the definitions array.
+   * @param definitionKind - Kind of the definition for which the default definition will follow.
+   * @returns Index of the new defintion in the definitions array.
+   */
   newDefinition: (definitionKind: DefinitionKind) => number
+  /**
+   * Sets the definition at the given index to the given definition.
+   * @param index - Index of the defintion in the definitions array.
+   * @param definition - The new definition.
+   */
   setDefinition: (index: number, definition: TaggedDefinition) => void
+  /**
+   * Deletes a definition at the given index.
+   * @param index - Index of the definition in the definitions array.
+   */
   deleteDefinition: (index: number) => void
 
+  /** Export cards array, each have internal drawing states so the whole components are stored. */
   exportCards: Array<ReactElement<unknown, typeof ExportCard>>
+  /** Clears all created export cards. */
   clearExportCards: () => void
+  /**
+   * Creates a new export card at the end of the export cards array.
+   * @param props - Props to be passed on to the export card being created.
+   */
   newExportCard: (props?: Omit<ExportCardProps, 'deleteCallback'>) => void
+  /**
+   * Deletes an export card at the given index.
+   * @param index - Index of the card in the export cards array.
+   */
   deleteExportCard: (index: number) => void
 }
 
@@ -106,48 +179,26 @@ export function isCubeFaceHighlighted(
   return null
 }
 
-/** Uses storage for global states to be shared by components. */
+/** Uses storage for global states to be shared within the application. */
 export const useStore = create<Store>()(persist(immer((set, get) => ({
-  /** Whether the device supports hovering properly. */
   supportsHover: true,
 
-  /**
-   * Sets whether the device supports hovering properly.
-   * @param supportsHover - The new value.
-   */
   setSupportsHover: (supportsHover: boolean) => {
     set((state) => {
       state.supportsHover = supportsHover
     })
   },
 
-  /**
-   * Kind of highlighting applied if there is currently any highlighting.
-   * Whether anything is highlighted is determined by the drawing store, not here.
-   */
   highlightKind: 'face',
 
-  /**
-   * Sets the kind of highlighting applied if there is currently any highlighting.
-   * @param highlightKind - The new kind.
-   */
   setHighlightKind: (highlightKind: HighlightKind) => {
     set((state) => {
       state.highlightKind = highlightKind
     })
   },
 
-  /**
-   * The definitions array.
-   * Definitions are set to null when deleted rather than removed to preserve indices.
-   */
   definitions: [],
 
-  /**
-   * Creates a new definition of the given kind at the end of the definitions array.
-   * @param definitionKind - Kind of the definition for which the default definition will follow.
-   * @returns Index of the new defintion in the definitions array.
-   */
   newDefinition: (definitionKind: DefinitionKind) => {
     const index = get().definitions.length
 
@@ -165,45 +216,30 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
     return index
   },
 
-  /**
-   * Sets the definition at the given index to the given definition.
-   * @param index - Index of the defintion in the definitions array.
-   * @param definition - The new definition.
-   */
   setDefinition: (index: number, definition: TaggedDefinition) => {
     set((state) => {
       state.definitions[index] = definition
     })
   },
 
-  /**
-   * Deletes a definition at the given index.
-   * @param index - Index of the definition in the definitions array.
-   */
   deleteDefinition: (index: number) => {
     set((state) => {
       state.definitions[index] = null
     })
   },
 
-  /** Export cards array, each have internal drawing states so the whole components are stored. */
   exportCards: [
     <ExportCard initialDrawingKind='isometric' deleteCallback={() => get().deleteExportCard(0)} />,
     <ExportCard initialDrawingKind='coded-plan' deleteCallback={() => get().deleteExportCard(1)} />,
     <ExportCard initialDrawingKind='orthographic' deleteCallback={() => get().deleteExportCard(2)} />
   ],
 
-  /** Clears all created export cards. */
   clearExportCards: () => {
     set((state) => {
       state.exportCards = []
     })
   },
 
-  /**
-   * Creates a new export card at the end of the export cards array.
-   * @param props - Props to be passed on to the export card being created.
-   */
   newExportCard: (props?: Omit<ExportCardProps, 'deleteCallback'>) => {
     set((state) => {
       const index = state.exportCards.length
@@ -211,10 +247,6 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
     })
   },
 
-  /**
-   * Deletes an export card at the given index.
-   * @param index - Index of the card in the export cards array.
-   */
   deleteExportCard: (index: number) => {
     set((state) => {
       delete state.exportCards[index]

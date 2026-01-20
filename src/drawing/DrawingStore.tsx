@@ -12,65 +12,195 @@ import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook
 import { defaultDrawingDefinition, isCubeFaceHighlighted } from './../Store.tsx'
 import { rotate } from './../util.ts'
 
+/** Persistent attributes that defines a drawing. */
 export type DrawingDefinition = {
+  /** Index of the current definition in the global storage, null if the current definition is not saved at all. */
   definitionIndex: number|null
+  /** Name of the drawing, no unique constraint since that is enforced by the definition index. */
   name: string
+  /** Cuboid values array, holds cuboids of one isometric structure. */
   cuboidValues: Array<CuboidValue>
+  /** Quaternion to preserve non-commutative rotations compactly. */
   rotation: Quaternion
 }
 
+/** Persistent preference that is specified manually by the user. */
 export type DrawingPreference = {
+  /**
+   * Whether the isometric viewport is cropped to fit the axes and structure tightly.
+   * To override the cropping behavior, one of the following can be done:
+   *  - Set this as false and set `canHaveUndefinedSize` to true to have the size unset. (used for uncropped export)
+   *  - Set `size` parameter fully. (used for main viewport)
+   */
   shouldCropIsometricViewport: boolean
+  /** Whether the background grid is shown on the isometric drawing. */
   shouldShowIsometricGrid: boolean
+  /** Whether the background axis arrows are shown on the isometric drawing. */
   shouldShowAxisArrows: boolean
+  /** Whether the foreground structure is shown on the isometric drawing. */
   shouldShowIsometricStructure: boolean
+  /** Whether the numbers are shown on the coded plan. */
   shouldShowCodedPlanNumbers: boolean
+  /**
+   * Sets whether the orthographic views should be split into three images.
+   * The images are not laid out so they can only be used for export purpose.
+   */
   shouldSplitOrthographicViewsAsThree: boolean
+  /** Whether the background grid is shown on the orthographic views. */
   shouldShowOrthographicViewsGrid: boolean
+  /** Whether the foreground structure is shown on the orthographic views. */
   shouldShowOrthographicStructure: boolean
 }
 
+/**
+ * Store that manages states belonging to a structure.
+ * If components share the same store, then they refer to the same structure.
+ * Defining attributes for drawings are in `DrawingDefinition`.
+ * Persistent preference attributes that are stored as a part of preset are in `DrawingPreference`.
+ */
 export type DrawingStore = DrawingDefinition & DrawingPreference & {
+  /**
+   * Flag to indicate whether attributes that are in the definition has changed.
+   * This will be set to zero when `setDefinitionIndex`, which is when a drawing is loaded or saved.
+   */
   hasDefinitionChanged: boolean,
 
+  /**
+   * Sets the index of the current drawing in the global storage, null if the current drawing is not saved at all.
+   * This will reset `hasDefinitionChanged` to false since this is called when a drawing is loaded or saved.
+   * @param definitionIndex - The new drawing index.
+   */
   setDefinitionIndex: (definitionIndex: number|null) => void
 
+  /**
+   * Sets the name of the drawing.
+   * @param name - The new name.
+   */
   setName: (name: string) => void
 
+  /**
+   * Whether to generate interactive faces in the isometric drawing.
+   * Exported SVG can avoid large file size due to transparent triangles by setting this to false.
+   */
   isInteractive: boolean
 
+  /**
+   * Set whether the isometric viewport is cropped to fit the axes and structure tightly.
+   * @param shouldCropIsometricViewport - The new value.
+   */
   setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => void
+  /**
+   * Sets whether the background grid is shown on the isometric drawing.
+   * @param shouldShowIsometricGrid - The new value.
+   */
   setshouldShowIsometricGrid: (shouldShowIsometricGrid: boolean) => void
+  /**
+   * Sets whether the background axis arrows are shown on the isometric drawing.
+   * @param shouldShowAxisArrows - The new value.
+   */
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => void
+  /**
+   * Sets whether the foreground structure is shown on the isometric drawing.
+   * @param shouldShowIsometricStructure - The new value.
+   */
   setshouldShowIsometricStructure: (shouldShowIsometricStructure: boolean) => void
+  /**
+   * Sets whether the numbers are shown on the coded plan.
+   * @param shouldShowCodedPlanNumbers - The new value.
+   */
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => void
+  /**
+   * Sets whether the orthographic views should be split into three images.
+   * @param shouldSplitOrthographicViewsAsThree - The new value.
+   */
   setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => void
+  /**
+   * Sets whether the background grid is shown on the orthographic views.
+   * @param shouldShowOrthographicViewsGrid - The new value.
+   */
   setShouldShowOrthographicViewsGrid: (shouldShowOrthographicViewsGrid: boolean) => void
+  /**
+   * Sets whether the foreground structure is shown on the orthographic views.
+   * @param shouldShowOrthographicStructure - The new value.
+   */
   setShouldShowOrthographicStructure: (shouldShowOrthographicStructure: boolean) => void
 
+  /**
+   * Detail required for every highlight kinds to allow switching between them,
+   * null for no current highlight.
+   */
   highlightedTarget: VisibleCubeFaceLocation|null
+  /**
+   * Request highlight for a face, highlight kind determines the final highlight area.
+   * @param cubeLocation - The cube location.
+   * @param axis - Positive axis which the face is facing towards.
+   */
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => void
+  /**
+   * Unhighlights if the `isCubeFaceHighlighted` function determines
+   * that the given attributes match the current highlighting.
+   * This is to prevent stale request if the highlight changes before the request is received.
+   * @param highlightKind - Only unhighlights if the specified highlight kind is in effect.
+   * @param cubeLocation - The cube location, used for attributes matching.
+   */
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => void
 
+  /**
+   * Sets all cuboid values wholesale, use this in provider and prefer other functions in other components.
+   * @param cuboidValues - The new values to take.
+   */
   setCuboidValues: (cuboidValues: Array<CuboidValue>) => void
+  /**
+   * Creates a new cuboid value at the end of the cuboid values array.
+   * @param cuboidValue - A specific value to initialize with, default is a unit cube at origin.
+   */
   newCuboidValue: (cuboidValue?: CuboidValue) => void
+  /**
+   * Sets the cuboid value at the given index to the given value.
+   * @param index - Index of the value in the cuboid values array.
+   * @param cuboidValue - The new value.
+   */
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => void
+
+  /**
+   * Deletes a cuboid value at the given index.
+   * @param index - Index of the value in the cuboid values array.
+   */
   deleteCuboidValue: (index: number) => void
 
+  /** Resets the rotation such that the rendering coordinates matches the ones denoted in the cuboid values. */
   resetRotation: () => void
 
+  /** Rotates 90 degrees clockwise around x-axis (positive x), origin perspective. */
   rotateXClockwise: () => void
+  /** Rotates 90 degrees anticlockwise around x-axis (negative x), origin perspective. */
   rotateXAnticlockwise: () => void
 
+  /** Rotates 90 degrees clockwise around y-axis (positive y), origin perspective. */
   rotateYClockwise: () => void
+  /** Rotates 90 degrees anticlockwise around y-axis (negative y), origin perspective. */
   rotateYAnticlockwise: () => void
 
+  /** Rotates 90 degrees clockwise around z-axis (positive z), origin perspective. */
   rotateZClockwise: () => void
+  /** Rotates 90 degrees anticlockwise around z-axis (negative z), origin perspective. */
   rotateZAnticlockwise: () => void
 }
 
-type InitialPreference = Partial<DrawingPreference> & { isInteractive?: boolean }
-type InitialDefinition = Partial<DrawingDefinition> & InitialPreference
+/**
+ * Persistent preference that is specified manually by the user and a interactive flag.
+ * The interactive flag resides here as it is set by the application, not the user.
+ */
+export type InitialPreference = Partial<DrawingPreference> & {
+  /** Whether new cubes can be placed on the isometric drawing. */
+  isInteractive?: boolean
+}
+/**
+ * All attributes that are used to populate the store initially.
+ * Consists of all store attributes that are not ephemeral interation states.
+ * All attributes are optional.
+ */
+export type InitialDefinition = Partial<DrawingDefinition> & InitialPreference
 
 /**
  * Calibrates a quaternion rotation such that it does not drift from 90 degree angles
@@ -96,20 +226,10 @@ function calibrateRotation(rotation: Quaternion): Quaternion {
  * @returns The created drawing store.
  */
 const createDrawingStore = (initialPreference: InitialPreference) => createStore<DrawingStore>()(immer((set, get) => ({ ...{
-  /**
-   * Flag to indicate whether attributes that are in the definition has changed.
-   * This will be set to zero when `setDefinitionIndex`, which is when a drawing is loaded or saved.
-   */
   hasDefinitionChanged: false,
 
-  /** Index of the current drawing in the global storage, null if the current drawing is not saved at all. */
   definitionIndex: null,
 
-  /**
-   * Sets the index of the current drawing in the global storage, null if the current drawing is not saved at all.
-   * This will reset `hasDefinitionChanged` to false since this is called when a drawing is loaded or saved.
-   * @param definitionIndex - The new drawing index.
-   */
   setDefinitionIndex: (definitionIndex: number|null) => {
     set((state) => {
       state.definitionIndex = definitionIndex
@@ -117,13 +237,8 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Name of the drawing, no unique constraint since that is enforced by the drawing index. */
   name: 'Untitled Drawing',
 
-  /**
-   * Sets the name of the drawing.
-   * @param name - The new name.
-   */
   setName: (name: string) => {
     set((state) => {
       state.name = name
@@ -131,173 +246,96 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /**
-   * Whether to generate interactive faces in the isometric drawing.
-   * Exported SVG can avoid large file size due to transparent triangles by setting this to false.
-   */
   isInteractive: true,
 
-  /**
-   * Whether the isometric viewport is cropped to fit the axes and structure tightly.
-   * To override the cropping behavior, one of the following can be done:
-   *  - Set this as false and set `canHaveUndefinedSize` to true to have the size unset. (used for uncropped export)
-   *  - Set `size` parameter fully. (used for main viewport)
-   */
   shouldCropIsometricViewport: true,
 
-  /**
-   * Set whether the isometric viewport is cropped to fit the axes and structure tightly.
-   * @param shouldCropIsometricViewport - The new value.
-   */
   setShouldCropIsometricViewport: (shouldCropIsometricViewport: boolean) => {
     set((state) => {
       state.shouldCropIsometricViewport = shouldCropIsometricViewport
     })
   },
 
-  /** Whether the background grid is shown on the isometric drawing. */
   shouldShowIsometricGrid: true,
 
-  /**
-   * Sets whether the background grid is shown on the isometric drawing.
-   * @param shouldShowIsometricGrid - The new value.
-   */
   setshouldShowIsometricGrid: (shouldShowIsometricGrid: boolean) => {
     set((state) => {
       state.shouldShowIsometricGrid = shouldShowIsometricGrid
     })
   },
 
-  /** Whether the background axis arrows are shown on the isometric drawing. */
   shouldShowAxisArrows: true,
 
-  /**
-   * Sets whether the background axis arrows are shown on the isometric drawing.
-   * @param shouldShowAxisArrows - The new value.
-   */
   setShouldShowAxisArrows: (shouldShowAxisArrows: boolean) => {
     set((state) => {
       state.shouldShowAxisArrows = shouldShowAxisArrows
     })
   },
 
-  /** Whether the foreground structure is shown on the isometric drawing. */
   shouldShowIsometricStructure: true,
 
-  /**
-   * Sets whether the foreground structure is shown on the isometric drawing.
-   * @param shouldShowIsometricStructure - The new value.
-   */
   setshouldShowIsometricStructure: (shouldShowIsometricStructure: boolean) => {
     set((state) => {
       state.shouldShowIsometricStructure = shouldShowIsometricStructure
     })
   },
 
-  /** Whether the numbers are shown on the coded plan. */
   shouldShowCodedPlanNumbers: true,
 
-  /**
-   * Sets whether the numbers are shown on the coded plan.
-   * @param shouldShowCodedPlanNumbers - The new value.
-   */
   setShouldShowCodedPlanNumbers: (shouldShowCodedPlanNumbers: boolean) => {
     set((state) => {
       state.shouldShowCodedPlanNumbers = shouldShowCodedPlanNumbers
     })
   },
 
-  /**
-   * Sets whether the orthographic views should be split into three images.
-   * The images are not laid out so they can only be used for export purpose.
-   */
   shouldSplitOrthographicViewsAsThree: false,
 
-  /**
-   * Sets whether the orthographic views should be split into three images.
-   * @param shouldSplitOrthographicViewsAsThree - The new value.
-   */
   setShouldSplitOrthographicViewsAsThree: (shouldSplitOrthographicViewsAsThree: boolean) => {
     set((state) => {
       state.shouldSplitOrthographicViewsAsThree = shouldSplitOrthographicViewsAsThree
     })
   },
 
-  /** Whether the background grid is shown on the orthographic views. */
   shouldShowOrthographicViewsGrid: true,
 
-  /**
-   * Sets whether the background grid is shown on the orthographic views.
-   * @param shouldShowOrthographicViewsGrid - The new value.
-   */
   setShouldShowOrthographicViewsGrid: (shouldShowOrthographicViewsGrid: boolean) => {
     set((state) => {
       state.shouldShowOrthographicViewsGrid = shouldShowOrthographicViewsGrid
     })
   },
 
-  /** Whether the foreground structure is shown on the orthographic views. */
   shouldShowOrthographicStructure: true,
 
-  /**
-   * Sets whether the foreground structure is shown on the orthographic views.
-   * @param shouldShowOrthographicStructure - The new value.
-   */
   setShouldShowOrthographicStructure: (shouldShowOrthographicStructure: boolean) => {
     set((state) => {
       state.shouldShowOrthographicStructure = shouldShowOrthographicStructure
     })
   },
 
-  /**
-   * Detail required for every highlight kinds to allow switching between them,
-   * null for no current highlight.
-   */
   highlightedTarget: null,
 
-  /**
-   * Request highlight for a face, highlight kind determines the final highlight area.
-   * @param cubeLocation - The cube location.
-   * @param axis - Positive axis which the face is facing towards.
-   */
   highlightCubeFace: (cubeLocation: CubeLocation, axis: PositiveAxis) => {
     set((state) => {
       state.highlightedTarget = { cubeLocation, axis }
     })
   },
 
-  /**
-   * Unhighlights if the `isCubeFaceHighlighted` function determines
-   * that the given attributes match the current highlighting.
-   * This is to prevent stale request if the highlight changes before the request is received.
-   * @param highlightKind - Only unhighlights if the specified highlight kind is in effect.
-   * @param cubeLocation - The cube location, used for attributes matching.
-   */
   unhighlightCubeFace: (highlightKind: HighlightKind, cubeLocation: CubeLocation) => {
     if (isCubeFaceHighlighted(highlightKind, get().highlightedTarget, cubeLocation, null) !== null) {
       set((state) => { state.highlightedTarget = null })
     }
   },
 
-  /** Cuboid values array, holds cuboids of one isometric structure. */
   cuboidValues: [
     { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }
   ],
 
-  /**
-   * Sets all cuboid values wholesale, use this in provider and prefer other functions in other components.
-   * @param cuboidValues - The new values to take.
-   */
   setCuboidValues: (cuboidValues: Array<CuboidValue>) => {
     set((state) => {
       state.cuboidValues = cuboidValues
     })
   },
 
-  /**
-   * Creates a new cuboid value at the end of the cuboid values array.
-   * @param cuboidValue - A specific value to initialize with, default is a unit cube at origin.
-   */
   newCuboidValue: (cuboidValue: CuboidValue = { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }) => {
     set((state) => {
       state.cuboidValues.push(cuboidValue)
@@ -305,11 +343,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /**
-   * Sets the cuboid value at the given index to the given value.
-   * @param index - Index of the value in the cuboid values array.
-   * @param cuboidValue - The new value.
-   */
   setCuboidValue: (index: number, cuboidValue: CuboidValue) => {
     set((state) => {
       state.cuboidValues[index] = cuboidValue
@@ -317,10 +350,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /**
-   * Deletes a cuboid value at the given index.
-   * @param index - Index of the value in the cuboid values array.
-   */
   deleteCuboidValue: (index: number) => {
     set((state) => {
       state.cuboidValues.splice(index, 1)
@@ -328,10 +357,8 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Quaternion to preserve non-commutative rotations compactly. */
   rotation: new Quaternion(),
 
-  /** Resets the rotation such that the rendering coordinates matches the ones denoted in the cuboid values. */
   resetRotation: () => {
     set((state) => {
       state.rotation = new Quaternion()
@@ -339,7 +366,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Rotates 90 degrees clockwise around x-axis (positive x), origin perspective. */
   rotateXClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], Math.PI / 2).mul(state.rotation)
@@ -348,7 +374,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Rotates 90 degrees anticlockwise around x-axis (negative x), origin perspective. */
   rotateXAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], -Math.PI / 2).mul(state.rotation)
@@ -357,7 +382,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Rotates 90 degrees clockwise around y-axis (positive y), origin perspective. */
   rotateYClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], Math.PI / 2).mul(state.rotation)
@@ -366,7 +390,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Rotates 90 degrees anticlockwise around y-axis (negative y), origin perspective. */
   rotateYAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], -Math.PI / 2).mul(state.rotation)
@@ -375,7 +398,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Rotates 90 degrees clockwise around z-axis (positive z), origin perspective. */
   rotateZClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], Math.PI / 2).mul(state.rotation)
@@ -384,7 +406,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  /** Rotates 90 degrees anticlockwise around z-axis (negative z), origin perspective. */
   rotateZAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], -Math.PI / 2).mul(state.rotation)
@@ -397,6 +418,8 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
 /**
  * Provider that injects context value (the drawing store) for children that are using the drawing store.
  * It is an error to use components that relies on the drawing store without a provider parent.
+ * Default attribute values will be used for missing attributes in the given definition.
+ * If no definition is given, all attributes will be set to the default values.
  */
 export function DrawingProvider({ initialDefinition, children }: PropsWithChildren<{ initialDefinition?: InitialDefinition }>) {
   const storeRef = useRef<StoreApi<DrawingStore>|null>(null)

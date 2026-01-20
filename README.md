@@ -4,7 +4,8 @@ Isometric Drawing is a tool for creating isometric drawings by defining the isom
 It uses a 2.5-dimensional perspective and attempts to mimic the drawing style on physical grid paper.
 
 #### Screenshots
-![Example Drawing Screenshot](screenshot.png "Example Drawing Screenshot")
+![Example Interface Screenshot](screenshot-interface.png "Example Interface Screenshot")
+![Example Drawing Screenshot](screenshot-closeup.png "Example Drawing Screenshot")
 
 ### Features:
 - Rotate structure by 90 degree angles;

@@ -2,7 +2,7 @@ import type { LineType } from './OrthographicEditorLine.tsx'
 import { OrthographicEditorLine } from './OrthographicEditorLine.tsx'
 import { updateMinMax } from './../util.ts'
 
-type OrthographicEditorProps = {
+export type OrthographicEditorProps = {
   map: Array<Array<LineType>>
   setMap?: (map: Array<Array<LineType>>) => void
 }

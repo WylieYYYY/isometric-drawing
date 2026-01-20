@@ -2,7 +2,7 @@ import type { PositiveAxis } from './../isometric/foreground/IsometricStructure.
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
-type CuboidValueComponent = PositiveAxis | 'dx' | 'dy' | 'dz'
+export type CuboidValueComponent = PositiveAxis | 'dx' | 'dy' | 'dz'
 export type CuboidValue = { [Property in CuboidValueComponent]: string }
 
 export function CuboidStructureInputs() {

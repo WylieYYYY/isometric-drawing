@@ -8,20 +8,20 @@ import { GridPoint } from './background/GridPoint.tsx'
 import { IsometricStructure } from './foreground/IsometricStructure.tsx'
 import { directionalHex, hexToPixel, rotate, updateMinMax } from './../../util.ts'
 
-type ViewBox = {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-type IsometricViewportProps = {
+export type IsometricViewportProps = {
   canHaveUndefinedSize?: boolean
   size?: {
     width?: number | string
     height?: number | string
     viewBox?: string
   }
+}
+
+type ViewBox = {
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
 /**

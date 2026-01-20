@@ -3,7 +3,7 @@ import { cubeLocationFromCuboidValues, useDrawingStore } from './../DrawingStore
 import { OrthographicView } from './OrthographicView.tsx'
 import { rotate, updateMinMax } from './../../util.ts'
 
-type OrthographicViewsProps = {
+export type OrthographicViewsProps = {
   isSplittable?: boolean
 }
 
