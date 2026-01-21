@@ -23,7 +23,7 @@ export function RotationButtons() {
     state.rotateZAnticlockwise
   ]))
 
-  const isResetDisabled = rotation.equals(Quaternion.ONE)
+  const isResetDisabled = rotation.equals(Quaternion.ONE) || rotation.equals(Quaternion.ONE.neg())
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', backgroundColor: 'white' }}>

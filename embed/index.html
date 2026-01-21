@@ -32,7 +32,7 @@
           const rotation = useDrawingStore((state) => state.rotation)
           let { w, x, y, z } = rotation
           w = -w
-          const isCorrect = expectedRotation.equals(w, x, y, z)
+          const isCorrect = expectedRotation.equals(w, x, y, z) || expectedRotation.neg().equals(w, x, y, z)
 
           return <div style={{ backgroundColor: isCorrect ? 'limegreen' : 'orange' }}>{isCorrect ? 'Correct' : 'Keep Trying'}</div>
         }
