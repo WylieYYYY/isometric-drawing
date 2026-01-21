@@ -90,64 +90,21 @@ export function directionalHex(direction: Direction, distance: number): Hex {
 }
 
 /**
- * Rotates 90 degrees clockwise around y-axis (positive y), origin perspective.
- * @param coordinatesLike - Coordinates that may have auxiliary data attached to them, like a cube location.
- * @returns The rotated coordinates combined with the unchanged auxiliary data.
- */
-function rotateYClockwise({ x, y, z, ...rest }: CoordinatesLike): CoordinatesLike {
-  return { x: z, y: y, z: -x, ...rest }
-}
-
-/**
- * Rotates 90 degrees clockwise around x-axis (positive x), origin perspective.
- * @param coordinatesLike - Coordinates that may have auxiliary data attached to them, like a cube location.
- * @returns The rotated coordinates combined with the unchanged auxiliary data.
- */
-function rotateXClockwise({ x, y, z, ...rest }: CoordinatesLike): CoordinatesLike {
-  return { x: x, y: -z, z: y, ...rest }
-}
-
-/**
- * Rotates 90 degrees clockwise around z-axis (positive z), origin perspective.
- * @param coordinatesLike - Coordinates that may have auxiliary data attached to them, like a cube location.
- * @returns The rotated coordinates combined with the unchanged auxiliary data.
- */
-function rotateZClockwise({ x, y, z, ...rest }: CoordinatesLike): CoordinatesLike {
-  return { x: -y, y: x, z: z, ...rest }
-}
-
-/**
  * Rotates coordinates with the given quaternion rotation.
  * @param coordinates - Array of coordinates that may have auxiliary data attached to them, like a cube location.
  * @returns The rotated array of coordinates combined with the unchanged auxiliary data.
  */
 export function rotate(coordinates: Array<CoordinatesLike>, rotation: Quaternion): Array<CoordinatesLike> {
-  // converts the quaternion into euler angles (Tait-Bryan formalism), then to discrete rotations
-  // anticlockwise rotations are emulated with clockwise rotations
-  const [phiRotationAngle, thetaRotationAngle, psiRotationAngle] = rotation.toEuler()
-  const YRotationCount = (Math.round(psiRotationAngle / (Math.PI / 2)) + 4) % 4
-  const XRotationCount = (Math.round(thetaRotationAngle / (Math.PI / 2)) + 4) % 4
-  const ZRotationCount = (Math.round(phiRotationAngle / (Math.PI / 2)) + 4) % 4
+  const rotatedCoordinates = []
 
-  // offset by 0.5 so that the rotation will be around the axes and not cubes
-  coordinates = coordinates.map(({ x, y, z, ...rest }) => ({ x: x + 0.5, y: y + 0.5, z: z + 0.5, ...rest }))
-
-  // phi, theta and psi are Z, X and Y respectively
-  // since they are in the order of matrix multiplication, the rotation is applied right-to-left
-  for (let rotationsDone = 0; rotationsDone < YRotationCount; rotationsDone++) {
-    coordinates = coordinates.map(rotateYClockwise)
-  }
-  for (let rotationsDone = 0; rotationsDone < XRotationCount; rotationsDone++) {
-    coordinates = coordinates.map(rotateXClockwise)
-  }
-  for (let rotationsDone = 0; rotationsDone < ZRotationCount; rotationsDone++) {
-    coordinates = coordinates.map(rotateZClockwise)
+  for (const { x, y, z, ...rest } of coordinates) {
+    // offset by 0.5 so that the rotation will be around the axes and not cubes
+    const { x: rotatedX, y: rotatedY, z: rotatedZ } = rotation.rotateVector({ x: x + 0.5, y: y + 0.5, z: z + 0.5 }) as { x: number, y: number, z: number }
+    // undo the offset above
+    rotatedCoordinates.push({ x: Math.round(rotatedX - 0.5), y: Math.round(rotatedY - 0.5), z: Math.round(rotatedZ - 0.5), ...rest })
   }
 
-  // undo the offset above
-  coordinates = coordinates.map(({ x, y, z, ...rest }) => ({ x: x - 0.5, y: y - 0.5, z: z - 0.5, ...rest }))
-
-  return coordinates
+  return rotatedCoordinates
 }
 
 /**

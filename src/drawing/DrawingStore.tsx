@@ -203,24 +203,6 @@ export type InitialPreference = Partial<DrawingPreference> & {
 export type InitialDefinition = Partial<DrawingDefinition> & InitialPreference
 
 /**
- * Calibrates a quaternion rotation such that it does not drift from 90 degree angles
- * after multiple rotations, causing iterated rotation to not work.
- * @param rotation - Rotation to be calibrated.
- * @returns The calibrated rotation.
- */
-function calibrateRotation(rotation: Quaternion): Quaternion {
-  const [phiRotationAngle, thetaRotationAngle, psiRotationAngle] = rotation.toEuler()
-  const ZRotationCount = Math.round(phiRotationAngle / (Math.PI / 2))
-  const XRotationCount = Math.round(thetaRotationAngle / (Math.PI / 2))
-  const YRotationCount = Math.round(psiRotationAngle / (Math.PI / 2))
-  return Quaternion.fromEuler(
-    ZRotationCount * (Math.PI / 2),
-    XRotationCount * (Math.PI / 2),
-    YRotationCount * (Math.PI / 2)
-  )
-}
-
-/**
  * Creates a new instance of the drawing store, overriding the defaults if needed.
  * @param initialPreference - Preference to be populated initially.
  * @returns The created drawing store.
@@ -369,7 +351,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   rotateXClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], Math.PI / 2).mul(state.rotation)
-      state.rotation = calibrateRotation(state.rotation)
       state.hasDefinitionChanged = true
     })
   },
@@ -377,7 +358,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   rotateXAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([1, 0, 0], -Math.PI / 2).mul(state.rotation)
-      state.rotation = calibrateRotation(state.rotation)
       state.hasDefinitionChanged = true
     })
   },
@@ -385,7 +365,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   rotateYClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], Math.PI / 2).mul(state.rotation)
-      state.rotation = calibrateRotation(state.rotation)
       state.hasDefinitionChanged = true
     })
   },
@@ -393,7 +372,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   rotateYAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 1, 0], -Math.PI / 2).mul(state.rotation)
-      state.rotation = calibrateRotation(state.rotation)
       state.hasDefinitionChanged = true
     })
   },
@@ -401,7 +379,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   rotateZClockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], Math.PI / 2).mul(state.rotation)
-      state.rotation = calibrateRotation(state.rotation)
       state.hasDefinitionChanged = true
     })
   },
@@ -409,7 +386,6 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   rotateZAnticlockwise: () => {
     set((state) => {
       state.rotation = Quaternion.fromAxisAngle([0, 0, 1], -Math.PI / 2).mul(state.rotation)
-      state.rotation = calibrateRotation(state.rotation)
       state.hasDefinitionChanged = true
     })
   }
