@@ -60,10 +60,10 @@ const PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP: Array<Array<LineType>> = [
 
 /** Cuboid values for the placeholder drawing definition, shapes like a `P`. */
 const PLACEHOLDER_DRAWING_DEFINITION_CUBOID_VALUES = [
-  { x: '0', y: '0', z: '0', dx: '1', dy: '5', dz: '1' },
-  { x: '1', y: '2', z: '0', dx: '3', dy: '1', dz: '1' },
-  { x: '3', y: '3', z: '0', dx: '1', dy: '1', dz: '1' },
-  { x: '1', y: '4', z: '0', dx: '3', dy: '1', dz: '1' }
+  { x: 0, y: 0, z: 0, dx: 1, dy: 5, dz: 1 },
+  { x: 1, y: 2, z: 0, dx: 3, dy: 1, dz: 1 },
+  { x: 3, y: 3, z: 0, dx: 1, dy: 1, dz: 1 },
+  { x: 1, y: 4, z: 0, dx: 3, dy: 1, dz: 1 }
 ]
 
 /**

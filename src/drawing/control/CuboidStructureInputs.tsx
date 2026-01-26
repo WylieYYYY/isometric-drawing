@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
 export type CuboidValueComponent = PositiveAxis | 'dx' | 'dy' | 'dz'
-export type CuboidValue = { [Property in CuboidValueComponent]: string }
+export type CuboidValue = { [Property in CuboidValueComponent]: number }
 
 export function CuboidStructureInputs() {
   const [
@@ -30,7 +30,7 @@ export function CuboidStructureInputs() {
           onChange={
             (event) => {
               const newCuboidValue = { ...cuboidValue }
-              newCuboidValue[value] = event.target.value
+              newCuboidValue[value] = parseInt(event.target.value)
               setCuboidValue(index, newCuboidValue)
             }
           }

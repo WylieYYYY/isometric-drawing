@@ -65,10 +65,10 @@ export function TriangularFace({ spacing, cubeLocation, startDirection, highligh
   newCubeCoordinates = rotate([newCubeCoordinates], rotation.inverse())[0]
 
   const cuboidValue = {
-    x: newCubeCoordinates.x.toString(),
-    y: newCubeCoordinates.y.toString(),
-    z: newCubeCoordinates.z.toString(),
-    dx: '1', dy: '1', dz: '1'
+    x: newCubeCoordinates.x,
+    y: newCubeCoordinates.y,
+    z: newCubeCoordinates.z,
+    dx: 1, dy: 1, dz: 1
   }
 
   let fill, onClickCallback

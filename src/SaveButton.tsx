@@ -30,15 +30,21 @@ async function loadCSV(file: File, setInitialDefinition: (initialDefinition: Dra
       // also allows empty lines that are not at the end
       if (line === '') continue
 
-      const coordinates = line.split(',')
-      if (coordinates.length !== 3) throw new Error(`Expected 3 coordinates, got ${coordinates.length}.`)
+      const coordinateStrings = line.split(',')
+      if (coordinateStrings.length !== 3) throw new Error(`Expected 3 coordinates, got ${coordinateStrings.length}.`)
 
-      // check but not actually use the numbers, cuboid values array expects strings
-      for (const coordinate in coordinates) {
-        if (Number.isNaN(parseInt(coordinate))) throw new Error(`Expected number as coordinate, got ${coordinate}.`)
+      const coordinates = {
+        x: parseInt(coordinateStrings[0]),
+        y: parseInt(coordinateStrings[1]),
+        z: parseInt(coordinateStrings[2])
       }
 
-      cuboidValues.push({ x: coordinates[0], y: coordinates[1], z: coordinates[2], dx: '1', dy: '1', dz: '1' })
+      // check but not actually use the numbers, cuboid values array expects strings
+      for (const coordinate of Object.values(coordinates)) {
+        if (Number.isNaN(coordinate)) throw new Error(`Expected number as coordinate, got ${coordinate}.`)
+      }
+
+      cuboidValues.push({ ...coordinates, dx: 1, dy: 1, dz: 1 })
     }
 
     setInitialDefinition({

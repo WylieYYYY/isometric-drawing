@@ -7,45 +7,49 @@
     <script type="importmap">
       {
         "imports": {
-          "react": "https://cdn.jsdelivr.net/npm/react@19.2.1/+esm",
-          "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@19.2.1/client/+esm"
+          "react": "https://esm.sh/react",
+          "react-dom/client": "https://esm.sh/react-dom/client",
+          "@react-three/drei": "https://esm.sh/@react-three/drei",
+          "@react-three/fibre": "https://esm.sh/@react-three/fiber"
         }
       }
     </script>
     <script src="https://unpkg.com/@babel/standalone@7.28.5/babel.min.js"></script>
   </head>
   <body>
-    <div id="root" style="width: 24rem; height: 12rem;"></div>
+    <div id="root"></div>
     <script type="text/babel" data-type="module">
       import React, { StrictMode, useState } from 'react'
       import { createRoot } from 'react-dom/client'
+      import { GizmoHelper, GizmoViewport, OrbitControls, OrthographicCamera } from '@react-three/drei'
+      import { Canvas } from '@react-three/fibre'
       import { DrawingProvider, IsometricViewport, OrthographicEditor, Quaternion, RotationButtons, useDrawingStore } from './isometric-drawing.js'
 
+      const cuboidValues = [
+        { x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 },
+        { x: 0, y: 1, z: 0, dx: 3, dy: 1, dz: 1 }
+      ]
+
       function MatchingTest() {
-        const cuboidValues = [
-          { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' },
-          { x: '0', y: '1', z: '0', dx: '3', dy: '1', dz: '1' }
-        ]
         const expectedRotation = Quaternion.fromEuler(3 * (Math.PI / 2), 2 * (Math.PI / 2), 1 * (Math.PI / 2))
 
         function RotationVerifier({ expectedRotation }) {
           const rotation = useDrawingStore((state) => state.rotation)
           let { w, x, y, z } = rotation
-          w = -w
           const isCorrect = expectedRotation.equals(w, x, y, z) || expectedRotation.neg().equals(w, x, y, z)
 
           return <div style={{ backgroundColor: isCorrect ? 'limegreen' : 'orange' }}>{isCorrect ? 'Correct' : 'Keep Trying'}</div>
         }
 
         return (
-          <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues, rotation: expectedRotation }}>
+          <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues }}>
             <RotationButtons />
             <RotationVerifier expectedRotation={expectedRotation} />
             <div style={{ display: 'flex' }}>
               <div style={{ width: '10rem', height: '10rem', border: '0.3rem solid black' }}>
                 <IsometricViewport size={{ width: '10rem', height: '10rem', viewBox: '-4 -4 8 8'}} />
               </div>
-              <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues }}>
+              <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues, rotation: expectedRotation }}>
                 <div style={{ width: '10rem', height: '10rem', border: '0.3rem solid black' }}>
                   <IsometricViewport size={{ width: '100%', height: '100%' }} />
                 </div>
@@ -67,6 +71,39 @@
         return <OrthographicEditor map={map} setMap={setMap} />
       }
 
+      function ThreeDimensionalViewerTest() {
+        const cuboidValues = useDrawingStore((state) => state.cuboidValues)
+        const rotation = useDrawingStore((state) => state.rotation)
+
+        const [isShowing, setIsShowing] = useState(false)
+
+        return isShowing ? (
+          <Canvas camera={{ zoom: 40 }} orthographic={true} frameloop='demand'>
+            <GizmoHelper alignment='bottom-right'>
+              <GizmoViewport axisColors={['red', 'green', 'blue']} labelColor='black' />
+            </GizmoHelper>
+            <gridHelper />
+            <OrbitControls />
+            {
+              cuboidValues.map(({ x, y, z, dx, dy, dz }, index) => (
+                <mesh position={rotation.rotateVector([x + 0.5, y + 0.5, z + 0.5])} key={index}>
+                  <boxGeometry args={[dx, dy, dz]} />
+                  <meshNormalMaterial />
+                </mesh>
+              ))
+            }
+          </Canvas>
+        ) : (
+          <>
+            <p>
+              This demo requires WebGL, which is enabled by default in most browser.
+              Please check if WebGL is enabled if the demo does not appear after clicking "Show".
+            </p>
+            <button onClick={() => setIsShowing(true)}>Show</button>
+          </>
+        )
+      }
+
       createRoot(document.getElementById('root')).render(
         <StrictMode>
           <h1>Embedded Isometric Drawing Demo</h1>
@@ -79,6 +116,15 @@
               <td style={{ minWidth: '15rem', border: '0.3rem solid black' }}>
                 <h5>Extended editor:</h5>
                 <EditorTest />
+              </td>
+              <td style={{ border: '0.3rem solid black' }}>
+                <h5>Three Dimensional Viewer:</h5>
+                <DrawingProvider initialDefinition={{ cuboidValues }}>
+                  <RotationButtons />
+                  <div style={{ width: '20rem', height: '20rem' }}>
+                    <ThreeDimensionalViewerTest />
+                  </div>
+                </DrawingProvider>
               </td>
             </tr>
           </table>

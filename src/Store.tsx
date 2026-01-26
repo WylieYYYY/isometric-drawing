@@ -115,7 +115,7 @@ type Store = {
  * @returns The default isometric drawing definition.
  */
 export function defaultDrawingDefinition(index: number|null = null): DrawingDefinition {
-  const DEFAULT_CUBOID_VALUES = [{ x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }]
+  const DEFAULT_CUBOID_VALUES = [{ x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 }]
   const DEFAULT_ROTATION = new Quaternion()
 
   return {

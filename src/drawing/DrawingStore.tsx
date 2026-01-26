@@ -309,7 +309,7 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
   },
 
   cuboidValues: [
-    { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }
+    { x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 }
   ],
 
   setCuboidValues: (cuboidValues: Array<CuboidValue>) => {
@@ -318,7 +318,7 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
     })
   },
 
-  newCuboidValue: (cuboidValue: CuboidValue = { x: '0', y: '0', z: '0', dx: '1', dy: '1', dz: '1' }) => {
+  newCuboidValue: (cuboidValue: CuboidValue = { x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 }) => {
     set((state) => {
       state.cuboidValues.push(cuboidValue)
       state.hasDefinitionChanged = true
@@ -425,7 +425,7 @@ export function DrawingProvider({ initialDefinition, children }: PropsWithChildr
       // removing cuboid support removes the need for marshalling
       const cubeLocations = cubeLocationFromCuboidValues(cuboidValues)
       const rotatedCuboidValues = rotate(cubeLocations, rotation)
-          .map(({ x, y, z }) => ({ x: x.toString(), y: y.toString(), z: z.toString(), dx: '1', dy: '1', dz: '1' }))
+          .map(({ x, y, z }) => ({ x, y, z, dx: 1, dy: 1, dz: 1 }))
       setCuboidValues(rotatedCuboidValues)
 
       // setting the drawing index must be last as this defines whether

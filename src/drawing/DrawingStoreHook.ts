@@ -5,8 +5,6 @@ import type { CubeLocation } from './../Store.tsx'
 import { createContext, useContext } from 'react'
 import { useStore } from 'zustand'
 
-type CuboidNumberValue = { [Property in keyof CuboidValue]: number }
-
 /** Context that a drawing provider provides, should only be used in drawing providers and hooks. */
 export const DrawingContext = createContext<StoreApi<DrawingStore>|null>(null)
 
@@ -19,11 +17,9 @@ export function cubeLocationFromCuboidValues(cuboidValues: Array<CuboidValue>): 
   const cubeLocations = []
 
   for (const [cuboidIndex, cuboidValue] of cuboidValues.entries()) {
-    const parsedCuboidValue: Record<string, number> = {}
-    for (const [key, value] of Object.entries(cuboidValue)) parsedCuboidValue[key] = parseInt(value)
-    if (Object.values(parsedCuboidValue).some(isNaN)) continue
+    if (Object.values(cuboidValue).some(isNaN)) continue
 
-    const { x, y, z, dx, dy, dz } = parsedCuboidValue as CuboidNumberValue
+    const { x, y, z, dx, dy, dz } = cuboidValue
 
     for (let currentDx = 0; currentDx !== dx; currentDx += Math.sign(dx)) {
       for (let currentDy = 0; currentDy !== dy; currentDy += Math.sign(dy)) {
