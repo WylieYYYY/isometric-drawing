@@ -1,6 +1,7 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
+/** Checkboxes to toggle isometric views preference. */
 export function IsometricControls() {
   const [
     shouldCropIsometricViewport,

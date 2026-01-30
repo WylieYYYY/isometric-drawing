@@ -1,6 +1,12 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
+/**
+ * Checkboxes to toggle orthographic preference.
+ * If the orthographic views should be split,
+ * grid is hidden and structure must be shown
+ * since the alternatives are not implemented.
+ */
 export function OrthographicControls() {
   const [
     shouldSplitOrthographicViewsAsThree,

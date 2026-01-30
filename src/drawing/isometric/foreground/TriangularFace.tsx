@@ -7,9 +7,16 @@ import { useStore } from './../../../Store.tsx'
 import { hexToPixel, rotate } from './../../../util.ts'
 
 type TriangularFaceProps = {
+  /** Spacing as specified in react-hexgrid. */
   spacing: number
+  /** Cuboid index for deletion, coordinates for offseting drawing and creating new cubes. */
   cubeLocation: CubeLocation
+  /**
+   * Triangular face spans two directions around the cube.
+   * Yields the other direction with (startDirection + 1) % 6.
+   */
   startDirection: Direction
+  /* Map of face axis to what kind of highlighting is applied to that face. */
   highlightedCubeFaceMap: Record<PositiveAxis, HighlightKind|null>
 }
 

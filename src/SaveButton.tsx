@@ -8,7 +8,15 @@ import { openDownloadPopup } from './export.tsx'
 import { rotate } from './util.ts'
 
 type SaveButtonProps = {
+  /**
+   * Function to set the main viewport drawing.
+   * @param initialDefinition - The new value, used for loading.
+   */
   setInitialDefinition: (initialDefinition: DrawingDefinition) => void
+  /**
+   * Function to set the URL for the download anchor.
+   * @param downloadUrl - The new value, used for saving.
+   */
   setDownloadUrl: (downloadUrl: string) => void
 }
 

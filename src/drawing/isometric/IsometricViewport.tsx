@@ -9,7 +9,15 @@ import { IsometricStructure } from './foreground/IsometricStructure.tsx'
 import { directionalHex, hexToPixel, rotate, updateMinMax } from './../../util.ts'
 
 export type IsometricViewportProps = {
+  /**
+   * Viewport will have undefined size if not cropped,
+   * otherwise the size will be derived automatically if any attributes in size is missing.
+   */
   canHaveUndefinedSize?: boolean
+  /**
+   * Size of the viewport, by default it is derived from an automatically determined view box.
+   * To fit parent container, set width and height to '100%'.
+   */
   size?: {
     width?: number | string
     height?: number | string
@@ -17,6 +25,7 @@ export type IsometricViewportProps = {
   }
 }
 
+/** Represents the parameters of an SVG view box. */
 type ViewBox = {
   x: number
   y: number

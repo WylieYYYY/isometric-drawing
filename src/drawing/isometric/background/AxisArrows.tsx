@@ -4,8 +4,16 @@ import { useDrawingStore } from './../../DrawingStoreHook.ts'
 import { directionalHex, hexToPixel } from './../../../util.ts'
 
 type AxisArrowsProps = {
+  /** Spacing as specified in react-hexgrid. */
   spacing: number
+  /** Coordinates that are occupied by cubes. */
   coordinates: Array<Coordinates>
+  /**
+   * Coordinates are to be interpreted axis by axis separately,
+   * so the real coordinates represented here are: (x, 0, 0), (0, y, 0) and (0, 0, z).
+   * These coordinates represent the bounds of the structure visually,
+   * where the axis arrows should begin to end.
+   */
   axisEndCoordinates: Coordinates
 }
 

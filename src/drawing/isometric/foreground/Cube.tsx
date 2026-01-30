@@ -7,9 +7,13 @@ import { isCubeFaceHighlighted, useStore } from './../../../Store.tsx'
 import { TriangularFace } from './TriangularFace.tsx'
 
 type CubeProps = {
+  /** Spacing as specified in react-hexgrid. */
   spacing: number
+  /** Axes of faces to be culled, allows negative axis as back face also determines the outlines. */
   cullFaces: Array<Axis>
+  /** Axes parallel to L-edges to be unculled, L-edges must be facing viewer. */
   uncullLEdges: Array<PositiveAxis>
+  /** Directions of the rhombuses to be culled. */
   cullObscured: Array<Direction>
 } & CubeLocation
 

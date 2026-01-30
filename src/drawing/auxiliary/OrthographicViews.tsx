@@ -4,6 +4,11 @@ import { OrthographicView } from './OrthographicView.tsx'
 import { rotate, updateMinMax } from './../../util.ts'
 
 export type OrthographicViewsProps = {
+  /**
+   * Whether the orthographic views are split to three different SVGs if the
+   * store specifies a split. This is useful for display as the split variant
+   * does not layout its images. Defaults to false.
+   */
   isSplittable?: boolean
 }
 

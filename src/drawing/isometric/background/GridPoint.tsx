@@ -2,8 +2,11 @@ import type { Hex } from 'react-hexgrid'
 import { hexToPixel } from './../../../util.ts'
 
 type GridPointProps = {
+  /** Hex as specified in react-hexgrid. */
   hex: Hex
+  /** Spacing as specified in react-hexgrid. */
   spacing: number
+  /** Radius of the grid point. */
   radius: number
 }
 

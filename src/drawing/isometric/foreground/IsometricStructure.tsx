@@ -7,7 +7,9 @@ export type Axis = PositiveAxis | '-x' | '-y' | '-z'
 export type Coordinates = { [Property in PositiveAxis]: number }
 
 type IsometricStructureProps = {
+  /** Locations that are occupied by cubes. */
   cubeLocations: Array<CubeLocation>
+  /** Spacing as specified in react-hexgrid. */
   spacing: number
 }
 

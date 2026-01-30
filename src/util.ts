@@ -3,6 +3,7 @@ import type { SVGAttributes } from 'react'
 import type { Coordinates, Direction, PositiveAxis } from './drawing/isometric/foreground/IsometricStructure.tsx'
 import { Hex, HexUtils } from 'react-hexgrid'
 
+/** Coordinates that have extra keys which are ignored by the functions operating on them. */
 type CoordinatesLike = Coordinates & Record<string | number | symbol, unknown>
 
 /**

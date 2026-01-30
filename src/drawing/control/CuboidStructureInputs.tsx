@@ -2,9 +2,15 @@ import type { PositiveAxis } from './../isometric/foreground/IsometricStructure.
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
+/** Cuboid value keys that include sizes alongside coordinates. */
 export type CuboidValueComponent = PositiveAxis | 'dx' | 'dy' | 'dz'
+/** Cuboid value is an object with valid keys paired with numbers. */
 export type CuboidValue = { [Property in CuboidValueComponent]: number }
 
+/**
+ * Text input for entering cuboid values manually.
+ * If NaN is displayed, fully select the text `NaN` and type a number to continue.
+ */
 export function CuboidStructureInputs() {
   const [
     cuboidValues,

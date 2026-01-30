@@ -4,7 +4,15 @@ import { useDrawingStore } from './DrawingStoreHook.ts'
 import { defaultDrawingDefinition, useStore } from './../Store.tsx'
 
 type StoreDrawingControlsProps = {
+  /**
+   * Function to set the main viewport drawing.
+   * @param initialDefinition - The new value, used for "Open / Manage".
+   */
   setInitialDefinition: (initialDefinition: DrawingDefinition) => void
+  /**
+   * Function to set whether the drawing dialog is opened.
+   * @param initialDefinition - The new value, used for "Open / Manage".
+   */
   setIsDrawingsDialogOpen: (isDrawingsDialogOpen: boolean) => void
 }
 

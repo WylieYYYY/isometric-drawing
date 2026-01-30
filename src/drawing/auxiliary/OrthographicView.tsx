@@ -5,9 +5,13 @@ import { coordinatesMap, joinedEndsSVGLineCoordinatesProps } from './../../util.
 type LineType = 'solid' | 'dashed' | 'none'
 
 type OrthographicViewProps = {
+  /** Relative direction of the viewer, where the viewer is looking from. */
   from: PositiveAxis
+  /** Coordinates that are occupied. */
   coordinates: Array<Coordinates>
+  /** offset from origin in the X direction of the resulting SVG elements, used for combining views. */
   offsetX: number
+  /** offset from origin in the Y direction of the resulting SVG elements, used for combining views. */
   offsetY: number
 }
 
