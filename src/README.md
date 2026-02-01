@@ -1,8 +1,11 @@
-# Isometric Drawing Toolkit
+Isometric Drawing Toolkit is an API that provides components that manipulate and
+display isometric drawings from a 3-dimensional definition. The store backing
+the components are exposed via a React hook `useDrawingStore` which can be used
+to create custom extensions.
 
 ## API Overview
 
-A basic example of using it in React is as follows:
+A basic example of using the toolkit in React is as follows:
 
 ```html
 <DrawingProvider>
@@ -10,6 +13,19 @@ A basic example of using it in React is as follows:
   <IsometricViewport />
 </DrawingProvider>
 ```
+
+If React is not the framework of choice, the library can be embedded along with
+React on a static HTML page. Please see the
+[minimal HTML template](./../embed/template.html).
+
+Remember to place the Javascript library `isometric-drawing.js` alongside
+the HTML page.
+[Prebuilt Javascript library](./../dist/embed/isometric-drawing.js) is available
+for convenience.
+
+The template can alternatively be found under `embed/template.html` in the
+repository. The Javascript library can be built locally with
+`npm run build:lib` and then be found in `dist/embed/isometric-drawing.js`.
 
 ### Top-level Components
 

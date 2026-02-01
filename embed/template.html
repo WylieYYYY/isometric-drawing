@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react",
+          "react-dom/client": "https://esm.sh/react-dom/client"
+        }
+      }
+    </script>
+    <script src="https://unpkg.com/@babel/standalone@7.28.5/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root" style="width: 20rem; height: 20rem;"></div>
+    <script type="text/babel" data-type="module">
+      import React from 'react'
+      import { createRoot } from 'react-dom/client'
+      import { DrawingProvider, IsometricViewport, RotationButtons } from './isometric-drawing.js'
+
+      // for new components, store for all drawing definition and preference data can be accessed
+      // using the `useDrawingStore` hook from './isometric-drawing.js'.
+
+      createRoot(document.getElementById('root')).render(
+        <DrawingProvider>
+          <RotationButtons />
+          <IsometricViewport size={{ width: '100%', height: '100%' }} />
+        </DrawingProvider>
+      )
+    </script>
+  </body>
+</html>

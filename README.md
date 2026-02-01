@@ -2,6 +2,10 @@
 [![pipeline status](https://gitlab.com/WylieYYYY/isometric-drawing/badges/master/pipeline.svg)](https://gitlab.com/WylieYYYY/isometric-drawing/commits/master)  
 Isometric Drawing is a tool for creating isometric drawings by defining the isometric structure.
 It uses a 2.5-dimensional perspective and attempts to mimic the drawing style on physical grid paper.
+The tool is available at [https://wylieyyyy.gitlab.io/isometric-drawing](https://wylieyyyy.gitlab.io/isometric-drawing).
+
+It is implemented with Isometric Drawing Toolkit, please see the associated
+[README](./src/README.md) document for more detail.
 
 #### Screenshots
 ![Example Interface Screenshot](screenshot-interface.png "Example Interface Screenshot")
@@ -22,6 +26,3 @@ It uses a 2.5-dimensional perspective and attempts to mimic the drawing style on
 
 To build a static site, replace the last step with `npm run build`
 and the static site content will be built in the `dist` directory.
-
-To build an embedded library, use `npm run build:lib` instead.
-Files in the `embed` directory will also be copied over as a usage example.
