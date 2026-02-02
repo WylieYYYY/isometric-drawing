@@ -1,5 +1,5 @@
 import type { Coordinates, Direction, PositiveAxis } from './foreground/IsometricStructure.tsx'
-import type { CubeLocation } from './../../Store.tsx'
+import type { CubeLocation, HighlightKind } from './../../Store.tsx'
 import { GridGenerator, Hex, HexGrid, Layout } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
 import { AxisArrows } from './background/AxisArrows.tsx'
@@ -9,6 +9,8 @@ import { IsometricStructure } from './foreground/IsometricStructure.tsx'
 import { directionalHex, hexToPixel, rotate, updateMinMax } from './../../util.ts'
 
 export type IsometricViewportProps = {
+  /** Current highlighting, `cuboid` for delete action, `face` for build action. Defaults to `face`. */
+  highlightKind?: HighlightKind
   /**
    * Viewport will have undefined size if not cropped,
    * otherwise the size will be derived automatically if any attributes in size is missing.
@@ -99,7 +101,7 @@ function autoViewBox(spacing: number, axisEndCoordinates: Coordinates, cubeLocat
  * Handles the sizing of the drawing area and background features.
  * Main drawing is handled by the structure component.
  */
-export function IsometricViewport({ canHaveUndefinedSize, size }: IsometricViewportProps) {
+export function IsometricViewport({ highlightKind, canHaveUndefinedSize, size }: IsometricViewportProps) {
   const [
     shouldCropIsometricViewport,
     shouldShowIsometricGrid,
@@ -158,7 +160,15 @@ export function IsometricViewport({ canHaveUndefinedSize, size }: IsometricViewp
             />
           ) : null
         }
-        {shouldShowIsometricStructure ? <IsometricStructure spacing={4} cubeLocations={cubeLocations} /> : null}
+        {
+          shouldShowIsometricStructure ? (
+            <IsometricStructure
+              highlightKind={highlightKind ?? 'face'}
+              spacing={4}
+              cubeLocations={cubeLocations}
+            />
+          ) : null
+        }
       </Layout>
     </HexGrid>
   )

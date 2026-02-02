@@ -7,6 +7,8 @@ import { useStore } from './../../../Store.tsx'
 import { hexToPixel, rotate } from './../../../util.ts'
 
 type TriangularFaceProps = {
+  /** Current highlighting, `cuboid` for delete action, `face` for build action. */
+  highlightKind: HighlightKind
   /** Spacing as specified in react-hexgrid. */
   spacing: number
   /** Cuboid index for deletion, coordinates for offseting drawing and creating new cubes. */
@@ -24,14 +26,10 @@ type TriangularFaceProps = {
  * Represents half of a face of an isometric cube, the triangles are radial from the center of the cube's hex origin.
  * This allows culling by removing and adding triangular faces without calculating the unobscured face vertices manually.
  */
-export function TriangularFace({ spacing, cubeLocation, startDirection, highlightedCubeFaceMap }: TriangularFaceProps) {
-  const [
-    supportsHover,
-    highlightKind
-  ] = useStore(useShallow((state) => [
-    state.supportsHover,
-    state.highlightKind
-  ]))
+export function TriangularFace({ highlightKind, spacing, cubeLocation, startDirection, highlightedCubeFaceMap }: TriangularFaceProps) {
+  // using the store here is okay as `supportsHover` defaults to true
+  // it stays true if there is no application controlling it
+  const supportsHover = useStore((state) => state.supportsHover)
   const [
     highlightCubeFace,
     unhighlightCubeFace,

@@ -60,17 +60,6 @@ type Store = {
   setSupportsHover: (supportsHover: boolean) => void
 
   /**
-   * Kind of highlighting applied if there is currently any highlighting.
-   * Whether anything is highlighted is determined by the drawing store, not here.
-   */
-  highlightKind: HighlightKind
-  /**
-   * Sets the kind of highlighting applied if there is currently any highlighting.
-   * @param highlightKind - The new kind.
-   */
-  setHighlightKind: (highlightKind: HighlightKind) => void
-
-  /**
    * The definitions array.
    * Definitions are set to null when deleted rather than removed to preserve indices.
    */
@@ -186,14 +175,6 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
   setSupportsHover: (supportsHover: boolean) => {
     set((state) => {
       state.supportsHover = supportsHover
-    })
-  },
-
-  highlightKind: 'face',
-
-  setHighlightKind: (highlightKind: HighlightKind) => {
-    set((state) => {
-      state.highlightKind = highlightKind
     })
   },
 

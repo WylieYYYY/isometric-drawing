@@ -1,4 +1,4 @@
-import type { CubeLocation } from './../../../Store.tsx'
+import type { CubeLocation, HighlightKind } from './../../../Store.tsx'
 import { Cube } from './Cube.tsx'
 
 /** Direction on a hexagonal grid, 0 is bottom right, increment by 1 for every anticlockwise turn. */
@@ -11,6 +11,8 @@ export type Axis = PositiveAxis | '-x' | '-y' | '-z'
 export type Coordinates = { [Property in PositiveAxis]: number }
 
 type IsometricStructureProps = {
+  /** Current highlighting, `cuboid` for delete action, `face` for build action. */
+  highlightKind: HighlightKind
   /** Locations that are occupied by cubes. */
   cubeLocations: Array<CubeLocation>
   /** Spacing as specified in react-hexgrid. */
@@ -65,7 +67,7 @@ function getObscureDirection(x: number, y: number, z: number): Direction|null {
  * Represents a structure that is made out of isometric cubes.
  * This coordinates multi-cube rendering.
  */
-export function IsometricStructure({ spacing, cubeLocations }: IsometricStructureProps) {
+export function IsometricStructure({ highlightKind, spacing, cubeLocations }: IsometricStructureProps) {
   const cubes = []
 
   // can be optimized by ranking the cube by proximity to viewer first and eliminating cubes as it goes
@@ -113,6 +115,7 @@ export function IsometricStructure({ spacing, cubeLocations }: IsometricStructur
 
     cubes.push(
       <Cube
+        highlightKind={highlightKind}
         cuboidIndex={cuboidIndex}
         x={x} y={y} z={z}
         spacing={spacing}

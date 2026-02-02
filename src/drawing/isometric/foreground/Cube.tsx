@@ -3,10 +3,12 @@ import type { CubeLocation, HighlightKind } from './../../../Store.tsx'
 import { Hex, HexUtils, Path } from 'react-hexgrid'
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../../DrawingStoreHook.ts'
-import { isCubeFaceHighlighted, useStore } from './../../../Store.tsx'
+import { isCubeFaceHighlighted } from './../../../Store.tsx'
 import { TriangularFace } from './TriangularFace.tsx'
 
 type CubeProps = {
+  /** Current highlighting, `cuboid` for delete action, `face` for build action. */
+  highlightKind: HighlightKind
   /** Spacing as specified in react-hexgrid. */
   spacing: number
   /** Axes of faces to be culled, allows negative axis as back face also determines the outlines. */
@@ -66,8 +68,7 @@ function shouldCull(
  * Contains culling properties that facilitates multi-cube rendering,
  * they should be precomputed by the owner of multiple cubes, like an isometric structure.
  */
-export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
-  const highlightKind = useStore((state) => state.highlightKind)
+export function Cube({ highlightKind, cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, cullObscured }: CubeProps) {
   const [
     isInteractive,
     highlightedTarget
@@ -108,6 +109,7 @@ export function Cube({ cuboidIndex, x, y, z, spacing, cullFaces, uncullLEdges, c
 
     faces.push(
       <TriangularFace
+        highlightKind={highlightKind}
         spacing={spacing}
         cubeLocation={{ cuboidIndex, x, y, z }}
         startDirection={startDirection as Direction}

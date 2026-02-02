@@ -20,11 +20,11 @@
   <body>
     <div id="root"></div>
     <script type="text/babel" data-type="module">
-      import React, { StrictMode, useRef, useState } from 'react'
+      import React, { StrictMode, useLayoutEffect, useRef, useState } from 'react'
       import { createRoot } from 'react-dom/client'
       import { GizmoHelper, GizmoViewport, OrbitControls, OrthographicCamera } from '@react-three/drei'
       import { Canvas, useFrame } from '@react-three/fibre'
-      import { Quaternion as ThreeJsQuaternion } from 'three'
+      import { Matrix4, Quaternion as ThreeJsQuaternion } from 'three'
       import { DrawingProvider, IsometricViewport, OrthographicEditor, Quaternion, RotationButtons, useDrawingStore } from './isometric-drawing.js'
 
       const cuboidValues = [
@@ -76,6 +76,33 @@
       function ThreeDimensionalViewerTest() {
         const [isShowing, setIsShowing] = useState(false)
 
+        function GridPoints() {
+          const meshRef = useRef()
+
+          const cuboidValues = useDrawingStore((state) => state.cuboidValues)
+
+          useLayoutEffect(() => {
+            let i = 0
+
+            for (let x = -5; x <= 5; x++) {
+              for (let y = -5; y <= 5; y++) {
+                for (let z = -5; z <= 5; z++) {
+                  const matrix = new Matrix4()
+                  matrix.setPosition(x, y, z)
+                  meshRef.current.setMatrixAt(i++, matrix)
+                }
+              }
+            }
+          }, [])
+
+          return (
+            <instancedMesh ref={meshRef} args={[null, null, 11 * 11 * 11]}>
+              <sphereGeometry args={[0.05, 16, 8]} />
+              <meshBasicMaterial color='black' opacity={0.2} transparent={true} />
+            </instancedMesh>
+          )
+        }
+
         function GroupObject() {
           const objectRef = useRef()
 
@@ -89,30 +116,53 @@
             objectRef.current.quaternion.rotateTowards(threeJsRotation, Math.PI / 30)
           })
 
+          function CubeOutlines({ x, y, z }) {
+            const outlines = []
+            for (let shifts = 0; shifts < 3; shifts++) {
+              for (let combination = 0; combination < 4; combination++) {
+                const offsets = [0.5, combination % 2, Math.floor(combination / 2)]
+
+                const sizes = [0.05, 0.05, 0.05]
+                sizes[(3 - shifts) % 3] = 1
+
+                outlines.push(
+                  <mesh position={[x + offsets[shifts], y + offsets[(shifts + 1) % 3], z + offsets[(shifts + 2) % 3]]}>
+                    <boxGeometry args={sizes} />
+                    <meshBasicMaterial color='black' />
+                  </mesh>
+                )
+              }
+            }
+            return <>{outlines}</>
+          }
+
           return (
             <object3D ref={objectRef}>
               {
                 cuboidValues.map((cuboidValue, index) => {
                   const { x, y, z, dx, dy, dz } = cuboidValue
                   return (
-                    <mesh
-                      position={[x + 0.5, y + 0.5, z + 0.5]}
-                      onClick={
-                        (event) => {
-                          const { normal, object: { position } } = event
-                          newCuboidValue({
-                            x: position.x + normal.x - 0.5,
-                            y: position.y + normal.y - 0.5,
-                            z: position.z + normal.z - 0.5,
-                            dx: 1, dy: 1, dz: 1
-                          })
-                          event.stopPropagation()
+                    <>
+                      <mesh
+                        position={[x + 0.5, y + 0.5, z + 0.5]}
+                        onClick={
+                          (event) => {
+                            const { normal, object: { position } } = event
+                            newCuboidValue({
+                              x: position.x + normal.x - 0.5,
+                              y: position.y + normal.y - 0.5,
+                              z: position.z + normal.z - 0.5,
+                              dx: 1, dy: 1, dz: 1
+                            })
+                            event.stopPropagation()
+                          }
                         }
-                      }
-                    >
-                      <boxGeometry args={[dx, dy, dz]} />
-                      <meshNormalMaterial />
-                    </mesh>
+                      >
+                        <boxGeometry args={[dx, dy, dz]} />
+                        <meshBasicMaterial color='white' />
+                      </mesh>
+                      <CubeOutlines x={x} y={y} z={z} />
+                    </>
                   )
                 })
               }
@@ -125,13 +175,14 @@
             <RotationButtons />
             <div style={{ display: 'flex', width: '40rem', height: '20rem' }}>
               <div style={{ width: '20rem', height: '20rem' }}>
-                <Canvas camera={{ position: [10, 10, 10], zoom: 40 }} orthographic={true}>
+                <Canvas camera={{ position: [10, 10, 10], zoom: 40 }} orthographic={true} linear flat>
+                  <gridHelper />
+                  <OrbitControls />
+                  <GridPoints />
+                  <GroupObject />
                   <GizmoHelper alignment='bottom-right'>
                     <GizmoViewport axisColors={['red', 'green', 'blue']} labelColor='black' />
                   </GizmoHelper>
-                  <gridHelper />
-                  <OrbitControls />
-                  <GroupObject />
                 </Canvas>
               </div>
               <IsometricViewport size={{ width: '20rem', height: '20rem' }} />

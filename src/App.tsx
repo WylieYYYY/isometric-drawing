@@ -1,3 +1,4 @@
+import type { HighlightKind } from './Store.tsx'
 import { useCallback, useEffect, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
@@ -21,15 +22,13 @@ import { defaultDrawingDefinition, useStore } from './Store.tsx'
 function App() {
   const [
     setSupportsHover,
-    highlightKind,
-    setHighlightKind,
     newDefinition
   ] = useStore(useShallow((state) => [
     state.setSupportsHover,
-    state.highlightKind,
-    state.setHighlightKind,
     state.newDefinition
   ]))
+
+  const [highlightKind, setHighlightKind] = useState<HighlightKind>('face')
 
   const keyDownCallback = useCallback((event: KeyboardEvent) => {
     if (event.repeat || (event.key !== 'd' && event.code !== 'Delete')) return
@@ -151,7 +150,11 @@ function App() {
           <TransformWrapper centerOnInit={true} initialScale={8}>
             <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-                <IsometricViewport canHaveUndefinedSize={false} size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}} />
+                <IsometricViewport
+                  highlightKind={highlightKind}
+                  canHaveUndefinedSize={false}
+                  size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}}
+                />
               </div>
             </TransformComponent>
           </TransformWrapper>
@@ -163,9 +166,22 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
             <RotationButtons />
           </div>
-          <DrawingsDialog isOpen={isDrawingsDialogOpen} setIsOpen={setIsDrawingsDialogOpen} setInitialDefinition={setAppInitialDefinition} setOrthographicEditorDefinitionIndex={setOrthographicEditorDefinitionIndex} />
-          <ExportDialog isOpen={isExportDialogOpen} setIsOpen={setIsExportDialogOpen} setDownloadUrl={setDownloadUrl} />
-          <OrthographicEditorDialog definitionIndex={orthographicEditorDefinitionIndex} setDefinitionIndex={setOrthographicEditorDefinitionIndex} setDownloadUrl={setDownloadUrl} />
+          <DrawingsDialog
+            isOpen={isDrawingsDialogOpen}
+            setIsOpen={setIsDrawingsDialogOpen}
+            setInitialDefinition={setAppInitialDefinition}
+            setOrthographicEditorDefinitionIndex={setOrthographicEditorDefinitionIndex}
+          />
+          <ExportDialog
+            isOpen={isExportDialogOpen}
+            setIsOpen={setIsExportDialogOpen}
+            setDownloadUrl={setDownloadUrl}
+          />
+          <OrthographicEditorDialog
+            definitionIndex={orthographicEditorDefinitionIndex}
+            setDefinitionIndex={setOrthographicEditorDefinitionIndex}
+            setDownloadUrl={setDownloadUrl}
+          />
         </section>
       </main>
     </DrawingProvider>
