@@ -4,7 +4,7 @@ import type { Coordinates, Direction, PositiveAxis } from './drawing/isometric/f
 import { Hex, HexUtils } from 'react-hexgrid'
 
 /** Coordinates that have extra keys which are ignored by the functions operating on them. */
-type CoordinatesLike = Coordinates & Record<string | number | symbol, unknown>
+export type CoordinatesLike = Coordinates & Record<string | number | symbol, unknown>
 
 /**
  * Updates an accumulator of minimum and maximum values with a new value in place.

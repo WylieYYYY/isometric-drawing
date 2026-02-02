@@ -1,9 +1,13 @@
 import type { CubeLocation } from './../../../Store.tsx'
 import { Cube } from './Cube.tsx'
 
+/** Direction on a hexagonal grid, 0 is bottom right, increment by 1 for every anticlockwise turn. */
 export type Direction = 0 | 1 | 2 | 3 | 4 | 5
+/** Positive axis labels in 3-dimensional space. */
 export type PositiveAxis = 'x' | 'y' | 'z'
+/** Positive and negative axis labels in 3-dimensional space. */
 export type Axis = PositiveAxis | '-x' | '-y' | '-z'
+/** Coordinates with 3-dimensional axes. */
 export type Coordinates = { [Property in PositiveAxis]: number }
 
 type IsometricStructureProps = {

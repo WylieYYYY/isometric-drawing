@@ -9,7 +9,7 @@ A basic example of using the toolkit in React is as follows:
 
 ```html
 <DrawingProvider>
-  <RotationButton />
+  <RotationButtons />
   <IsometricViewport />
 </DrawingProvider>
 ```
@@ -29,14 +29,18 @@ repository. The Javascript library can be built locally with
 
 ### Top-level Components
 
+All components exposed in the API are top-level components. They requires a
+drawing provider as described in the next section. (`OrthographicEditor` is an
+exception that does not need a provider)
+
 Top-level components are components that do not expect an external controller.
 For example, although the cube component can display a cube on its own, its
 parameters expect the user to tell it what elements to cull. And so it is not a
 top-level component.
 
-Top-level drawing components are listed in `lib.tsx` which are available for
-embedding. Dialogs and controls within the `dialog` directory are also top-
-level.
+Within the repository, top-level drawing components are listed in `lib.tsx`
+which are exposed in the API. Dialogs and controls within the `dialog` directory
+are also top-level but they are only for internal use.
 
 ### Drawing Provider
 
@@ -44,8 +48,9 @@ The drawing provider tag provides a new drawing store for its child elements.
 For example, if an isometric viewport is under the same provider as a coded
 plan, the structure they refer to will be the same.
 
-Components in the `drawing` directory require a drawing store, so any component
-that resides there should have a drawing provider parent, direct or indirect.
+In the repository, components in the `drawing` directory require a drawing
+store, so any component that resides there should have a drawing provider
+parent, direct or indirect.
 
 An initial definition can be set for the provider, user is free to manipulate
 the drawing afterwards, the changes will not be written back to the definition.
@@ -71,7 +76,10 @@ contains a drawing provider to display their own drawing.
 #### Definitions
 
 Definition is an object that is stored for a drawing, it excludes ephemeral
-states. It is tagged with a drawing kind when in storage, tagged definitions and
+states. Within the API, initial definition will be populated with a default if
+some attributes are not present.
+
+It is tagged with a drawing kind when in storage, tagged definitions and
 untagged definitions are both called `definition` in the code base.
 
 There are two kinds of definitions:

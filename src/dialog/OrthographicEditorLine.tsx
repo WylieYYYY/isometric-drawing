@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useStore } from './../Store.tsx'
 import { joinedEndsSVGLineCoordinatesProps } from './../util.ts'
 
+/** Line types for orthographic editor, 0 is blank, 1 is solid, 2 is dashed. */
 export type LineType = 0 | 1 | 2
 
 type OrthographicEditorLineProps = {

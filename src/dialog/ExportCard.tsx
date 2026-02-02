@@ -18,6 +18,7 @@ import { OrthographicViews } from './../drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './../drawing/control/RotationButtons.tsx'
 import { useStore } from './../Store.tsx'
 
+/** Drawing kinds that have different preference and displays in export cards. */
 export type DrawingKind = 'isometric' | 'coded-plan' | 'orthographic' | 'orthographic-editor'
 
 export type ExportCardProps = {

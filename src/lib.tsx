@@ -35,3 +35,35 @@ export { RotationButtons } from './drawing/control/RotationButtons.tsx'
 export { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 export { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
 export { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
+
+// additional utility exports
+export type { CoordinatesLike } from './util.ts'
+import { cubeLocationFromCuboidValues } from './drawing/DrawingStoreHook.ts'
+import { rotate, updateMinMax } from './util.ts'
+
+/** Utility functions for working with cuboid values. */
+export const Utility = {
+  /**
+   * Extracts an array of individual cube location by iterating over possible coordinates of cuboid values.
+   * @param cuboidValues - Array of cuboid values to extract coordinates from.
+   * @returns The cube locations.
+   */
+  cubeLocationFromCuboidValues,
+
+  /**
+   * Rotates coordinates with the given quaternion rotation.
+   * @param coordinates - Array of coordinates that may have auxiliary data attached to them, like a cube location.
+   * @returns The rotated array of coordinates combined with the unchanged auxiliary data.
+   */
+  rotate,
+
+  /**
+   * Updates an accumulator of minimum and maximum values with a new value in place.
+   * For example, let the accumulator be { attr1: { min: Infinity, max: -Infinity }, attr2: { min: 1, max: 9 } } and
+   * let the values be { attr1: 5, attr2: 10 }.
+   * The accumulator will then be updated to { attr1: { min: 5, max: 5 }, attr2: { min: 1, max: 10 } }.
+   * @param accMinMax - The accumulator.
+   * @param values - The new values to be compared against.
+   */
+  updateMinMax
+}

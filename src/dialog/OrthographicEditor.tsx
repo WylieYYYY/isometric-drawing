@@ -3,7 +3,18 @@ import { OrthographicEditorLine } from './OrthographicEditorLine.tsx'
 import { updateMinMax } from './../util.ts'
 
 export type OrthographicEditorProps = {
+  /**
+   * Map of lines in an orthographic drawing.
+   * Arrays of lines at odd indices represent vertical lines.
+   * Arrays of lines at even indices represent horizontal lines.
+   * Those arrays specify the lines from top to bottom.
+   * So, a 2x2 grid will have inner arrays of sizes [2, 3, 2, 3, 2].
+   */
   map: Array<Array<LineType>>
+  /**
+   * Sets the map of lines in an orthographic drawing.
+   * @param map - The new value.
+   */
   setMap?: (map: Array<Array<LineType>>) => void
 }
 

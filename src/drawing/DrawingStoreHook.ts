@@ -40,5 +40,8 @@ export function cubeLocationFromCuboidValues(cuboidValues: Array<CuboidValue>): 
  */
 export function useDrawingStore<Type>(selector: (state: DrawingStore) => Type) {
   const store = useContext(DrawingContext)
+  if (store === null) {
+    throw new ReferenceError('Missing drawing store, use drawing provider to provide one.')
+  }
   return useStore(store!, selector)
 }
