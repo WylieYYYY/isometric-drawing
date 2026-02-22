@@ -16,6 +16,9 @@ export type { CubeLocation, HighlightKind, VisibleCubeFaceLocation } from './Sto
 // re-export quaternion for convenience
 export { Quaternion } from 'quaternion'
 
+// renderers for calculating the required edges in an isometric drawing
+export * as Renderer3D from './drawing/Renderer3D.ts'
+
 // standalone editor requiring no provider
 export { OrthographicEditor } from './dialog/OrthographicEditor.tsx'
 

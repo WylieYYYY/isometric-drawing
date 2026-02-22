@@ -23,9 +23,9 @@
       import React, { StrictMode, useLayoutEffect, useRef, useState } from 'react'
       import { createRoot } from 'react-dom/client'
       import { GizmoHelper, GizmoViewport, OrbitControls, OrthographicCamera } from '@react-three/drei'
-      import { Canvas, useFrame } from '@react-three/fibre'
+      import { Canvas, useFrame, useThree } from '@react-three/fibre'
       import { Matrix4, Quaternion as ThreeJsQuaternion } from 'three'
-      import { DrawingProvider, IsometricViewport, OrthographicEditor, Quaternion, RotationButtons, useDrawingStore } from './isometric-drawing.js'
+      import { DrawingProvider, IsometricViewport, OrthographicEditor, Quaternion, Renderer3D, RotationButtons, useDrawingStore, Utility } from './isometric-drawing.js'
 
       const cuboidValues = [
         { x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 },
@@ -74,7 +74,10 @@
       }
 
       function ThreeDimensionalViewerTest() {
+        const [canvas, setCanvas] = useState()
         const [isShowing, setIsShowing] = useState(false)
+
+        const resetRotation = useDrawingStore((state) => state.resetRotation)
 
         function GridPoints() {
           const meshRef = useRef()
@@ -109,8 +112,6 @@
           const cuboidValues = useDrawingStore((state) => state.cuboidValues)
           const rotation = useDrawingStore((state) => state.rotation)
 
-          const newCuboidValue = useDrawingStore((state) => state.newCuboidValue)
-
           useFrame(() => {
             const threeJsRotation = new ThreeJsQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
             objectRef.current.quaternion.rotateTowards(threeJsRotation, Math.PI / 30)
@@ -142,29 +143,26 @@
                 cuboidValues.map((cuboidValue, index) => {
                   const { x, y, z, dx, dy, dz } = cuboidValue
                   return (
-                    <>
-                      <mesh
-                        position={[x + 0.5, y + 0.5, z + 0.5]}
-                        onClick={
-                          (event) => {
-                            const { normal, object: { position } } = event
-                            newCuboidValue({
-                              x: position.x + normal.x - 0.5,
-                              y: position.y + normal.y - 0.5,
-                              z: position.z + normal.z - 0.5,
-                              dx: 1, dy: 1, dz: 1
-                            })
-                            event.stopPropagation()
-                          }
-                        }
-                      >
-                        <boxGeometry args={[dx, dy, dz]} />
-                        <meshBasicMaterial color='white' />
-                      </mesh>
-                      <CubeOutlines x={x} y={y} z={z} />
-                    </>
+                    <mesh position={[x + 0.5, y + 0.5, z + 0.5]}>
+                      <boxGeometry args={[dx, dy, dz]} />
+                      <meshBasicMaterial color='white' />
+                    </mesh>
                   )
                 })
+              }
+              {
+                Renderer3D.calculateEdgesMap(Utility.cubeLocationFromCuboidValues(cuboidValues)).map(([start, end]) => (
+                  <mesh position={[(start.x + end.x) / 2 + 0.5, (start.y + end.y) / 2 + 0.5, (start.z + end.z) / 2 + 0.5]}>
+                    <boxGeometry
+                      args={[
+                        Math.max(Math.abs(start.x - end.x), 0.05),
+                        Math.max(Math.abs(start.y - end.y), 0.05),
+                        Math.max(Math.abs(start.z - end.z), 0.05)
+                      ]}
+                    />
+                    <meshBasicMaterial color='black' />
+                  </mesh>
+                ))
               }
             </object3D>
           )
@@ -173,9 +171,17 @@
         return isShowing ? (
           <>
             <RotationButtons />
+            <button
+              onClick={() => {
+                resetRotation()
+                canvas.camera.position.set(10, 10, 10)
+              }}
+            >
+              Reset camera
+            </button>
             <div style={{ display: 'flex', width: '40rem', height: '20rem' }}>
               <div style={{ width: '20rem', height: '20rem' }}>
-                <Canvas camera={{ position: [10, 10, 10], zoom: 40 }} orthographic={true} linear flat>
+                <Canvas camera={{ position: [10, 10, 10], zoom: 40 }} orthographic={true} linear flat onCreated={setCanvas}>
                   <gridHelper />
                   <OrbitControls />
                   <GridPoints />
@@ -216,7 +222,7 @@
               </td>
               <td style={{ border: '0.3rem solid black' }}>
                 <h5>Three Dimensional Viewer:</h5>
-                <DrawingProvider initialDefinition={{ cuboidValues }}>
+                <DrawingProvider initialDefinition={{ cuboidValues, isInteractive: false }}>
                   <ThreeDimensionalViewerTest />
                 </DrawingProvider>
               </td>
