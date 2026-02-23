@@ -1,7 +1,7 @@
 {
   "name": "isometric-drawing",
-  "private": true,
   "version": "0.0.0",
+  "description": "Isometric Drawing is a tool for creating isometric drawings by defining the isometric structure.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,16 @@
     "preview": "vite preview",
     "test": "vitest"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/WylieYYYY/isometric-drawing.git"
+  },
+  "author": "WylieYYYY",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/WylieYYYY/isometric-drawing/issues"
+  },
+  "homepage": "https://gitlab.com/WylieYYYY/isometric-drawing#readme",
   "dependencies": {
     "@zip.js/zip.js": "^2.8.8",
     "canvg": "^4.0.3",
