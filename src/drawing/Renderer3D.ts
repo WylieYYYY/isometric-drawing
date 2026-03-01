@@ -2,7 +2,7 @@ import type { Coordinates } from './isometric/foreground/IsometricStructure.tsx'
 
 /**
  * Calculates where edges should be displayed from a list of cube coordinates using a map.
- * @param reverseSortedCoordinates - List of cube coordinates.
+ * @param coordinates - List of cube coordinates.
  * @returns A generator that generates edges to be displayed, edges are represented as tuples of coordinates for start and end points.
  */
 function* calculateEdgesMap(coordinates: Array<Coordinates>): Generator<[Coordinates, Coordinates], void, number> {

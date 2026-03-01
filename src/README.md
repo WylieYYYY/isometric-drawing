@@ -27,6 +27,16 @@ The template can alternatively be found under `embed/template.html` in the
 repository. The Javascript library can be built locally with
 `npm run build:lib` and then be found in `dist/embed/isometric-drawing.js`.
 
+### Prerequisites
+
+Required:
+ - `react` in import map for the React package.
+ - `import React from 'react'` is required for the library to pick up React.
+
+Optional:
+ - `canvg` and `@zip.js/zip.js` are required in import map
+   if `ExportButton` is used.
+
 ### Top-level Components
 
 All components exposed in the API are top-level components. They requires a
@@ -101,8 +111,8 @@ in the API.
 Some user preferences affects the exported image but not the drawing on display,
 this includes cropping and image splitting. Therefore there are usually two
 displays: one hidden with all preferences applied for export and one visible for
-displaying on screen. To mark a drawing for export, `wrapWithExportContainer`
-should be used so that the CSS selector `.export-container` can be used.
+displaying on screen. To mark a drawing for export, `ExportContainer`
+should be used so that `ExportButton` can pick it up.
 
 For the drawing components, `data-export-name` attribute should be set to a
 short name on the SVG elements to be included in the file name.

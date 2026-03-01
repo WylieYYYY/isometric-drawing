@@ -1,5 +1,5 @@
 import type { HighlightKind } from './Store.tsx'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
@@ -7,7 +7,8 @@ import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
 import { CuboidStructureInputs } from './drawing/control/CuboidStructureInputs.tsx'
 import { DrawingsDialog } from './dialog/DrawingsDialog.tsx'
 import { DrawingProvider } from './drawing/DrawingStore.tsx'
-import { createExportBlob, openDownloadPopup, wrapWithExportContainer } from './export.tsx'
+import { ExportButton } from './io/ExportButton.tsx'
+import { ExportContainer } from './io/ExportContainer.tsx'
 import { ExportDialog } from './dialog/ExportDialog.tsx'
 import { IsometricControls } from './drawing/control/IsometricControls.tsx'
 import { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
@@ -15,11 +16,16 @@ import { OrthographicControls } from './drawing/control/OrthographicControls.tsx
 import { OrthographicEditorDialog } from './dialog/OrthographicEditorDialog.tsx'
 import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './drawing/control/RotationButtons.tsx'
-import { SaveButton } from './SaveButton.tsx'
+import { SaveLoadButtons } from './io/SaveLoadButtons.tsx'
 import { StoreDrawingControls } from './drawing/StoreDrawingControls.tsx'
 import { defaultDrawingDefinition, useStore } from './Store.tsx'
 
 function App() {
+  const downloadAnchorRef = useRef<HTMLAnchorElement|null>(null)
+  const isometricParentRef = useRef<HTMLDivElement|null>(null)
+  const codedPlanParentRef = useRef<HTMLDivElement|null>(null)
+  const orthographicParentRef = useRef<HTMLDivElement|null>(null)
+
   const [
     setSupportsHover,
     newDefinition
@@ -56,19 +62,21 @@ function App() {
   })
 
   const [appInitialDefinition, setAppInitialDefinition] = useState(defaultDrawingDefinition())
-  const [downloadUrl, setDownloadUrl] = useState('#')
   const [isDrawingsDialogOpen, setIsDrawingsDialogOpen] = useState(false)
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [orthographicEditorDefinitionIndex, setOrthographicEditorDefinitionIndex] = useState<number|null>(null)
 
   return (
     <DrawingProvider initialDefinition={appInitialDefinition}>
-      <a id='download' href={downloadUrl} style={{ display: 'none' }}></a>
+      <a ref={downloadAnchorRef} style={{ display: 'none' }}></a>
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-            <SaveButton setInitialDefinition={setAppInitialDefinition} setDownloadUrl={setDownloadUrl} />
+            <SaveLoadButtons
+              setInitialDefinition={setAppInitialDefinition}
+              downloadAnchor={downloadAnchorRef.current!}
+            />
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button
               onClick={
@@ -84,43 +92,50 @@ function App() {
             </button>
           </div>
           <hr />
-          <StoreDrawingControls setInitialDefinition={setAppInitialDefinition} setIsDrawingsDialogOpen={setIsDrawingsDialogOpen} />
+          <StoreDrawingControls
+            setInitialDefinition={setAppInitialDefinition}
+            setIsDrawingsDialogOpen={setIsDrawingsDialogOpen}
+          />
           <hr />
-          <div id='isometric'>
+          <div ref={isometricParentRef}>
             <label style={{ display: 'block' }}>
               Isometric Viewport:
               <span style={{ float: 'right' }}>
-                <button onClick={async () => openDownloadPopup(await createExportBlob('#isometric .export-container svg', true), setDownloadUrl)}>Export PNG</button>
-                <button onClick={async () => openDownloadPopup(await createExportBlob('#isometric .export-container svg', false), setDownloadUrl)}>Export SVG</button>
+                <ExportButton asPNG={true} containerParentRef={isometricParentRef} />
+                <ExportButton asPNG={false} containerParentRef={isometricParentRef} />
               </span>
             </label>
             <div>
               <IsometricControls />
             </div>
-            {wrapWithExportContainer(<IsometricViewport canHaveUndefinedSize={true} />, 'none')}
+            <ExportContainer display='none'>
+              <IsometricViewport canHaveUndefinedSize={true} />
+            </ExportContainer>
           </div>
           <hr style={{ visibility: 'hidden' }} />
-          <div id='coded-plan' style={{ position: 'relative', height: '30%' }}>
+          <div ref={codedPlanParentRef} style={{ position: 'relative', height: '30%' }}>
             <label style={{ display: 'block' }}>
               Coded Plan:
               <span style={{ float: 'right' }}>
-                <button onClick={async () => openDownloadPopup(await createExportBlob('#coded-plan svg', true), setDownloadUrl)}>Export PNG</button>
-                <button onClick={async () => openDownloadPopup(await createExportBlob('#coded-plan svg', false), setDownloadUrl)}>Export SVG</button>
+                <ExportButton asPNG={true} containerParentRef={codedPlanParentRef} />
+                <ExportButton asPNG={false} containerParentRef={codedPlanParentRef} />
               </span>
             </label>
             <div>
               <CodedPlanControls />
             </div>
             <div style={{ height: '80%' }}>
-              <CodedPlan />
+              <ExportContainer>
+                <CodedPlan />
+              </ExportContainer>
             </div>
           </div>
-          <div id='orthographic' style={{ position: 'relative', height: '30%' }}>
+          <div ref={orthographicParentRef} style={{ position: 'relative', height: '30%' }}>
             <label style={{ display: 'block' }}>
               Orthographic Views:
               <span style={{ float: 'right' }}>
-                <button onClick={async () => openDownloadPopup(await createExportBlob('#orthographic .export-container svg', true), setDownloadUrl)}>Export PNG</button>
-                <button onClick={async () => openDownloadPopup(await createExportBlob('#orthographic .export-container svg', false), setDownloadUrl)}>Export SVG</button>
+                <ExportButton asPNG={true} containerParentRef={orthographicParentRef} />
+                <ExportButton asPNG={false} containerParentRef={orthographicParentRef} />
               </span>
             </label>
             <div>
@@ -128,7 +143,9 @@ function App() {
             </div>
             <div style={{ height: '80%' }}>
               <OrthographicViews isSplittable={false} />
-              {wrapWithExportContainer(<OrthographicViews isSplittable={true} />, 'none')}
+              <ExportContainer display='none'>
+                <OrthographicViews isSplittable={true} />
+              </ExportContainer>
             </div>
           </div>
           <hr />
@@ -175,12 +192,11 @@ function App() {
           <ExportDialog
             isOpen={isExportDialogOpen}
             setIsOpen={setIsExportDialogOpen}
-            setDownloadUrl={setDownloadUrl}
+            downloadAnchor={downloadAnchorRef.current!}
           />
           <OrthographicEditorDialog
             definitionIndex={orthographicEditorDefinitionIndex}
             setDefinitionIndex={setOrthographicEditorDefinitionIndex}
-            setDownloadUrl={setDownloadUrl}
           />
         </section>
       </main>

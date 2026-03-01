@@ -19,7 +19,7 @@ export default defineConfig({
       name: 'isometric-drawing'
     },
     rollupOptions: {
-      external: ['react'],
+      external: ['canvg', 'react', '@zip.js/zip.js'],
       output: {
         globals: {
           react: 'React'

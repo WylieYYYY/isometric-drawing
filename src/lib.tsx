@@ -2,9 +2,12 @@
 
 // parameter types
 export type { DrawingStore, InitialDefinition } from './drawing/DrawingStore.tsx'
+export type { ExportButtonProps } from './io/ExportButton.tsx'
+export type { ExportContainerProps } from './io/ExportContainer.tsx'
 export type { IsometricViewportProps } from './drawing/isometric/IsometricViewport.tsx'
 export type { OrthographicEditorProps } from './dialog/OrthographicEditor.tsx'
 export type { OrthographicViewsProps } from './drawing/auxiliary/OrthographicViews.tsx'
+export type { SaveLoadButtonsProps } from './io/SaveLoadButtons.tsx'
 
 // transitive types
 export type { CuboidValue, CuboidValueComponent } from './drawing/control/CuboidStructureInputs.tsx'
@@ -38,6 +41,12 @@ export { RotationButtons } from './drawing/control/RotationButtons.tsx'
 export { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 export { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
 export { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
+
+// container for export targeting
+export { ExportContainer } from './io/ExportContainer.tsx'
+// controls that interact with files
+export { ExportButton } from './io/ExportButton.tsx'
+export { SaveLoadButtons } from './io/SaveLoadButtons.tsx'
 
 // additional utility exports
 export type { CoordinatesLike } from './util.ts'

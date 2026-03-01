@@ -9,7 +9,7 @@ import { CodedPlan } from './../drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './../drawing/control/CodedPlanControls.tsx'
 import { DrawingProvider } from './../drawing/DrawingStore.tsx'
 import { useDrawingStore } from './../drawing/DrawingStoreHook.ts'
-import { wrapWithExportContainer } from './../export.tsx'
+import { ExportContainer } from './../io/ExportContainer.tsx'
 import { IsometricViewport } from './../drawing/isometric/IsometricViewport.tsx'
 import { IsometricControls } from './../drawing/control/IsometricControls.tsx'
 import { OrthographicControls } from './../drawing/control/OrthographicControls.tsx'
@@ -114,20 +114,28 @@ function DrawingDefinitionCard({ initialDrawingKind, definitions, deleteCallback
       preview = (
         <>
           <IsometricViewport canHaveUndefinedSize={false} size={{ width: '100%', height: '100%' }} />
-          {wrapWithExportContainer(<IsometricViewport canHaveUndefinedSize={true} />, 'none')}
+          <ExportContainer display='none'>
+            <IsometricViewport canHaveUndefinedSize={true} />
+          </ExportContainer>
         </>
       )
       control = <IsometricControls />
       break
     case 'coded-plan':
-      preview = wrapWithExportContainer(<CodedPlan />)
+      preview = (
+        <ExportContainer>
+          <CodedPlan />
+        </ExportContainer>
+      )
       control = <CodedPlanControls />
       break
     case 'orthographic':
       preview = (
         <>
           <OrthographicViews isSplittable={false} />
-          {wrapWithExportContainer(<OrthographicViews isSplittable={true} />, 'none')}
+          <ExportContainer display='none'>
+            <OrthographicViews isSplittable={true} />
+          </ExportContainer>
         </>
       )
       control = <OrthographicControls />
@@ -196,7 +204,11 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
         <TemplateCard
           definitions={definitions}
           deleteCallback={deleteCallback}
-          preview={wrapWithExportContainer(<OrthographicEditor map={PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP} />)}
+          preview={
+            <ExportContainer>
+              <OrthographicEditor map={PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP} />
+            </ExportContainer>
+          }
           selectedDefinitionIndex={selectedDefinitionIndex}
           setSelectedDefinitionIndex={setSelectedDefinitionIndex}
           controls={null}
@@ -212,7 +224,11 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
         <TemplateCard
           definitions={definitions}
           deleteCallback={deleteCallback}
-          preview={wrapWithExportContainer(<OrthographicEditor map={definitions[selectedDefinitionIndex].definition.map} />)}
+          preview={
+            <ExportContainer>
+              <OrthographicEditor map={definitions[selectedDefinitionIndex].definition.map} />
+            </ExportContainer>
+          }
           selectedDefinitionIndex={selectedDefinitionIndex}
           setSelectedDefinitionIndex={setSelectedDefinitionIndex}
           controls={null}

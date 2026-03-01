@@ -1,23 +1,19 @@
-import type { CuboidValue } from './drawing/control/CuboidStructureInputs.tsx'
-import type { DrawingDefinition } from './drawing/DrawingStore.tsx'
+import type { CuboidValue } from './../drawing/control/CuboidStructureInputs.tsx'
+import type { DrawingDefinition } from './../drawing/DrawingStore.tsx'
 import { Quaternion } from 'quaternion'
 import { useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { cubeLocationFromCuboidValues, useDrawingStore } from './drawing/DrawingStoreHook.ts'
-import { openDownloadPopup } from './export.tsx'
-import { rotate } from './util.ts'
+import { cubeLocationFromCuboidValues, useDrawingStore } from './../drawing/DrawingStoreHook.ts'
+import { openDownloadPopup, rotate } from './../util.ts'
 
-type SaveButtonProps = {
+export type SaveLoadButtonsProps = {
   /**
-   * Function to set the main viewport drawing.
+   * Function to set the definition state.
    * @param initialDefinition - The new value, used for loading.
    */
   setInitialDefinition: (initialDefinition: DrawingDefinition) => void
-  /**
-   * Function to set the URL for the download anchor.
-   * @param downloadUrl - The new value, used for saving.
-   */
-  setDownloadUrl: (downloadUrl: string) => void
+  /** A download anchor that is used to trigger the pop-up, should be hidden and not be used for other purposes. */
+  downloadAnchor: HTMLAnchorElement
 }
 
 /**
@@ -70,9 +66,9 @@ async function loadCSV(file: File, setInitialDefinition: (initialDefinition: Dra
  * Opens a download pop-up after converting the cuboid values into CSV.
  * @param cuboidValues - Array of cuboid values to extract coordinates from.
  * @param rotation - Rotation to apply for the resulting CSV.
- * @param setDownloadUrl - Function to set the URL for the download anchor.
+ * @param downloadAnchor - A download anchor that is used to trigger the pop-up, should be hidden and not be used for other purposes.
  */
-function downloadCSV(cuboidValues: Array<CuboidValue>, rotation: Quaternion, setDownloadUrl: (downloadUrl: string) => void) {
+function downloadCSV(cuboidValues: Array<CuboidValue>, rotation: Quaternion, downloadAnchor: HTMLAnchorElement) {
   const cubeLocations = rotate(cubeLocationFromCuboidValues(cuboidValues), rotation)
 
   const content = cubeLocations.reduce((rows, cubeLocation) => {
@@ -80,11 +76,11 @@ function downloadCSV(cuboidValues: Array<CuboidValue>, rotation: Quaternion, set
     return `${rows}${newRow}\n`
   }, 'x,y,z\n')
 
-  openDownloadPopup(new Blob([content], { type: 'text/csv' }), setDownloadUrl, 'structure')
+  openDownloadPopup(new Blob([content], { type: 'text/csv' }), downloadAnchor, 'structure')
 }
 
 /** Buttons for saving and loading isometric structures in CSV. */
-export function SaveButton({ setInitialDefinition, setDownloadUrl }: SaveButtonProps) {
+export function SaveLoadButtons({ setInitialDefinition, downloadAnchor }: SaveLoadButtonsProps) {
   const fileInputRef = useRef<HTMLInputElement|null>(null)
 
   const [
@@ -97,7 +93,7 @@ export function SaveButton({ setInitialDefinition, setDownloadUrl }: SaveButtonP
 
   return (
     <>
-      <button onClick={() => downloadCSV(cuboidValues, rotation, setDownloadUrl)}>Save as CSV</button>
+      <button onClick={() => downloadCSV(cuboidValues, rotation, downloadAnchor)}>Save as CSV</button>
       <label>
         <button onClick={() => fileInputRef.current!.click()}>Load from CSV</button>
         <input ref={fileInputRef} type='file' accept='text/csv' onChange={(event) => loadCSV(event.target.files![0], setInitialDefinition)} style={{ display: 'none' }} />

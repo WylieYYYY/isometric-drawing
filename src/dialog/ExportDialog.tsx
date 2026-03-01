@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { createExportBlob, openDownloadPopup } from './../export.tsx'
+import { ExportButton } from './../io/ExportButton.tsx'
 import { ExportPresetControls } from './ExportPresetControls.tsx'
 import { useStore } from './../Store.tsx'
 
 type ExportDialogProps = {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  setDownloadUrl: (downloadUrl: string) => void
+  downloadAnchor: HTMLAnchorElement
 }
 
 /**
  * Dialog for archive export of definitions.
  * Dialogs exist in tree at all time, only the visibility is toggled.
  */
-export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialogProps) {
+export function ExportDialog({ isOpen, setIsOpen, downloadAnchor }: ExportDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
   const [
@@ -49,19 +49,11 @@ export function ExportDialog({ isOpen, setIsOpen, setDownloadUrl }: ExportDialog
           Archive Name:
           <input value={archiveName} placeholder='export' onChange={(event) => setArchiveName(event.target.value)} />
         </label>
-        <ExportPresetControls parent={dialogRef.current!} setDownloadUrl={setDownloadUrl} />
-        <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, false, dialogRef.current!), setDownloadUrl, archiveName)}
-          style={{ float: 'right' }}
-        >
-          Export SVG Archive
-        </button>
-        <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, true, dialogRef.current!), setDownloadUrl, archiveName)}
-          style={{ float: 'right' }}
-        >
-          Export PNG Archive
-        </button>
+        <ExportPresetControls parent={dialogRef.current!} downloadAnchor={downloadAnchor} />
+        <div style={{ float: 'right' }}>
+          <ExportButton text='PNG Archive' asPNG={true} containerParentRef={dialogRef} filename={archiveName} />
+          <ExportButton text='SVG Archive' asPNG={false} containerParentRef={dialogRef} filename={archiveName} />
+        </div>
       </footer>
     </dialog>
   )

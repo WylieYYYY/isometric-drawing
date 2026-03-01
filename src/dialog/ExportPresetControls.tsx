@@ -2,12 +2,12 @@ import type { DrawingPreference } from './../drawing/DrawingStore.tsx'
 import type { DrawingKind, ExportCardProps } from './ExportCard.tsx'
 import { useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { openDownloadPopup } from './../export.tsx'
 import { useStore } from './../Store.tsx'
+import { openDownloadPopup } from './../util.ts'
 
 type ExportPresetControlsProps = {
   parent: Element
-  setDownloadUrl: (downloadUrl: string) => void
+  downloadAnchor: HTMLAnchorElement
 }
 
 /**
@@ -73,16 +73,16 @@ async function loadJSON(file: File, newExportCard: (props?: Omit<ExportCardProps
 /**
  * Opens a download pop-up after curating the preset.
  * @param parent - The element where the selector is run to find data containers.
- * @param setDownloadUrl - Function to set the URL for the download anchor.
+ * @param downloadAnchor - A download anchor that is used to trigger the pop-up, should be hidden and not be used for other purposes.
  */
-function downloadJSON(parent: Element, setDownloadUrl: (downloadUrl: string) => void) {
+function downloadJSON(parent: Element, downloadAnchor: HTMLAnchorElement) {
   const dataContainers = [...parent.querySelectorAll('.data-container')] as Array<HTMLElement>
   const content = '[' + dataContainers.map((container) => container.dataset.presetJson!).join(',') + ']\n'
-  openDownloadPopup(new Blob([content], { type: 'application/json' }), setDownloadUrl, 'preset')
+  openDownloadPopup(new Blob([content], { type: 'application/json' }), downloadAnchor, 'preset')
 }
 
 /** Buttons for saving and loading presets in JSON. */
-export function ExportPresetControls({ parent, setDownloadUrl }: ExportPresetControlsProps) {
+export function ExportPresetControls({ parent, downloadAnchor }: ExportPresetControlsProps) {
   const fileInputRef = useRef<HTMLInputElement|null>(null)
 
   const [
@@ -95,7 +95,7 @@ export function ExportPresetControls({ parent, setDownloadUrl }: ExportPresetCon
 
   return (
     <label>
-      <button onClick={() => downloadJSON(parent, setDownloadUrl)}>Save preset to JSON</button>
+      <button onClick={() => downloadJSON(parent, downloadAnchor)}>Save preset to JSON</button>
       <button onClick={() => fileInputRef.current!.click()}>Load preset from JSON</button>
       <input
         ref={fileInputRef}

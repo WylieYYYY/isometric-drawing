@@ -2,14 +2,14 @@ import type { LineType } from './OrthographicEditorLine.tsx'
 import type { OrthographicDrawingDefinition } from './../Store.tsx'
 import { useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { createExportBlob, openDownloadPopup, wrapWithExportContainer } from './../export.tsx'
+import { ExportButton } from './../io/ExportButton.tsx'
+import { ExportContainer } from './../io/ExportContainer.tsx'
 import { OrthographicEditor } from './OrthographicEditor.tsx'
 import { useStore } from './../Store.tsx'
 
 type OrthographicEditorDialogProps = {
   definitionIndex: number|null
   setDefinitionIndex: (index: number|null) => void
-  setDownloadUrl: (downloadUrl: string) => void
 }
 
 /**
@@ -18,7 +18,7 @@ type OrthographicEditorDialogProps = {
  * The given `definitionIndex` must point to a valid orthographic drawing definition,
  * or be null which unrenders the dialog.
  */
-export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex, setDownloadUrl }: OrthographicEditorDialogProps) {
+export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex }: OrthographicEditorDialogProps) {
   const dialogRef = useRef<HTMLDialogElement|null>(null)
 
   const [
@@ -57,7 +57,9 @@ export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex, 
       </header>
       <section style={{ height: '20rem' }}>
         <OrthographicEditor map={map} setMap={setMap} />
-        {wrapWithExportContainer(<OrthographicEditor map={map} />, 'none')}
+        <ExportContainer display='none'>
+          <OrthographicEditor map={map} />
+        </ExportContainer>
       </section>
       <footer>
         <button
@@ -66,18 +68,10 @@ export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex, 
         >
           Clear
         </button>
-        <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, false, dialogRef.current!), setDownloadUrl)}
-          style={{ float: 'right' }}
-        >
-          Export SVG
-        </button>
-        <button
-          onClick={async () => openDownloadPopup(await createExportBlob(`.export-container svg`, true, dialogRef.current!), setDownloadUrl)}
-          style={{ float: 'right' }}
-        >
-          Export PNG
-        </button>
+        <div style={{ float: 'right' }}>
+          <ExportButton asPNG={true} containerParentRef={dialogRef} />
+          <ExportButton asPNG={false} containerParentRef={dialogRef} />
+        </div>
       </footer>
     </dialog>
   )

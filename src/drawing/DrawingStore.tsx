@@ -8,9 +8,8 @@ import { useEffect, useRef } from 'react'
 import { createStore, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { useShallow } from 'zustand/react/shallow'
-import { cubeLocationFromCuboidValues, DrawingContext } from './DrawingStoreHook.ts'
+import { DrawingContext } from './DrawingStoreHook.ts'
 import { defaultDrawingDefinition, isCubeFaceHighlighted } from './../Store.tsx'
-import { rotate } from './../util.ts'
 
 /** Persistent attributes that defines a drawing. */
 export type DrawingDefinition = {
@@ -168,6 +167,11 @@ export type DrawingStore = DrawingDefinition & DrawingPreference & {
    */
   deleteCuboidValue: (index: number) => void
 
+  /**
+   * Sets the rotation directly, use this in provider and prefer other functions in other components.
+   * @param rotation - The new values to take.
+   */
+  setRotation: (rotation: Quaternion) => void
   /** Resets the rotation such that the rendering coordinates matches the ones denoted in the cuboid values. */
   resetRotation: () => void
 
@@ -341,6 +345,12 @@ const createDrawingStore = (initialPreference: InitialPreference) => createStore
 
   rotation: new Quaternion(),
 
+  setRotation: (rotation: Quaternion) => {
+    set((state) => {
+      state.rotation = rotation
+    })
+  },
+
   resetRotation: () => {
     set((state) => {
       state.rotation = new Quaternion()
@@ -409,11 +419,13 @@ export function DrawingProvider({ initialDefinition, children }: PropsWithChildr
   const [
     setDefinitionIndex,
     setName,
-    setCuboidValues
+    setCuboidValues,
+    setRotation
   ] = useStore(storeRef.current, useShallow((state) => [
     state.setDefinitionIndex,
     state.setName,
-    state.setCuboidValues
+    state.setCuboidValues,
+    state.setRotation
   ]))
 
   // detects external change to the definition and synchronize the store with it
@@ -421,18 +433,15 @@ export function DrawingProvider({ initialDefinition, children }: PropsWithChildr
     if (initialDefinition !== undefined) {
       setName(name)
 
-      // pre-apply rotation so that the rotation for a provider is separate from the initial definition
-      // removing cuboid support removes the need for marshalling
-      const cubeLocations = cubeLocationFromCuboidValues(cuboidValues)
-      const rotatedCuboidValues = rotate(cubeLocations, rotation)
-          .map(({ x, y, z }) => ({ x, y, z, dx: 1, dy: 1, dz: 1 }))
-      setCuboidValues(rotatedCuboidValues)
+      setCuboidValues(cuboidValues)
+      // rotation for a provider is separate from the initial definition, clone it
+      setRotation(rotation.clone())
 
       // setting the drawing index must be last as this defines whether
       // a drawing definition has changed from the initial definition
       setDefinitionIndex(definitionIndex)
     }
-  }, [cuboidValues, definitionIndex, initialDefinition, name, rotation, setCuboidValues, setDefinitionIndex, setName])
+  }, [cuboidValues, definitionIndex, initialDefinition, name, rotation, setCuboidValues, setDefinitionIndex, setName, setRotation])
 
   return (
     <DrawingContext.Provider value={storeRef.current}>

@@ -133,3 +133,30 @@ export function joinedEndsSVGLineCoordinatesProps(
 
   return { x1, x2, y1, y2 }
 }
+
+/** Timeout to make sure the download anchor has reacted to URL change. */
+const BLOB_URL_TIMEOUT = 500
+
+/** Map of recognized MIME-types to file extensions. */
+const MIME_EXTENSION_MAP: Record<string, string> = {
+  'application/json': 'json',
+  'image/png': 'png',
+  'image/svg+xml': 'svg',
+  'text/csv': 'csv'
+}
+
+/**
+ * Opens a download pop-up for the given blob, deduces a suitable file name.
+ * Accepts blobs with either `application/json`, `application/zip`, `image/png`, `image/svg+xml` or `text/csv` MIME type.
+ * If the blob type is anthing other than the listed, it is assumed to be a ZIP file.
+ * @param blob - File to be downloaded, in blob form.
+ * @param downloadAnchor - A download anchor that is used to trigger the pop-up, should be hidden and not be used for other purposes.
+ * @param name - Name of the file, defaults to `export`.
+ */
+export function openDownloadPopup(blob: Blob, downloadAnchor: HTMLAnchorElement, name?: string) {
+  const resolvedName = name === '' || name === undefined ? 'export' : name
+  downloadAnchor.href = URL.createObjectURL(blob)
+  downloadAnchor.download = `${resolvedName}.${MIME_EXTENSION_MAP[blob.type] ?? 'zip'}`
+
+  setTimeout(() => downloadAnchor.click(), BLOB_URL_TIMEOUT)
+}
