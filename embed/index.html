@@ -143,7 +143,7 @@
                 cuboidValues.map((cuboidValue, index) => {
                   const { x, y, z, dx, dy, dz } = cuboidValue
                   return (
-                    <mesh position={[x + 0.5, y + 0.5, z + 0.5]}>
+                    <mesh position={[x + dx / 2, y + dy / 2, z + dz / 2]}>
                       <boxGeometry args={[dx, dy, dz]} />
                       <meshBasicMaterial color='white' />
                     </mesh>

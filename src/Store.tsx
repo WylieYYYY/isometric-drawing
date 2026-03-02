@@ -67,9 +67,10 @@ type Store = {
   /**
    * Creates a new definition of the given kind at the end of the definitions array.
    * @param definitionKind - Kind of the definition for which the default definition will follow.
+   * @param name - Name to be used for the new definition, a default will be used if not supplied.
    * @returns Index of the new defintion in the definitions array.
    */
-  newDefinition: (definitionKind: DefinitionKind) => number
+  newDefinition: (definitionKind: DefinitionKind, name?: string) => number
   /**
    * Sets the definition at the given index to the given definition.
    * @param index - Index of the defintion in the definitions array.
@@ -180,17 +181,23 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
 
   definitions: [],
 
-  newDefinition: (definitionKind: DefinitionKind) => {
+  newDefinition: (definitionKind: DefinitionKind, name?: string) => {
     const index = get().definitions.length
 
     set((state) => {
       switch (definitionKind) {
-        case 'drawing':
-          state.definitions.push({ definitionKind: 'drawing', definition: defaultDrawingDefinition(index) })
+        case 'drawing': {
+          const drawingDefinition = defaultDrawingDefinition(index)
+          if (name !== undefined) drawingDefinition.name = name
+          state.definitions.push({ definitionKind: 'drawing', definition: drawingDefinition })
           break
-        case 'orthographic':
-          state.definitions.push({ definitionKind: 'orthographic', definition: defaultOrthographicDrawingDefinition(index) })
+        }
+        case 'orthographic': {
+          const orthographicDrawingDefinition = defaultOrthographicDrawingDefinition(index)
+          if (name !== undefined) orthographicDrawingDefinition.name = name
+          state.definitions.push({ definitionKind: 'orthographic', definition: orthographicDrawingDefinition })
           break
+        }
       }
     })
 
@@ -236,8 +243,8 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
 })), {
   name: 'app-storage',
   // move to a more persistent storage once stable
-  storage: createJSONStorage(() => sessionStorage),
+  storage: createJSONStorage(() => localStorage),
   partialize: (state) => ({
-    drawings: state.definitions
+    definitions: state.definitions
   })
 }))

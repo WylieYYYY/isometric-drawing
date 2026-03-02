@@ -83,7 +83,7 @@ function App() {
                 () => {
                   const name = prompt('Please enter the name of the drawing:', 'Untitled Drawing')
                   if (name === null) return
-                  const definitionIndex = newDefinition('orthographic')
+                  const definitionIndex = newDefinition('orthographic', name)
                   setOrthographicEditorDefinitionIndex(definitionIndex)
                 }
               }
