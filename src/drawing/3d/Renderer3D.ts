@@ -1,11 +1,11 @@
-import type { Coordinates } from './isometric/foreground/IsometricStructure.tsx'
+import type { Coordinates } from './../isometric/foreground/IsometricStructure.tsx'
 
 /**
  * Calculates where edges should be displayed from a list of cube coordinates using a map.
  * @param coordinates - List of cube coordinates.
  * @returns A generator that generates edges to be displayed, edges are represented as tuples of coordinates for start and end points.
  */
-function* calculateEdgesMap(coordinates: Array<Coordinates>): Generator<[Coordinates, Coordinates], void, number> {
+function* calculateEdgesMap(coordinates: Array<Coordinates>): Generator<[Coordinates, Coordinates], void, number|undefined> {
   const map: Record<string, boolean> = { }
 
   // loop over all coordinates and assign value that is not undefined
@@ -31,7 +31,7 @@ function* calculateEdgesMap(coordinates: Array<Coordinates>): Generator<[Coordin
  * @param reverseSortedCoordinates - List of cube coordinates, sorted by `(x + y + z)` descendingly.
  * @returns A generator that generates edges to be displayed, edges are represented as tuples of coordinates for start and end points.
  */
-function* calculateEdgesLayered(reverseSortedCoordinates: Array<Coordinates>): Generator<[Coordinates, Coordinates], void, number> {
+function* calculateEdgesLayered(reverseSortedCoordinates: Array<Coordinates>): Generator<[Coordinates, Coordinates], void, number|undefined> {
   // no edges if there are no coordinates, precondition check for getting the first layer number
   if (reverseSortedCoordinates.length === 0) return
 
@@ -125,7 +125,7 @@ function* calculateEdgesLayered(reverseSortedCoordinates: Array<Coordinates>): G
  * @param inner - Bitfield for neighbors, from MSb to LSb: +z, +y, +x, -z, -y, -x. The bit zero if there is a neighbor.
  * @returns A generator that generates edges to be displayed, represents as a tuple of coordinates for start and end points.
  */
-function* calculateCubeEdges(coordinates: Coordinates, inner: number): Generator<[Coordinates, Coordinates], void, number> {
+function* calculateCubeEdges(coordinates: Coordinates, inner: number): Generator<[Coordinates, Coordinates], void, number|undefined> {
   // if there are no neighbors surrounding an edge, the faces are not obscured, include the edge
   // if there are two neighbors surrounding an edge, this is the corner cube of an L-edge, include the edge
   // if there is just one neighbor, exclude the edge

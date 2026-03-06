@@ -36,6 +36,8 @@ Required:
 Optional:
  - `canvg` and `@zip.js/zip.js` are required in import map
    if `ExportButton` is used.
+ - `@react-three/drei`, `@react-three/fiber` and `three` are required in
+   import map if `IsometricViewport3D` is used.
 
 ### Top-level Components
 

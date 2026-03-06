@@ -19,10 +19,19 @@ export default defineConfig({
       name: 'isometric-drawing'
     },
     rollupOptions: {
-      external: ['canvg', 'react', '@zip.js/zip.js'],
+      external: [
+        // export buttons dependencies
+        'canvg', '@zip.js/zip.js',
+        'react',
+        // 3-dimensional viewport dependencies
+        '@react-three/drei', '@react-three/fiber', 'three'
+      ],
       output: {
         globals: {
-          react: 'React'
+          'react': 'react',
+          '@react-three/drei': '@react-three/drei',
+          '@react-three/fiber': '@react-three/fiber',
+          'three': 'three'
         }
       }
     }

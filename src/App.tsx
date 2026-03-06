@@ -12,6 +12,7 @@ import { ExportContainer } from './io/ExportContainer.tsx'
 import { ExportDialog } from './dialog/ExportDialog.tsx'
 import { IsometricControls } from './drawing/control/IsometricControls.tsx'
 import { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
+import { IsometricViewport3D } from './drawing/3d/IsometricViewport3D.tsx'
 import { OrthographicControls } from './drawing/control/OrthographicControls.tsx'
 import { OrthographicEditorDialog } from './dialog/OrthographicEditorDialog.tsx'
 import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
@@ -19,6 +20,8 @@ import { RotationButtons } from './drawing/control/RotationButtons.tsx'
 import { SaveLoadButtons } from './io/SaveLoadButtons.tsx'
 import { StoreDrawingControls } from './drawing/StoreDrawingControls.tsx'
 import { defaultDrawingDefinition, useStore } from './Store.tsx'
+
+type IsometricViewportState = '3d' | '2d' | '2donly'
 
 function App() {
   const downloadAnchorRef = useRef<HTMLAnchorElement|null>(null)
@@ -62,6 +65,7 @@ function App() {
   })
 
   const [appInitialDefinition, setAppInitialDefinition] = useState(defaultDrawingDefinition())
+  const [isometricViewportState, setIsometricViewportState] = useState<IsometricViewportState>('2donly')
   const [isDrawingsDialogOpen, setIsDrawingsDialogOpen] = useState(false)
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [orthographicEditorDefinitionIndex, setOrthographicEditorDefinitionIndex] = useState<number|null>(null)
@@ -113,6 +117,30 @@ function App() {
             </ExportContainer>
           </div>
           <hr style={{ visibility: 'hidden' }} />
+          {
+            isometricViewportState === '2donly' ? (
+              <button onClick={() => setIsometricViewportState('2d')}>
+                Enable 3D Viewport
+              </button>
+            ) : (
+              <div style={{ position: 'relative', height: '30%' }}>
+                <button onClick={() => setIsometricViewportState(isometricViewportState === '2d' ? '3d' : '2d')}>
+                  Swap Views
+                </button>
+                <div style={{ height: '80%' }}>
+                  {
+                    isometricViewportState === '2d' ? <IsometricViewport3D placeholder='Loading...' /> : (
+                      <IsometricViewport
+                        highlightKind={highlightKind}
+                        canHaveUndefinedSize={false}
+                        size={{ width: '100%', height: '100%'}}
+                      />
+                    )
+                  }
+                </div>
+              </div>
+            )
+          }
           <div ref={codedPlanParentRef} style={{ position: 'relative', height: '30%' }}>
             <label style={{ display: 'block' }}>
               Coded Plan:
@@ -164,17 +192,21 @@ function App() {
           </div>
         </label>
         <section>
-          <TransformWrapper centerOnInit={true} initialScale={8}>
-            <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
-                <IsometricViewport
-                  highlightKind={highlightKind}
-                  canHaveUndefinedSize={false}
-                  size={{ width: 600, height: 600, viewBox: '-20 -20 40 40'}}
-                />
-              </div>
-            </TransformComponent>
-          </TransformWrapper>
+          {
+            isometricViewportState === '3d' ? <IsometricViewport3D placeholder='Loading...' />  : (
+              <TransformWrapper centerOnInit={true} initialScale={8}>
+                <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
+                    <IsometricViewport
+                      highlightKind={highlightKind}
+                      canHaveUndefinedSize={false}
+                      size={{ width: 600, height: 600, viewBox: '-20 -20 40 40' }}
+                    />
+                  </div>
+                </TransformComponent>
+              </TransformWrapper>
+            )
+          }
           <div style={{ position: 'fixed', right: '.5em', top: '2em' }}>
             <button onClick={() => setHighlightKind(highlightKind === 'cuboid' ? 'face' : 'cuboid')}>
               {highlightKind === 'cuboid' ? 'Deleting' : 'Building'}

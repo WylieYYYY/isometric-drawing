@@ -20,7 +20,7 @@ export type { CubeLocation, HighlightKind, VisibleCubeFaceLocation } from './Sto
 export { Quaternion } from 'quaternion'
 
 // renderers for calculating the required edges in an isometric drawing
-export * as Renderer3D from './drawing/Renderer3D.ts'
+export * as Renderer3D from './drawing/3d/Renderer3D.ts'
 
 // standalone editor requiring no provider
 export { OrthographicEditor } from './dialog/OrthographicEditor.tsx'
@@ -40,6 +40,7 @@ export { RotationButtons } from './drawing/control/RotationButtons.tsx'
 // displays that uses the drawing store
 export { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 export { IsometricViewport } from './drawing/isometric/IsometricViewport.tsx'
+export { IsometricViewport3D } from './drawing/3d/IsometricViewport3D.tsx'
 export { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 
 // container for export targeting
