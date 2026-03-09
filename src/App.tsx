@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { CodedPlan } from './drawing/auxiliary/CodedPlan.tsx'
 import { CodedPlanControls } from './drawing/control/CodedPlanControls.tsx'
 import { CuboidStructureInputs } from './drawing/control/CuboidStructureInputs.tsx'
+import { DownloadDefinitionButton } from './io/DownloadDefinitionButton.tsx'
 import { DrawingsDialog } from './dialog/DrawingsDialog.tsx'
 import { DrawingProvider } from './drawing/DrawingStore.tsx'
 import { ExportButton } from './io/ExportButton.tsx'
@@ -17,7 +18,6 @@ import { OrthographicControls } from './drawing/control/OrthographicControls.tsx
 import { OrthographicEditorDialog } from './dialog/OrthographicEditorDialog.tsx'
 import { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 import { RotationButtons } from './drawing/control/RotationButtons.tsx'
-import { SaveLoadButtons } from './io/SaveLoadButtons.tsx'
 import { StoreDrawingControls } from './drawing/StoreDrawingControls.tsx'
 import { defaultDrawingDefinition, useStore } from './Store.tsx'
 
@@ -77,10 +77,7 @@ function App() {
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-            <SaveLoadButtons
-              setInitialDefinition={setAppInitialDefinition}
-              downloadAnchor={downloadAnchor}
-            />
+            <DownloadDefinitionButton downloadAnchor={downloadAnchor} />
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button
               onClick={
@@ -123,22 +120,27 @@ function App() {
                 Enable 3D Viewport
               </button>
             ) : (
-              <div style={{ position: 'relative', height: '30%' }}>
-                <button onClick={() => setIsometricViewportState(isometricViewportState === '2d' ? '3d' : '2d')}>
-                  Swap Views
+              <>
+                <button onClick={() => setIsometricViewportState('2donly')}>
+                  Disable 3D Viewport
                 </button>
-                <div style={{ height: '80%' }}>
-                  {
-                    isometricViewportState === '2d' ? <IsometricViewport3D placeholder='Loading...' /> : (
-                      <IsometricViewport
-                        highlightKind={highlightKind}
-                        canHaveUndefinedSize={false}
-                        size={{ width: '100%', height: '100%'}}
-                      />
-                    )
-                  }
+                <div style={{ position: 'relative', height: '30%' }}>
+                  <button onClick={() => setIsometricViewportState(isometricViewportState === '2d' ? '3d' : '2d')}>
+                    Swap Views
+                  </button>
+                  <div style={{ height: '80%' }}>
+                    {
+                      isometricViewportState === '2d' ? <IsometricViewport3D placeholder='Loading...' /> : (
+                        <IsometricViewport
+                          highlightKind={highlightKind}
+                          canHaveUndefinedSize={false}
+                          size={{ width: '100%', height: '100%'}}
+                        />
+                      )
+                    }
+                  </div>
                 </div>
-              </div>
+              </>
             )
           }
           <div ref={codedPlanParentRef} style={{ position: 'relative', height: '30%' }}>

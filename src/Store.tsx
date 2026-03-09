@@ -189,13 +189,13 @@ export const useStore = create<Store>()(persist(immer((set, get) => ({
         case 'drawing': {
           const drawingDefinition = defaultDrawingDefinition(index)
           if (name !== undefined) drawingDefinition.name = name
-          state.definitions.push({ definitionKind: 'drawing', definition: drawingDefinition })
+          state.definitions[index] = { definitionKind: 'drawing', definition: drawingDefinition }
           break
         }
         case 'orthographic': {
           const orthographicDrawingDefinition = defaultOrthographicDrawingDefinition(index)
           if (name !== undefined) orthographicDrawingDefinition.name = name
-          state.definitions.push({ definitionKind: 'orthographic', definition: orthographicDrawingDefinition })
+          state.definitions[index] = { definitionKind: 'orthographic', definition: orthographicDrawingDefinition }
           break
         }
       }

@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 
 // parameter types
+export type { DownloadDefinitionButtonProps } from './io/DownloadDefinitionButton.tsx'
 export type { DrawingStore, InitialDefinition } from './drawing/DrawingStore.tsx'
 export type { ExportButtonProps } from './io/ExportButton.tsx'
 export type { ExportContainerProps } from './io/ExportContainer.tsx'
@@ -8,7 +9,6 @@ export type { IsometricViewportProps } from './drawing/isometric/IsometricViewpo
 export type { IsometricViewport3DProps } from './drawing/3d/IsometricViewport3D.tsx'
 export type { OrthographicEditorProps } from './dialog/OrthographicEditor.tsx'
 export type { OrthographicViewsProps } from './drawing/auxiliary/OrthographicViews.tsx'
-export type { SaveLoadButtonsProps } from './io/SaveLoadButtons.tsx'
 
 // transitive types
 export type { CuboidValue, CuboidValueComponent } from './drawing/control/CuboidStructureInputs.tsx'
@@ -47,8 +47,9 @@ export { OrthographicViews } from './drawing/auxiliary/OrthographicViews.tsx'
 // container for export targeting
 export { ExportContainer } from './io/ExportContainer.tsx'
 // controls that interact with files
+export { DownloadDefinitionButton } from './io/DownloadDefinitionButton.tsx'
 export { ExportButton } from './io/ExportButton.tsx'
-export { SaveLoadButtons } from './io/SaveLoadButtons.tsx'
+export { UploadDefinitionButton } from './io/UploadDefinitionButton.tsx'
 
 // additional utility exports
 export type { CoordinatesLike } from './util.ts'
