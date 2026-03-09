@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Isometric Drawing Toolkit</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://cdn.jsdelivr.net/npm/react@19.2.1/+esm",
+          "react-dom": "https://cdn.jsdelivr.net/npm/react-dom@19.2.1/+esm",
+          "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@19.2.1/client/+esm"
+        }
+      }
+    </script>
+    <script src="https://unpkg.com/@babel/standalone@7.28.5/babel.min.js"></script>
+
+    <script type="text/babel" data-type="module">
+      import React, { StrictMode } from 'react'
+      import { createPortal } from 'react-dom'
+      import { createRoot } from 'react-dom/client'
+      import { DrawingProvider, IsometricViewport, OrthographicViews, Quaternion, RotationButtons } from './isometric-drawing.js'
+
+      const cuboidValues = [
+        { x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 },
+        { x: 0, y: 1, z: 0, dx: 3, dy: 1, dz: 1 }
+      ]
+
+      createRoot(document.getElementById('root')).render(
+        <StrictMode>
+          <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues }}>
+            {
+              createPortal(
+                <IsometricViewport size={{ width: '100%', height: '100%' }} />,
+                document.getElementById('isometric-viewport')
+              )
+            }
+            {
+              createPortal(
+                <code style={{ overflowWrap: 'anywhere' }}>
+                  {JSON.stringify(cuboidValues)}
+                </code>,
+                document.getElementById('cuboid-values')
+              )
+            }
+            {
+              createPortal(
+                <RotationButtons />,
+                document.getElementById('rotation-buttons')
+              )
+            }
+            {
+              createPortal(
+                <OrthographicViews />,
+                document.getElementById('orthographic-views')
+              )
+            }
+          </DrawingProvider>
+        </StrictMode>
+      )
+    </script>
+  </head>
+  <body>
+    <div class="jumbotron jumbotron-fluid" style="margin: 0;">
+      <div class="container">
+        <h1>Isometric Drawing Toolkit</h1>
+        <p>
+          The isometric drawing toolkit provides an API where different
+          components can share the same 3-dimensional structure between them.
+          This ranges from display components for viewing, to control component
+          for manipulating structures.
+        </p>
+        <div>
+          <p>
+            An isometric drawing interface has been created as a tool for
+            creating drawings, and as a wrapper application that demonstrates
+            the integration of the various built-in components served by the API.
+          </p>
+          <a href="https://wylieyyyy.gitlab.io/isometric-drawing" class="btn btn-primary">Isometric Drawing Interface</a>
+        </div>
+        <hr />
+        <div id="root"></div>
+        <div style="display: flex; align-items: center;">
+          <div id="isometric-viewport" style="width: 24rem; height: 12rem;"></div>
+          <div style="flex-grow: 1;">
+            On the left is an isometric drawing viewport.
+            It simply display the isometric structure from the definition.
+            This drawing is constructed by providing the API with:
+            <br />
+            <span id="cuboid-values"></span>
+            <br />
+            where x, y and z represent the starting coordinates for a cuboid,
+            and dx, dy and dz represent the size in each axis.
+            The two sets of values specifies the two cuboids which forms the L shape on the left.
+          </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <p style="flex-grow: 1;">
+            The drawing can be made interactive when needed. Try out the rotation buttons
+            on the right. Every related components are synced. Modular design means
+            that interactivity can be enabled by adding a component.
+          </p>
+          <div id="rotation-buttons" style="width: 24rem;"></div>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <div id="orthographic-views" style="width: 24rem; height: 12rem;"></div>
+          <div style="flex-grow: 1;">
+            The library provides several components:
+            <ul>
+              <li>Displays such as the viewport above and orthographic views;</li>
+              <li>Controls such as the rotation buttons above;</li>
+            </ul>
+            Custom components can be added just like the built-in ones, interact with
+            the store and all components will be updated automatically.
+            <br />
+            <a href="./index.html">Embedded demo</a> gives some inspiration for what
+            custom components can do when integrated with the toolkit.
+          </div>
+        </div>
+        <div>
+          <a href="./../docs/index.html" class="btn btn-info">API Documentation</a>
+          <a href="./isometric-drawing.js" class="btn btn-outline-secondary">Javascript Library Direct URL</a>
+        </div>
+        <hr />
+        <h2>Screenshot</h2>
+        <div style="display: flex; max-width: 100%; justify-content: center;">
+          <img src="./screenshot-interface.png" alt="Interface Screenshot" style="width: 80%;" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

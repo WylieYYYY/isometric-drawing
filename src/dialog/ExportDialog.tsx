@@ -37,7 +37,10 @@ export function ExportDialog({ isOpen, setIsOpen, downloadAnchor }: ExportDialog
         </div>
       </section>
       <footer className='modal-footer' style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <ExportPresetControls parent={dialogRef.current!} downloadAnchor={downloadAnchor} className='btn btn-outline-secondary' />
+        <details>
+          <summary>JSON Preset Options</summary>
+          <ExportPresetControls parent={dialogRef.current!} downloadAnchor={downloadAnchor} className='btn btn-outline-secondary' />
+        </details>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label>
             Archive Name:

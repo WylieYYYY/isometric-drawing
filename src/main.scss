@@ -28,7 +28,7 @@ html, body {
             #close-lbl { display: inline; }
         }
         @media (max-width: 60rem) {
-            section, section > * {
+            #viewport, #viewport > * {
                 width: 0;
                 flex-grow: 0;
             }
@@ -61,7 +61,7 @@ main > aside {
     white-space: nowrap;
 }
 
-main > section {
+main > #viewport {
     @media (min-width: 60rem) { width: 100%; }
     @media (max-width: 60rem) { flex-grow: 1; }
     @include collapse-animation;
@@ -88,8 +88,8 @@ label[for=collapse-btn] {
       height: 60%;
   }
   @media (max-width: 60rem) {
-      width: 80% !important;
-      height: 80%;
+      width: 90% !important;
+      height: 90%;
   }
 }
 
@@ -98,7 +98,6 @@ label[for=collapse-btn] {
 }
 
 .preview {
-  width: 18rem;
   height: 9rem;
   border: 2px solid black;
 }

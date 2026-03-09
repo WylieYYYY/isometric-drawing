@@ -191,7 +191,7 @@ function App() {
             <span>&nbsp;menu</span>
           </div>
         </label>
-        <section>
+        <section id='viewport'>
           {
             isometricViewportState === '3d' ? <IsometricViewport3D placeholder='Loading...' />  : (
               <TransformWrapper centerOnInit={true} initialScale={8}>
@@ -219,22 +219,22 @@ function App() {
           <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem' }}>
             <RotationButtons />
           </div>
-          <DrawingsDialog
-            isOpen={isDrawingsDialogOpen}
-            setIsOpen={setIsDrawingsDialogOpen}
-            setInitialDefinition={setAppInitialDefinition}
-            setOrthographicEditorDefinitionIndex={setOrthographicEditorDefinitionIndex}
-          />
-          <ExportDialog
-            isOpen={isExportDialogOpen}
-            setIsOpen={setIsExportDialogOpen}
-            downloadAnchor={downloadAnchor}
-          />
-          <OrthographicEditorDialog
-            definitionIndex={orthographicEditorDefinitionIndex}
-            setDefinitionIndex={setOrthographicEditorDefinitionIndex}
-          />
         </section>
+        <DrawingsDialog
+          isOpen={isDrawingsDialogOpen}
+          setIsOpen={setIsDrawingsDialogOpen}
+          setInitialDefinition={setAppInitialDefinition}
+          setOrthographicEditorDefinitionIndex={setOrthographicEditorDefinitionIndex}
+        />
+        <ExportDialog
+          isOpen={isExportDialogOpen}
+          setIsOpen={setIsExportDialogOpen}
+          downloadAnchor={downloadAnchor}
+        />
+        <OrthographicEditorDialog
+          definitionIndex={orthographicEditorDefinitionIndex}
+          setDefinitionIndex={setOrthographicEditorDefinitionIndex}
+        />
       </main>
     </DrawingProvider>
   )
