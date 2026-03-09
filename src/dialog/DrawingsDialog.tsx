@@ -96,7 +96,7 @@ export function DrawingsDialog({ isOpen, setIsOpen, setInitialDefinition, setOrt
     <Dialog isOpen={isOpen} close={() => setIsOpen(false)} title='Drawings'>
       <section className='modal-body'>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '0.5rem', overflow: 'scroll' }}>
-          {cards}
+          {cards.length > 0 ? cards : 'Get started by saving a drawing using "Save As"!'}
         </div>
       </section>
     </Dialog>

@@ -70,14 +70,13 @@ function GroupObject({ three, fiber }: Pick<DynamicImports, 'three' | 'fiber'>) 
     // the mesh needs to be offset as the position uses the center as anchor
     // offset by 0.5 as the coordinates systems differ
     // `max` and `abs` as two axes will be zero size for an edge, set that to 0.05
-    // add 0.04 so that there is not a huge gap at the corners
     edges.push(
       <mesh position={[(start.x + end.x) / 2 + 0.5, (start.y + end.y) / 2 + 0.5, (start.z + end.z) / 2 + 0.5]}>
         <boxGeometry
           args={[
-            Math.max(Math.abs(start.x - end.x) + 0.04, 0.05),
-            Math.max(Math.abs(start.y - end.y) + 0.04, 0.05),
-            Math.max(Math.abs(start.z - end.z) + 0.04, 0.05)
+            Math.max(Math.abs(start.x - end.x), 0.05),
+            Math.max(Math.abs(start.y - end.y), 0.05),
+            Math.max(Math.abs(start.z - end.z), 0.05)
           ]}
         />
         <meshBasicMaterial color='black' />
@@ -91,12 +90,12 @@ function GroupObject({ three, fiber }: Pick<DynamicImports, 'three' | 'fiber'>) 
         // offset by 0.5 as the coordinates systems differ
         // each cuboid is rendered by one box
         // need to convert cuboid to cube if individual cube highlighting is added
-        // add 0.045 to cover the protruding edges
+        // add 0.01 to cover the protruding edges
         cuboidValues.map((cuboidValue) => {
           const { x, y, z, dx, dy, dz } = cuboidValue
           return (
             <mesh position={[x + dx / 2, y + dy / 2, z + dz / 2]}>
-              <boxGeometry args={[dx + 0.045, dy + 0.045, dz + 0.045]} />
+              <boxGeometry args={[dx + 0.01, dy + 0.01, dz + 0.01]} />
               <meshBasicMaterial color='white' />
             </mesh>
           )
