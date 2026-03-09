@@ -1,3 +1,4 @@
+import type { ButtonHTMLAttributes } from 'react'
 import type { CuboidValue } from './../drawing/control/CuboidStructureInputs.tsx'
 import type { DrawingDefinition } from './../drawing/DrawingStore.tsx'
 import { Quaternion } from 'quaternion'
@@ -80,7 +81,9 @@ function downloadCSV(cuboidValues: Array<CuboidValue>, rotation: Quaternion, dow
 }
 
 /** Buttons for saving and loading isometric structures in CSV. */
-export function SaveLoadButtons({ setInitialDefinition, downloadAnchor }: SaveLoadButtonsProps) {
+export function SaveLoadButtons({
+  setInitialDefinition, downloadAnchor, ...props
+}: SaveLoadButtonsProps & Exclude<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>) {
   const fileInputRef = useRef<HTMLInputElement|null>(null)
 
   const [
@@ -93,9 +96,9 @@ export function SaveLoadButtons({ setInitialDefinition, downloadAnchor }: SaveLo
 
   return (
     <>
-      <button onClick={() => downloadCSV(cuboidValues, rotation, downloadAnchor)}>Save as CSV</button>
+      <button onClick={() => downloadCSV(cuboidValues, rotation, downloadAnchor)} {...props}>Save as CSV</button>
       <label>
-        <button onClick={() => fileInputRef.current!.click()}>Load from CSV</button>
+        <button onClick={() => fileInputRef.current!.click()} {...props}>Load from CSV</button>
         <input ref={fileInputRef} type='file' accept='text/csv' onChange={(event) => loadCSV(event.target.files![0], setInitialDefinition)} style={{ display: 'none' }} />
       </label>
     </>

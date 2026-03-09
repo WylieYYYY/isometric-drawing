@@ -1,7 +1,8 @@
 import type { LineType } from './OrthographicEditorLine.tsx'
 import type { OrthographicDrawingDefinition } from './../Store.tsx'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { Dialog } from './Dialog.tsx'
 import { ExportButton } from './../io/ExportButton.tsx'
 import { ExportContainer } from './../io/ExportContainer.tsx'
 import { OrthographicEditor } from './OrthographicEditor.tsx'
@@ -29,13 +30,6 @@ export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex }
     state.setDefinition
   ]))
 
-  useEffect(() => {
-    if (definitionIndex === null) return
-    const dialog = dialogRef.current!
-    dialog.showModal()
-    return () => dialog.close()
-  }, [definitionIndex])
-
   // don't render at all if there is no valid index
   // since there is no way to provide valid `map` and `setMap`
   if (definitionIndex === null) return null
@@ -50,29 +44,36 @@ export function OrthographicEditorDialog({ definitionIndex, setDefinitionIndex }
   }
 
   return (
-    <dialog ref={dialogRef}>
-      <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Orthographic Editor</h1>
-        <button onClick={() => setDefinitionIndex(null)} style={{ float: 'right' }}>Close</button>
-      </header>
-      <section style={{ height: '20rem' }}>
+    <Dialog
+      ref={dialogRef}
+      isOpen={setDefinitionIndex !== null}
+      close={() => setDefinitionIndex(null)}
+      title='Orthographic Editor'
+    >
+      <section className='modal-body'>
         <OrthographicEditor map={map} setMap={setMap} />
         <ExportContainer display='none'>
           <OrthographicEditor map={map} />
         </ExportContainer>
       </section>
-      <footer>
+      <footer className='modal-footer' style={{ display: 'flex', justifyContent: 'space-between' }}>
         <button
-          onClick={async () => setMap(map.map((column) => column.fill(0)))}
-          style={{ float: 'left' }}
+          onClick={() => setMap(map.map((column) => Array(column.length).fill(0)))}
+          className='btn btn-warning'
         >
           Clear
         </button>
-        <div style={{ float: 'right' }}>
+        <div>
           <ExportButton asPNG={true} containerParentRef={dialogRef} />
           <ExportButton asPNG={false} containerParentRef={dialogRef} />
         </div>
+        <button
+          onClick={() => setDefinitionIndex(null)}
+          className='btn btn-primary'
+        >
+          Save
+        </button>
       </footer>
-    </dialog>
+    </Dialog>
   )
 }

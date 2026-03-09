@@ -5,6 +5,7 @@ export type { DrawingStore, InitialDefinition } from './drawing/DrawingStore.tsx
 export type { ExportButtonProps } from './io/ExportButton.tsx'
 export type { ExportContainerProps } from './io/ExportContainer.tsx'
 export type { IsometricViewportProps } from './drawing/isometric/IsometricViewport.tsx'
+export type { IsometricViewport3DProps } from './drawing/3d/IsometricViewport3D.tsx'
 export type { OrthographicEditorProps } from './dialog/OrthographicEditor.tsx'
 export type { OrthographicViewsProps } from './drawing/auxiliary/OrthographicViews.tsx'
 export type { SaveLoadButtonsProps } from './io/SaveLoadButtons.tsx'

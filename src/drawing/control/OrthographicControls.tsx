@@ -26,7 +26,7 @@ export function OrthographicControls() {
 
   return (
     <>
-      <label>
+      <label style={{ display: 'block' }}>
         <input
           type='checkbox'
           checked={shouldSplitOrthographicViewsAsThree}
@@ -34,7 +34,7 @@ export function OrthographicControls() {
         />
         Split Export
       </label>
-      <label>
+      <label style={{ display: 'block' }}>
         <input
           type='checkbox'
           checked={shouldShowOrthographicViewsGrid && !shouldSplitOrthographicViewsAsThree}
@@ -43,7 +43,7 @@ export function OrthographicControls() {
         />
         Show Grid
       </label>
-      <label>
+      <label style={{ display: 'block' }}>
         <input
           type='checkbox'
           checked={shouldShowOrthographicStructure || shouldSplitOrthographicViewsAsThree}

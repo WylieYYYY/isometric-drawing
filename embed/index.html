@@ -3,29 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Embedded Isometric Drawing Demo</title>
+    <title>Isometric Drawing Toolkit Use Cases</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
     <script type="importmap">
       {
         "imports": {
           "react": "https://esm.sh/react",
+          "react-dom": "https://esm.sh/react-dom",
           "react-dom/client": "https://esm.sh/react-dom/client",
           "@react-three/drei": "https://esm.sh/@react-three/drei",
-          "@react-three/fibre": "https://esm.sh/@react-three/fiber",
+          "@react-three/fiber": "https://esm.sh/@react-three/fiber",
           "three": "https://esm.sh/three"
         }
       }
     </script>
     <script src="https://unpkg.com/@babel/standalone@7.28.5/babel.min.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
     <script type="text/babel" data-type="module">
-      import React, { StrictMode, useLayoutEffect, useRef, useState } from 'react'
+      import React, { StrictMode, useState } from 'react'
+      import { createPortal } from 'react-dom'
       import { createRoot } from 'react-dom/client'
-      import { GizmoHelper, GizmoViewport, OrbitControls, OrthographicCamera } from '@react-three/drei'
-      import { Canvas, useFrame, useThree } from '@react-three/fibre'
-      import { Matrix4, Quaternion as ThreeJsQuaternion } from 'three'
-      import { DrawingProvider, IsometricViewport, OrthographicEditor, Quaternion, Renderer3D, RotationButtons, useDrawingStore, Utility } from './isometric-drawing.js'
+      import { DrawingProvider, IsometricViewport, IsometricViewport3D, Quaternion, RotationButtons, useDrawingStore } from './isometric-drawing.js'
 
       const cuboidValues = [
         { x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 },
@@ -45,8 +42,10 @@
 
         return (
           <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues }}>
-            <RotationButtons />
-            <RotationVerifier expectedRotation={expectedRotation} />
+            <div style={{ width: '20rem'}}>
+              <RotationButtons />
+              <RotationVerifier expectedRotation={expectedRotation} />
+            </div>
             <div style={{ display: 'flex' }}>
               <div style={{ width: '10rem', height: '10rem', border: '0.3rem solid black' }}>
                 <IsometricViewport size={{ width: '10rem', height: '10rem', viewBox: '-4 -4 8 8'}} />
@@ -61,175 +60,99 @@
         )
       }
 
-      function EditorTest() {
-        const [map, setMap] = useState([
-          [0, 0, 0, 0], [0, 0, 0, 0, 0],
-          [0, 0, 0, 0], [0, 0, 0, 0, 0],
-          [0, 0, 0, 0], [0, 0, 0, 0, 0],
-          [0, 0, 0, 0], [0, 0, 0, 0, 0],
-          [0, 0, 0, 0]
-        ])
-
-        return <OrthographicEditor map={map} setMap={setMap} />
-      }
-
-      function ThreeDimensionalViewerTest() {
-        const [canvas, setCanvas] = useState()
+      function DrawingGallery() {
         const [isShowing, setIsShowing] = useState(false)
+        const [mainCuboidValues, setMainCuboidValues] = useState(cuboidValues)
 
-        const resetRotation = useDrawingStore((state) => state.resetRotation)
+        const options = [
+          ['Stick', cuboidValues],
+          ['Cube', [{ x: 0, y: 0, z: 0, dx: 1, dy: 1, dz: 1 }]]
+        ]
 
-        function GridPoints() {
-          const meshRef = useRef()
-
-          const cuboidValues = useDrawingStore((state) => state.cuboidValues)
-
-          useLayoutEffect(() => {
-            let i = 0
-
-            for (let x = -5; x <= 5; x++) {
-              for (let y = -5; y <= 5; y++) {
-                for (let z = -5; z <= 5; z++) {
-                  const matrix = new Matrix4()
-                  matrix.setPosition(x, y, z)
-                  meshRef.current.setMatrixAt(i++, matrix)
-                }
-              }
-            }
-          }, [])
+        function NavigationButton({ name, cuboidValues }) {
+          const setCuboidValues = useDrawingStore((state) => state.setCuboidValues)
 
           return (
-            <instancedMesh ref={meshRef} args={[null, null, 11 * 11 * 11]}>
-              <sphereGeometry args={[0.05, 16, 8]} />
-              <meshBasicMaterial color='black' opacity={0.2} transparent={true} />
-            </instancedMesh>
-          )
-        }
-
-        function GroupObject() {
-          const objectRef = useRef()
-
-          const cuboidValues = useDrawingStore((state) => state.cuboidValues)
-          const rotation = useDrawingStore((state) => state.rotation)
-
-          useFrame(() => {
-            const threeJsRotation = new ThreeJsQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
-            objectRef.current.quaternion.rotateTowards(threeJsRotation, Math.PI / 30)
-          })
-
-          function CubeOutlines({ x, y, z }) {
-            const outlines = []
-            for (let shifts = 0; shifts < 3; shifts++) {
-              for (let combination = 0; combination < 4; combination++) {
-                const offsets = [0.5, combination % 2, Math.floor(combination / 2)]
-
-                const sizes = [0.05, 0.05, 0.05]
-                sizes[(3 - shifts) % 3] = 1
-
-                outlines.push(
-                  <mesh position={[x + offsets[shifts], y + offsets[(shifts + 1) % 3], z + offsets[(shifts + 2) % 3]]}>
-                    <boxGeometry args={sizes} />
-                    <meshBasicMaterial color='black' />
-                  </mesh>
-                )
-              }
-            }
-            return <>{outlines}</>
-          }
-
-          return (
-            <object3D ref={objectRef}>
-              {
-                cuboidValues.map((cuboidValue, index) => {
-                  const { x, y, z, dx, dy, dz } = cuboidValue
-                  return (
-                    <mesh position={[x + dx / 2, y + dy / 2, z + dz / 2]}>
-                      <boxGeometry args={[dx, dy, dz]} />
-                      <meshBasicMaterial color='white' />
-                    </mesh>
-                  )
-                })
-              }
-              {
-                Renderer3D.calculateEdgesMap(Utility.cubeLocationFromCuboidValues(cuboidValues)).map(([start, end]) => (
-                  <mesh position={[(start.x + end.x) / 2 + 0.5, (start.y + end.y) / 2 + 0.5, (start.z + end.z) / 2 + 0.5]}>
-                    <boxGeometry
-                      args={[
-                        Math.max(Math.abs(start.x - end.x), 0.05),
-                        Math.max(Math.abs(start.y - end.y), 0.05),
-                        Math.max(Math.abs(start.z - end.z), 0.05)
-                      ]}
-                    />
-                    <meshBasicMaterial color='black' />
-                  </mesh>
-                ))
-              }
-            </object3D>
+            <DrawingProvider initialDefinition={{ isInteractive: false, cuboidValues }}>
+              <button
+                className='btn btn-outline-secondary'
+                onClick={() => setCuboidValues(cuboidValues)}
+              >
+                <IsometricViewport size={{ width: '3rem', height: '3rem' }} />
+                <div>{name}</div>
+              </button>
+            </DrawingProvider>
           )
         }
 
         return isShowing ? (
-          <>
-            <RotationButtons />
-            <button
-              onClick={() => {
-                resetRotation()
-                canvas.camera.position.set(10, 10, 10)
-              }}
-            >
-              Reset camera
-            </button>
-            <div style={{ display: 'flex', width: '40rem', height: '20rem' }}>
-              <div style={{ width: '20rem', height: '20rem' }}>
-                <Canvas camera={{ position: [10, 10, 10], zoom: 40 }} orthographic={true} linear flat onCreated={setCanvas}>
-                  <gridHelper />
-                  <OrbitControls />
-                  <GridPoints />
-                  <GroupObject />
-                  <GizmoHelper alignment='bottom-right'>
-                    <GizmoViewport axisColors={['red', 'green', 'blue']} labelColor='black' />
-                  </GizmoHelper>
-                </Canvas>
-              </div>
-              <IsometricViewport size={{ width: '20rem', height: '20rem' }} />
+          <DrawingProvider initialDefinition={{
+            cuboidValues: mainCuboidValues,
+            shouldShowIsometricGrid: false,
+            shouldShowAxisArrows: false
+          }}>
+            <div className='btn-group' style={{ width: '100%' }}>
+              {
+                options.map(([name, cuboidValues]) => (
+                  <NavigationButton name={name} cuboidValues={cuboidValues} />
+                ))
+              }
             </div>
-          </>
+            <IsometricViewport3D />
+          </DrawingProvider>
         ) : (
-          <div style={{ width: '40rem', height: '20rem' }}>
+          <>
             <p>
               This demo requires WebGL, which is enabled by default in most browser.
               Please check if WebGL is enabled if the demo does not appear after clicking "Show".
             </p>
             <button onClick={() => setIsShowing(true)}>Show</button>
-          </div>
+          </>
         )
       }
 
       createRoot(document.getElementById('root')).render(
         <StrictMode>
-          <h1>Embedded Isometric Drawing Demo</h1>
-          <table>
-            <tr>
-              <td style={{ border: '0.3rem solid black' }}>
-                <h5>Try to match both:</h5>
-                <MatchingTest />
-              </td>
-              <td style={{ border: '0.3rem solid black' }}>
-                <h5>Extended editor:</h5>
-                <div style={{ width: 300, height: 300 }}>
-                  <EditorTest />
-                </div>
-              </td>
-              <td style={{ border: '0.3rem solid black' }}>
-                <h5>Three Dimensional Viewer:</h5>
-                <DrawingProvider initialDefinition={{ cuboidValues, isInteractive: false }}>
-                  <ThreeDimensionalViewerTest />
-                </DrawingProvider>
-              </td>
-            </tr>
-          </table>
+          {createPortal(<MatchingTest />, document.getElementById('matching-test'))}
+          {createPortal(<DrawingGallery />, document.getElementById('drawing-gallery'))}
         </StrictMode>
       )
     </script>
+  </head>
+  <body>
+    <div class="jumbotron jumbotron-fluid" style="margin: 0;">
+      <div class="container">
+        <h1>Isometric Drawing Toolkit Use Cases</h1>
+        <p>
+          The isometric drawing toolkit can be adapted for different use cases,
+          custom components can be made to extend the toolkit's functionality.
+          Through store-sharing, components are linked together to keep in sync
+          with the structure.
+        </p>
+        <div id="root"></div>
+        <div style="display: flex; flex-wrap: wrap;">
+          <div class="card" style="width: 24rem;">
+            <div class="card-body">
+              <h3 class="card-title">Spatial Skills Exercise</h3>
+              <h6 class="card-subtitle text-muted" style="margin-bottom: 0.5rem;">
+                Custom Component: Correctness Indicator
+              </h6>
+              <p>Try to match both:</p>
+              <div id="matching-test"></div>
+            </div>
+          </div>
+          <div class="card" style="width: 24rem;">
+            <div class="card-body">
+              <h3 class="card-title">Drawing Gallery</h3>
+              <h6 class="card-subtitle text-muted" style="margin-bottom: 0.5rem;">
+                Custom Component: Navigation Buttons
+              </h6>
+              <div id="drawing-gallery"></div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

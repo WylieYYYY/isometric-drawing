@@ -11,12 +11,15 @@ A basic example of using the toolkit in React is as follows:
 <DrawingProvider>
   <RotationButtons />
   <IsometricViewport />
+  <!--
+    More components can be added within
+    the same provider to link them together.
+  -->
 </DrawingProvider>
 ```
 
-If React is not the framework of choice, the library can be embedded along with
-React on a static HTML page. Please see the
-[minimal HTML template](./../embed/template.html).
+The library can be embedded along with React on a static HTML page.
+Please see the [minimal HTML template](./../embed/template.html).
 
 Remember to place the Javascript library `isometric-drawing.js` alongside
 the HTML page.
@@ -29,13 +32,16 @@ repository. The Javascript library can be built locally with
 
 ### Prerequisites
 
+The template is already equipped with the required dependencies, see the
+comments in the file for instructions to enable the optional dependencies.
+
 Required:
  - `react` in import map for the React package.
  - `import React from 'react'` is required for the library to pick up React.
 
 Optional:
  - `canvg` and `@zip.js/zip.js` are required in import map
-   if `ExportButton` is used.
+   if `ExportButton` is used for rasterizing and archiving respectively.
  - `@react-three/drei`, `@react-three/fiber` and `three` are required in
    import map if `IsometricViewport3D` is used.
 
@@ -45,14 +51,10 @@ All components exposed in the API are top-level components. They requires a
 drawing provider as described in the next section. (`OrthographicEditor` is an
 exception that does not need a provider)
 
-Top-level components are components that do not expect an external controller.
-For example, although the cube component can display a cube on its own, its
-parameters expect the user to tell it what elements to cull. And so it is not a
-top-level component.
-
-Within the repository, top-level drawing components are listed in `lib.tsx`
-which are exposed in the API. Dialogs and controls within the `dialog` directory
-are also top-level but they are only for internal use.
+Top-level display and control components have sensible defaults, so they should
+work without adding extra attributes. If customization is required, they
+can either be changed using the `initialDefinition` attribute on the parent
+provider or using extra attributes that are passed to the components themselves.
 
 ### Drawing Provider
 
@@ -64,8 +66,11 @@ In the repository, components in the `drawing` directory require a drawing
 store, so any component that resides there should have a drawing provider
 parent, direct or indirect.
 
-An initial definition can be set for the provider, user is free to manipulate
-the drawing afterwards, the changes will not be written back to the definition.
+An initial definition can be set for the provider (the `initialDefinition`
+attribute in the provider), which can be used to set the initial structure
+and drawing preferences. However, users are free to manipulate the drawing
+afterwards, the changes will not be written back to the definition.
+
 To avoid user manipulation, the following can be done:
 
  - Set `isInteractive` to false so that no new cube can be placed in an
@@ -91,12 +96,14 @@ Definition is an object that is stored for a drawing, it excludes ephemeral
 states. Within the API, initial definition will be populated with a default if
 some attributes are not present.
 
-It is tagged with a drawing kind when in storage, tagged definitions and
-untagged definitions are both called `definition` in the code base.
+### Export Containers
 
-There are two kinds of definitions:
- - `drawing`: Which represents a drawing backed by a structure;
- - `orthographic`: Which represents a line-based orthographic drawing;
+Some user preferences affects the exported image but not the drawing on display,
+this includes cropping and image splitting. Therefore there are usually two
+displays: one hidden with all preferences applied for export and one visible for
+displaying on screen. To mark a drawing for export, `ExportContainer`
+should be used to wrap the component to be exported so that `ExportButton`
+can pick it up.
 
 ## Isometric Drawing Interface Implementation Detail
 
@@ -108,13 +115,27 @@ The following sections are detail for maintaining the isometric drawing
 interface and reference internal application components that are not exposed
 in the API.
 
-### Export Containers and Name Customization
+### Top Level Components
 
-Some user preferences affects the exported image but not the drawing on display,
-this includes cropping and image splitting. Therefore there are usually two
-displays: one hidden with all preferences applied for export and one visible for
-displaying on screen. To mark a drawing for export, `ExportContainer`
-should be used so that `ExportButton` can pick it up.
+Top-level components are components that do not expect an external controller.
+For example, although the cube component can display a cube on its own, its
+parameters expect the user to tell it what elements to cull. And so it is not a
+top-level component.
+
+Within the repository, top-level drawing components are listed in `lib.tsx`
+which are exposed in the API. Dialogs and controls within the `dialog` directory
+are also top-level but they are only for internal use.
+
+### Definitions
+
+It is tagged with a drawing kind when in storage, tagged definitions and
+untagged definitions are both called `definition` in the code base.
+
+There are two kinds of definitions:
+ - `drawing`: Which represents a drawing backed by a structure;
+ - `orthographic`: Which represents a line-based orthographic drawing;
+
+### Export Name Customization
 
 For the drawing components, `data-export-name` attribute should be set to a
 short name on the SVG elements to be included in the file name.

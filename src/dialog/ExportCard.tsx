@@ -73,22 +73,24 @@ const PLACEHOLDER_DRAWING_DEFINITION_CUBOID_VALUES = [
  */
 function TemplateCard({ definitions, deleteCallback, preview, selectedDefinitionIndex, setSelectedDefinitionIndex, controls } : TemplateCardProps) {
   return (
-    <div style={{ width: 'calc(16rem + 4px)', marginRight: '0.5rem', padding: '0.5rem', border: '2px solid black' }}>
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <button onClick={deleteCallback}>Delete</button>
-      </div>
-      <div style={{ width: '16rem', height: '8rem', border: '2px solid black' }}>
-        {preview}
-      </div>
-      <label style={{ display: 'block' }}>
-        Drawing:
+    <div className='card'>
+      <div className='card-header'>
+      <label>
+        <span className='visually-hidden'>Drawing:</span>
         <select value={selectedDefinitionIndex} onChange={(event) => setSelectedDefinitionIndex(parseInt(event.target.value))}>
           {selectedDefinitionIndex === SENTINEL_PLACEHOLDER_DEFINITION_INDEX ? <option value={SENTINEL_PLACEHOLDER_DEFINITION_INDEX}>Select Drawing...</option> : null}
           <option value={SENTINEL_CURRENT_DEFINITION_INDEX}>[Current Drawing]</option>
           {...definitions.filter((definition) => definition !== null).map(({ definition: { definitionIndex, name } }) => <option value={definitionIndex!.toString()}>{name}</option>)}
         </select>
       </label>
-      {controls}
+        <button onClick={deleteCallback} className='btn-close' style={{ float: 'right' }}></button>
+      </div>
+      <div className='card-body'>
+        <div className='preview'>
+          {preview}
+        </div>
+        {controls}
+      </div>
     </div>
   )
 }
@@ -144,6 +146,7 @@ function DrawingDefinitionCard({ initialDrawingKind, definitions, deleteCallback
 
   const controls = (
     <>
+      <span className='data-container' data-preset-json={JSON.stringify({ drawingKind, ...preference })}></span>
       <label>
         Drawing Kind:
         <select value={drawingKind} onChange={(event) => setDrawingKind(event.target.value as DrawingKind)}>
@@ -152,10 +155,12 @@ function DrawingDefinitionCard({ initialDrawingKind, definitions, deleteCallback
           <option value='orthographic'>Orthographic</option>
         </select>
       </label>
+      <hr />
       <div style={{ display: 'flex' }}>
         <div style={{ width: '8rem' }}>
           <RotationButtons />
         </div>
+        <div className='vr' style={{ margin: '0 0.5rem' }}></div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {control}
         </div>
@@ -164,17 +169,14 @@ function DrawingDefinitionCard({ initialDrawingKind, definitions, deleteCallback
   )
 
   return (
-    <>
-      <span className='data-container' data-preset-json={JSON.stringify({ drawingKind, ...preference })}></span>
-      <TemplateCard
-        definitions={definitions}
-        deleteCallback={deleteCallback}
-        preview={preview}
-        selectedDefinitionIndex={selectedDefinitionIndex}
-        setSelectedDefinitionIndex={setSelectedDefinitionIndex}
-        controls={controls}
-      />
-    </>
+    <TemplateCard
+      definitions={definitions}
+      deleteCallback={deleteCallback}
+      preview={preview}
+      selectedDefinitionIndex={selectedDefinitionIndex}
+      setSelectedDefinitionIndex={setSelectedDefinitionIndex}
+      controls={controls}
+    />
   )
 }
 
@@ -199,41 +201,39 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
 
   if (initialDrawingKind === 'orthographic-editor' && selectedDefinitionIndex === SENTINEL_PLACEHOLDER_DEFINITION_INDEX) {
     return (
-      <>
-        <span className='data-container' data-preset-json={JSON.stringify({ drawingKind: 'orthographic-editor' })}></span>
-        <TemplateCard
-          definitions={definitions}
-          deleteCallback={deleteCallback}
-          preview={
-            <ExportContainer>
-              <OrthographicEditor map={PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP} />
-            </ExportContainer>
-          }
-          selectedDefinitionIndex={selectedDefinitionIndex}
-          setSelectedDefinitionIndex={setSelectedDefinitionIndex}
-          controls={null}
-        />
-      </>
+      <TemplateCard
+        definitions={definitions}
+        deleteCallback={deleteCallback}
+        preview={
+          <ExportContainer>
+            <OrthographicEditor map={PLACEHOLDER_ORTHOGRAPHIC_EDITOR_MAP} />
+          </ExportContainer>
+        }
+        selectedDefinitionIndex={selectedDefinitionIndex}
+        setSelectedDefinitionIndex={setSelectedDefinitionIndex}
+        controls={
+          <span className='data-container' data-preset-json={JSON.stringify({ drawingKind: 'orthographic-editor' })}></span>
+        }
+      />
     )
   }
 
   if (definitions[selectedDefinitionIndex]?.definitionKind === 'orthographic') {
     return (
-      <>
-        <span className='data-container' data-preset-json={JSON.stringify({ drawingKind: 'orthographic-editor' })}></span>
-        <TemplateCard
-          definitions={definitions}
-          deleteCallback={deleteCallback}
-          preview={
-            <ExportContainer>
-              <OrthographicEditor map={definitions[selectedDefinitionIndex].definition.map} />
-            </ExportContainer>
-          }
-          selectedDefinitionIndex={selectedDefinitionIndex}
-          setSelectedDefinitionIndex={setSelectedDefinitionIndex}
-          controls={null}
-        />
-      </>
+      <TemplateCard
+        definitions={definitions}
+        deleteCallback={deleteCallback}
+        preview={
+          <ExportContainer>
+            <OrthographicEditor map={definitions[selectedDefinitionIndex].definition.map} />
+          </ExportContainer>
+        }
+        selectedDefinitionIndex={selectedDefinitionIndex}
+        setSelectedDefinitionIndex={setSelectedDefinitionIndex}
+        controls={
+          <span className='data-container' data-preset-json={JSON.stringify({ drawingKind: 'orthographic-editor' })}></span>
+        }
+      />
     )
   }
 

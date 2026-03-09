@@ -1,3 +1,4 @@
+import type { ButtonHTMLAttributes } from 'react'
 import type { DrawingPreference } from './../drawing/DrawingStore.tsx'
 import type { DrawingKind, ExportCardProps } from './ExportCard.tsx'
 import { useRef } from 'react'
@@ -82,7 +83,9 @@ function downloadJSON(parent: Element, downloadAnchor: HTMLAnchorElement) {
 }
 
 /** Buttons for saving and loading presets in JSON. */
-export function ExportPresetControls({ parent, downloadAnchor }: ExportPresetControlsProps) {
+export function ExportPresetControls({
+  parent, downloadAnchor, ...props
+}: ExportPresetControlsProps & Exclude<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>) {
   const fileInputRef = useRef<HTMLInputElement|null>(null)
 
   const [
@@ -94,9 +97,9 @@ export function ExportPresetControls({ parent, downloadAnchor }: ExportPresetCon
   ]))
 
   return (
-    <label>
-      <button onClick={() => downloadJSON(parent, downloadAnchor)}>Save preset to JSON</button>
-      <button onClick={() => fileInputRef.current!.click()}>Load preset from JSON</button>
+    <div>
+      <button onClick={() => downloadJSON(parent, downloadAnchor)} {...props}>Save preset to JSON</button>
+      <button onClick={() => fileInputRef.current!.click()} {...props}>Load preset from JSON</button>
       <input
         ref={fileInputRef}
         type='file'
@@ -109,6 +112,6 @@ export function ExportPresetControls({ parent, downloadAnchor }: ExportPresetCon
         }
         style={{ display: 'none' }}
       />
-    </label>
+    </div>
   )
 }

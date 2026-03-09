@@ -1,5 +1,5 @@
 import type { IOptions } from 'canvg'
-import type { RefObject } from 'react'
+import type { ButtonHTMLAttributes, RefObject } from 'react'
 import { useRef } from 'react'
 import { openDownloadPopup } from './../util.ts'
 
@@ -72,15 +72,17 @@ async function createExportBlob(parent: Element, asPNG: boolean): Promise<Blob> 
  * Export button that opens a download pop-up for export containers under the specified parent.
  * If there is one SVG element, a single image file is downloaded. Otherwise they will be added to an archive.
  */
-export function ExportButton({ text, asPNG, containerParentRef, filename }: ExportButtonProps) {
+export function ExportButton({
+  text, asPNG, containerParentRef, filename, ...props
+}: ExportButtonProps & Exclude<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>) {
   const downloadAnchorRef = useRef<HTMLAnchorElement|null>(null)
 
   return (
-    <>
+    <span>
       <a ref={downloadAnchorRef} style={{ display: 'none' }}></a>
-      <button onClick={async () => openDownloadPopup(await createExportBlob(containerParentRef.current!, asPNG), downloadAnchorRef.current!, filename)}>
+      <button onClick={async () => openDownloadPopup(await createExportBlob(containerParentRef.current!, asPNG), downloadAnchorRef.current!, filename)} {...props}>
         Export {text ?? (asPNG ? 'PNG' : 'SVG')}
       </button>
-    </>
+    </span>
   )
 }

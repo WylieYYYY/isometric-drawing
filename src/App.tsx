@@ -24,7 +24,8 @@ import { defaultDrawingDefinition, useStore } from './Store.tsx'
 type IsometricViewportState = '3d' | '2d' | '2donly'
 
 function App() {
-  const downloadAnchorRef = useRef<HTMLAnchorElement|null>(null)
+  const downloadAnchor = document.getElementById('download-anchor') as HTMLAnchorElement
+
   const isometricParentRef = useRef<HTMLDivElement|null>(null)
   const codedPlanParentRef = useRef<HTMLDivElement|null>(null)
   const orthographicParentRef = useRef<HTMLDivElement|null>(null)
@@ -72,14 +73,13 @@ function App() {
 
   return (
     <DrawingProvider initialDefinition={appInitialDefinition}>
-      <a ref={downloadAnchorRef} style={{ display: 'none' }}></a>
       <input type='checkbox' id='collapse-btn' style={{ display: 'none' }}/>
       <main style={{ display: 'flex', flexDirection: 'row', height: 'inherit' }}>
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <SaveLoadButtons
               setInitialDefinition={setAppInitialDefinition}
-              downloadAnchor={downloadAnchorRef.current!}
+              downloadAnchor={downloadAnchor}
             />
             <button onClick={() => setIsExportDialogOpen(true)}>Open Export Dialog</button>
             <button
@@ -208,11 +208,15 @@ function App() {
             )
           }
           <div style={{ position: 'fixed', right: '.5em', top: '2em' }}>
-            <button onClick={() => setHighlightKind(highlightKind === 'cuboid' ? 'face' : 'cuboid')}>
-              {highlightKind === 'cuboid' ? 'Deleting' : 'Building'}
-            </button>
+            {
+              highlightKind === 'cuboid' ? (
+                <button onClick={() => setHighlightKind('face')} className='btn btn-danger'>Deleting</button>
+              ) : (
+                <button onClick={() => setHighlightKind('cuboid')} className='btn btn-success'>Building</button>
+              )
+            }
           </div>
-          <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem', height: '6rem' }}>
+          <div style={{ position: 'fixed', right: '.5em', bottom: '2em', width: '12rem' }}>
             <RotationButtons />
           </div>
           <DrawingsDialog
@@ -224,7 +228,7 @@ function App() {
           <ExportDialog
             isOpen={isExportDialogOpen}
             setIsOpen={setIsExportDialogOpen}
-            downloadAnchor={downloadAnchorRef.current!}
+            downloadAnchor={downloadAnchor}
           />
           <OrthographicEditorDialog
             definitionIndex={orthographicEditorDefinitionIndex}

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { RootState } from '@react-three/fiber'
 import type { InstancedMesh, Object3D } from 'three'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { cubeLocationFromCuboidValues, useDrawingStore } from './../DrawingStoreHook.ts'
 import { calculateEdgesMap } from './Renderer3D.ts'
 
@@ -69,13 +70,14 @@ function GroupObject({ three, fiber }: Pick<DynamicImports, 'three' | 'fiber'>) 
     // the mesh needs to be offset as the position uses the center as anchor
     // offset by 0.5 as the coordinates systems differ
     // `max` and `abs` as two axes will be zero size for an edge, set that to 0.05
+    // add 0.04 so that there is not a huge gap at the corners
     edges.push(
       <mesh position={[(start.x + end.x) / 2 + 0.5, (start.y + end.y) / 2 + 0.5, (start.z + end.z) / 2 + 0.5]}>
         <boxGeometry
           args={[
-            Math.max(Math.abs(start.x - end.x), 0.05),
-            Math.max(Math.abs(start.y - end.y), 0.05),
-            Math.max(Math.abs(start.z - end.z), 0.05)
+            Math.max(Math.abs(start.x - end.x) + 0.04, 0.05),
+            Math.max(Math.abs(start.y - end.y) + 0.04, 0.05),
+            Math.max(Math.abs(start.z - end.z) + 0.04, 0.05)
           ]}
         />
         <meshBasicMaterial color='black' />
@@ -89,11 +91,12 @@ function GroupObject({ three, fiber }: Pick<DynamicImports, 'three' | 'fiber'>) 
         // offset by 0.5 as the coordinates systems differ
         // each cuboid is rendered by one box
         // need to convert cuboid to cube if individual cube highlighting is added
+        // add 0.045 to cover the protruding edges
         cuboidValues.map((cuboidValue) => {
           const { x, y, z, dx, dy, dz } = cuboidValue
           return (
             <mesh position={[x + dx / 2, y + dy / 2, z + dz / 2]}>
-              <boxGeometry args={[dx, dy, dz]} />
+              <boxGeometry args={[dx + 0.045, dy + 0.045, dz + 0.045]} />
               <meshBasicMaterial color='white' />
             </mesh>
           )
@@ -109,7 +112,16 @@ function GroupObject({ three, fiber }: Pick<DynamicImports, 'three' | 'fiber'>) 
  * This is the 3-dimensional version of `IsometricViewport`.
  */
 export function IsometricViewport3D({ placeholder }: IsometricViewport3DProps) {
-  const [shouldShowGrid, setShouldShowGrid] = useState(true)
+  const [
+    shouldShowIsometricGrid,
+    shouldShowAxisArrows,
+    shouldShowIsometricStructure
+  ] = useDrawingStore(useShallow((state) => [
+    state.shouldShowIsometricGrid,
+    state.shouldShowAxisArrows,
+    state.shouldShowIsometricStructure
+  ]))
+
   const [rootState, setRootState] = useState<RootState|null>(null)
 
   const [dynamicImports, setDynamicImports] = useState<DynamicImports|null>(null)
@@ -134,14 +146,6 @@ export function IsometricViewport3D({ placeholder }: IsometricViewport3DProps) {
         <button onClick={() => rootState!.camera.position.set(10, 10, 10)}>
           Reset camera
         </button>
-        <label>
-          <input
-            type='checkbox'
-            checked={shouldShowGrid}
-            onChange={(event) => setShouldShowGrid(event.target.checked)}
-          />
-          Show Grid
-        </label>
       </div>
       <Canvas
         camera={{ position: [10, 10, 10], zoom: 40 }}
@@ -149,16 +153,24 @@ export function IsometricViewport3D({ placeholder }: IsometricViewport3DProps) {
         linear flat onCreated={setRootState}
       >
         <gridHelper />
-        <OrbitControls />
-        {shouldShowGrid ? <GridPoints three={dynamicImports.three} /> : null}
-        <GroupObject fiber={dynamicImports.fiber} three={dynamicImports.three} />
-        <GizmoHelper alignment='bottom-left'>
-          <GizmoViewport
-            disabled={true}
-            axisColors={['red', 'green', 'blue']}
-            labelColor='black'
-          />
-        </GizmoHelper>
+        <OrbitControls enableDamping={false} />
+        {shouldShowIsometricGrid ? <GridPoints three={dynamicImports.three} /> : null}
+        {
+          shouldShowIsometricStructure ? (
+            <GroupObject fiber={dynamicImports.fiber} three={dynamicImports.three} />
+          ) : null
+        }
+        {
+          shouldShowAxisArrows ? (
+            <GizmoHelper alignment='bottom-left'>
+              <GizmoViewport
+                disabled={true}
+                axisColors={['red', 'green', 'blue']}
+                labelColor='black'
+              />
+            </GizmoHelper>
+          ) : null
+        }
       </Canvas>
     </>
   )

@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { Dialog } from './Dialog.tsx'
 import { ExportButton } from './../io/ExportButton.tsx'
 import { ExportPresetControls } from './ExportPresetControls.tsx'
 import { useStore } from './../Store.tsx'
@@ -27,34 +28,35 @@ export function ExportDialog({ isOpen, setIsOpen, downloadAnchor }: ExportDialog
 
   const [archiveName, setArchiveName] = useState('')
 
-  useEffect(() => {
-    if (!isOpen) return
-    const dialog = dialogRef.current!
-    dialog.showModal()
-    return () => dialog.close()
-  }, [isOpen])
-
   return (
-    <dialog ref={dialogRef}>
-      <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Export Archive</h1>
-        <button onClick={() => setIsOpen(false)} style={{ float: 'right' }}>Close</button>
-      </header>
-      <section style={{ display: 'flex', flexDirection: 'row', overflowX: 'scroll' }}>
-        {...exportCards}
-        <button onClick={() => newExportCard()}>+</button>
+    <Dialog ref={dialogRef} isOpen={isOpen} close={() => setIsOpen(false)} title='Export Archive'>
+      <section className='modal-body'>
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '0.5rem', overflow: 'scroll' }}>
+          {...exportCards}
+          <button onClick={() => newExportCard()} className='btn btn-outline-secondary'>+</button>
+        </div>
       </section>
-      <footer>
-        <label>
-          Archive Name:
-          <input value={archiveName} placeholder='export' onChange={(event) => setArchiveName(event.target.value)} />
-        </label>
-        <ExportPresetControls parent={dialogRef.current!} downloadAnchor={downloadAnchor} />
-        <div style={{ float: 'right' }}>
-          <ExportButton text='PNG Archive' asPNG={true} containerParentRef={dialogRef} filename={archiveName} />
-          <ExportButton text='SVG Archive' asPNG={false} containerParentRef={dialogRef} filename={archiveName} />
+      <footer className='modal-footer' style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <ExportPresetControls parent={dialogRef.current!} downloadAnchor={downloadAnchor} className='btn btn-outline-secondary' />
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label>
+            Archive Name:
+            <input value={archiveName} placeholder='export' onChange={(event) => setArchiveName(event.target.value)} />
+          </label>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <ExportButton
+              text='PNG Archive' asPNG={true}
+              containerParentRef={dialogRef} filename={archiveName}
+              className='btn btn-primary'
+            />
+            <ExportButton
+              text='SVG Archive' asPNG={false}
+              containerParentRef={dialogRef} filename={archiveName}
+              className='btn btn-primary'
+            />
+          </div>
         </div>
       </footer>
-    </dialog>
+    </Dialog>
   )
 }
