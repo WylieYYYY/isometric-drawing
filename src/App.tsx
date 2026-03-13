@@ -196,7 +196,7 @@ function App() {
         <section id='viewport'>
           {
             isometricViewportState === '3d' ? <IsometricViewport3D placeholder='Loading...' />  : (
-              <TransformWrapper centerOnInit={true} initialScale={8}>
+              <TransformWrapper centerOnInit={true} initialScale={8} panning={{ velocityDisabled: true }}>
                 <TransformComponent wrapperStyle={{ width: '100%', height: 'inherit' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1000, height: 1000 }}>
                     <IsometricViewport

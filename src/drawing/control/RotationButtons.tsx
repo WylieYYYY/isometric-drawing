@@ -28,13 +28,13 @@ export function RotationButtons() {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', backgroundColor: 'white' }}>
-      <button onClick={resetRotation} disabled={isResetDisabled} style={{ gridColumnStart: 2, gridColumnEnd: 4, gridRowStart: 2 }}>Reset</button>
-      <button onClick={rotateXClockwise} style={{ gridColumnStart: 4, gridRowStart: 2, backgroundColor: 'red', color: 'white' }}>+X</button>
-      <button onClick={rotateXAnticlockwise} style={{ gridColumnStart: 4, gridRowStart: 1, backgroundColor: 'red', color: 'white' }}>-X</button>
-      <button onClick={rotateYClockwise} style={{ gridColumnStart: 3, gridRowStart: 1, backgroundColor: 'limegreen', color: 'white' }}>+Y</button>
-      <button onClick={rotateYAnticlockwise} style={{ gridColumnStart: 2, gridRowStart: 1, backgroundColor: 'limegreen', color: 'white' }}>-Y</button>
-      <button onClick={rotateZClockwise} style={{ gridColumnStart: 1, gridRowStart: 1, backgroundColor: 'blue', color: 'white' }}>+Z</button>
-      <button onClick={rotateZAnticlockwise} style={{ gridColumnStart: 1, gridRowStart: 2, backgroundColor: 'blue', color: 'white' }}>-Z</button>
+      <button onClick={resetRotation} disabled={isResetDisabled} style={{ gridColumnStart: 2, gridColumnEnd: 4, gridRowStart: 2, wordBreak: 'keep-all' }}>Reset</button>
+      <button onClick={rotateXClockwise} style={{ gridColumnStart: 4, gridRowStart: 2, backgroundColor: 'red', color: 'white', wordBreak: 'keep-all' }}>+X</button>
+      <button onClick={rotateXAnticlockwise} style={{ gridColumnStart: 4, gridRowStart: 1, backgroundColor: 'red', color: 'white', wordBreak: 'keep-all' }}>-X</button>
+      <button onClick={rotateYClockwise} style={{ gridColumnStart: 3, gridRowStart: 1, backgroundColor: 'limegreen', color: 'white', wordBreak: 'keep-all' }}>+Y</button>
+      <button onClick={rotateYAnticlockwise} style={{ gridColumnStart: 2, gridRowStart: 1, backgroundColor: 'limegreen', color: 'white', wordBreak: 'keep-all' }}>-Y</button>
+      <button onClick={rotateZClockwise} style={{ gridColumnStart: 1, gridRowStart: 1, backgroundColor: 'blue', color: 'white', wordBreak: 'keep-all' }}>+Z</button>
+      <button onClick={rotateZAnticlockwise} style={{ gridColumnStart: 1, gridRowStart: 2, backgroundColor: 'blue', color: 'white', wordBreak: 'keep-all' }}>-Z</button>
     </div>
   )
 }

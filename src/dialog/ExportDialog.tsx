@@ -31,7 +31,7 @@ export function ExportDialog({ isOpen, setIsOpen, downloadAnchor }: ExportDialog
   return (
     <Dialog ref={dialogRef} isOpen={isOpen} close={() => setIsOpen(false)} title='Export Archive'>
       <section className='modal-body'>
-        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '0.5rem', overflow: 'scroll' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(16rem, 1fr))', gap: '0.5rem', overflow: 'scroll' }}>
           {...exportCards}
           <button onClick={() => newExportCard()} className='btn btn-outline-secondary'>+</button>
         </div>

@@ -240,7 +240,8 @@ export function ExportCard({ initialDrawingKind, initialPreference, deleteCallba
   // the definition is deleted while the card is displaying it
   // set the card to the current drawing as a fallback without self deleting
   if (selectedDefinitionIndex !== SENTINEL_CURRENT_DEFINITION_INDEX && definitions[selectedDefinitionIndex] === null) {
-    setSelectedDefinitionIndex(SENTINEL_CURRENT_DEFINITION_INDEX)
+    setSelectedDefinitionIndex(SENTINEL_PLACEHOLDER_DEFINITION_INDEX)
+    return null
   }
 
   let initialDefinition
