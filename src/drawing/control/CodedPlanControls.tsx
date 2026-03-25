@@ -1,7 +1,13 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
-/** Checkboxes to toggle coded plan preference. */
+/**
+ * Checkboxes to toggle coded plan preference.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/CodedPlanControls.png)
+ */
 export function CodedPlanControls() {
   const [
     shouldShowCodedPlanNumbers,

@@ -10,6 +10,10 @@ export type CuboidValue = { [Property in CuboidValueComponent]: number }
 /**
  * Text input for entering cuboid values manually.
  * If NaN is displayed, fully select the text `NaN` and type a number to continue.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/CuboidStructureInputs.png)
  */
 export function CuboidStructureInputs() {
   const [

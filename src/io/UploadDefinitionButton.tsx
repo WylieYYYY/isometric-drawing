@@ -49,7 +49,13 @@ async function loadCSV(file: File, storeDefinition: (definition: DrawingDefiniti
   }
 }
 
-/** Buttons for saving and loading isometric structures in CSV. */
+/**
+ * Buttons for saving and loading isometric structures in CSV.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/UploadDefinitionButton.png)
+ */
 export function UploadDefinitionButton({ ...props }: Exclude<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>) {
   const fileInputRef = useRef<HTMLInputElement|null>(null)
 

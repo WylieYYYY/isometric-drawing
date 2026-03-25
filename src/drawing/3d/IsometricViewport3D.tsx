@@ -109,6 +109,10 @@ function GroupObject({ three, fiber }: Pick<DynamicImports, 'three' | 'fiber'>) 
 /**
  * Viewport that contains everything that is considered a part of an isometric drawing.
  * This is the 3-dimensional version of `IsometricViewport`.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/IsometricViewport3D.png)
  */
 export function IsometricViewport3D({ placeholder }: IsometricViewport3DProps) {
   const [

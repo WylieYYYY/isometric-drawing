@@ -2,7 +2,13 @@ import { Quaternion } from 'quaternion'
 import { useShallow } from 'zustand/react/shallow'
 import { useDrawingStore } from './../DrawingStoreHook.ts'
 
-/** Buttons for rotating in 90 degree angles and resetting rotation. */
+/**
+ * Buttons for rotating in 90 degree angles and resetting rotation.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/RotationButtons.png)
+ */
 export function RotationButtons() {
   const [
     rotation,

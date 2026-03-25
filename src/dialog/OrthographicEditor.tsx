@@ -18,7 +18,18 @@ export type OrthographicEditorProps = {
   setMap?: (map: Array<Array<LineType>>) => void
 }
 
-/** Editor that allows orthographic drawings to be produced by drawing lines by hand. */
+/**
+ * Editor that allows orthographic drawings to be produced by drawing lines by hand.
+ * `map` is a required parameter. `setMap` is optional which determines whether the map is mutable.
+ *
+ * Screenshot (Immutable):
+ *
+ * ![screenshot](screenshots/OrthographicEditor-immutable.png)
+ *
+ * Screenshot (Mutable):
+ *
+ * ![screenshot](screenshots/OrthographicEditor-mutable.png)
+ */
 export function OrthographicEditor({ map, setMap }: OrthographicEditorProps) {
   const background = [], lines = [], minMaxCR = { c: { min: Infinity, max: -Infinity }, r: { min: Infinity, max: -Infinity } }
   for (const [columnIndex, row] of Object.entries(map)) {

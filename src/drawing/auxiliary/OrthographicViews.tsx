@@ -15,6 +15,10 @@ export type OrthographicViewsProps = {
 /**
  * Combined layout of orthographic views.
  * This places the views according to the specification and wrap them in a single SVG.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/OrthographicViews.png)
  */
 export function OrthographicViews({ isSplittable }: OrthographicViewsProps) {
   const [

@@ -100,6 +100,10 @@ function autoViewBox(spacing: number, axisEndCoordinates: Coordinates, cubeLocat
  * Viewport that contains everything that is considered a part of an isometric drawing.
  * Handles the sizing of the drawing area and background features.
  * Main drawing is handled by the structure component.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/IsometricViewport.png)
  */
 export function IsometricViewport({ highlightKind, canHaveUndefinedSize, size }: IsometricViewportProps) {
   const [

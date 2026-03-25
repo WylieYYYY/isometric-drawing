@@ -6,6 +6,10 @@ import { useDrawingStore } from './../DrawingStoreHook.ts'
  * If the orthographic views should be split,
  * grid is hidden and structure must be shown
  * since the alternatives are not implemented.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/OrthographicControls.png)
  */
 export function OrthographicControls() {
   const [

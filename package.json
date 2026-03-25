@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build --config vite.config.site.ts",
     "build:lib": "tsc -b && vite build --config vite.config.lib.ts",
-    "docs": "npx typedoc src/lib.tsx --name 'Isometric Drawing Toolkit' --readme src/README.md --html dist/docs/",
+    "docs": "npx typedoc src/lib.tsx --name 'Isometric Drawing Toolkit' --basePath assets/ --readme src/README.md --html dist/docs/",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"

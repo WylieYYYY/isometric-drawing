@@ -27,7 +27,13 @@ function downloadCSV(cuboidValues: Array<CuboidValue>, rotation: Quaternion, dow
   openDownloadPopup(new Blob([content], { type: 'text/csv' }), downloadAnchor, 'structure')
 }
 
-/** Button for downloading the definition as a CSV file. */
+/**
+ *Button for downloading the definition as a CSV file.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/DownloadDefinitionButton.png)
+ */
 export function DownloadDefinitionButton({
   downloadAnchor, ...props
 }: DownloadDefinitionButtonProps & Exclude<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>) {

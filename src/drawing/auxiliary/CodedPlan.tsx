@@ -14,7 +14,13 @@ function areNumbersContiguous(array: Array<number>): boolean {
   return true
 }
 
-/** Represents a coded plan of a structure, this also rotates with the structure. */
+/**
+ * Represents a coded plan of a structure, this also rotates with the structure.
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/CodedPlan.png)
+ */
 export function CodedPlan() {
   const [
     shouldShowCodedPlanNumbers,

@@ -71,6 +71,11 @@ async function createExportBlob(parent: Element, asPNG: boolean): Promise<Blob> 
 /**
  * Export button that opens a download pop-up for export containers under the specified parent.
  * If there is one SVG element, a single image file is downloaded. Otherwise they will be added to an archive.
+ * If `asPNG` is `true`, the button displays "Export PNG" instead of "Export SVG".
+ *
+ * Screenshot:
+ *
+ * ![screenshot](screenshots/ExportButton.png)
  */
 export function ExportButton({
   text, asPNG, containerParentRef, filename, ...props
